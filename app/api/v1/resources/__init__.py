@@ -16,5 +16,5 @@ class FullStatus(Resource):
 
 
 # noinspection PyTypeChecker
-api.add_resource(BasicStatus, '/basicstatus/<int: imei>')
-api.add_resource(FullStatus, '/fullstatus/<int: imei>')
+api.add_resource(BasicStatus, '/basicstatus/<int:imei>')
+api.add_resource(FullStatus, '/fullstatus/<int:imei>')
