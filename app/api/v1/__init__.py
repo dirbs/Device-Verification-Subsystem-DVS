@@ -1,2 +1,1 @@
-from .resources.common import *
-from .resources import *
+from app.api.v1.routes import *
