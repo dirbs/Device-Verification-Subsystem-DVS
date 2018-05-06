@@ -1,11 +1,11 @@
 import json
 from app import app
 from flask import Response
-from app.api.v1.assets.responses import responses, messages, mime_types
+from .responses import responses, messages, mime_types
 
 @app.errorhandler(404)
 def not_found(error=None):
-    resp = Response(messages['not_found'], status=responses['not_found'], mimetype=mime_types['json'])
+    resp = Response(json.dumps(messages['not_found']), status=responses['not_found'], mimetype=mime_types['json'])
     return resp
 
 @app.errorhandler(400)
