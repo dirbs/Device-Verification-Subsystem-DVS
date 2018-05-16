@@ -9,7 +9,7 @@ messages = {
     'not_found': 'Record not found.',
     'bad_request': 'Bad Format',
     'ok': 'Status OK',
-    'internal_error': 'There is some internal error',
+    'internal_error': 'There is some internal error'
 }
 
 mime_types = {

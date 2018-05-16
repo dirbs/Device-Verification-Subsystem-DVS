@@ -1,12 +1,20 @@
-from flask_restful import Api
 from app import app
-from .resources.user import BasicStatus, FullStatus
+from .resources.public import BasicStatus
+from .resources.admin import FullStatus
+from .resources.bulk_check import BulkCheck
+from app import config
 
-api = Api(app, prefix='/api/v1')
+base_route = config.get("Development", "base_route")
 
-try:
-    api.add_resource(BasicStatus, '/basicstatus')
-    api.add_resource(FullStatus, '/fullstatus')
-except Exception as e:
-    print(e)
+@app.route(base_route+'/basicstatus', methods=['GET'])
+def basicstatus():
+    return BasicStatus().get()
+
+@app.route(base_route+'/fullstatus', methods=['GET', 'POST'])
+def fullstatus():
+    return FullStatus().get()
+
+@app.route(base_route+'/bulk', methods=['GET', 'POST'])
+def bulk():
+    return BulkCheck().get()
 
