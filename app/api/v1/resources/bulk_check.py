@@ -2,52 +2,100 @@ import os
 import requests
 import json
 import pandas as pd
-from flask import request, send_from_directory, jsonify, Response
-from app import config
+from flask import request, send_from_directory, Response
+from app import CORE_URL, GLOBAL_CONF, UPLOAD_FOLDER, ALLOWED_FILES
 from ..assets.error_handling import *
 
-dirbs = config.get("Development", "dirbs_core")
-allowed_ext = config.get("Development", "allowed_extensions")
-upload_folder = os.path.join(app.root_path, config.get("Development", "upload_folder"))
+upload_folder = os.path.join(app.root_path, UPLOAD_FOLDER)
 
+print(ALLOWED_FILES)
 class BulkCheck():
 
     def get(self):
         try:
-            if 'file' not in request.files:
+            if 'file' not in request.files: #return not found response if file not uploaded
                 return not_found()
 
-            file = request.files['file']
+            file = request.files['file'] # request file
 
             if file.filename == '':
                 return custom_error_handeling("File not found", 404, 'application/json')
 
-            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_ext:
+            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_FILES: # input file type validation
                 records = []
-                imei_df = pd.read_csv(file, delimiter='\t', encoding='utf-8', header=None)
-                filtered_imeis = imei_df.T.drop_duplicates()
-                print(filtered_imeis.T.values.tolist()[0])
-                # with open(os.path.join(upload_folder, "summary.tsv"), 'a') as summary:
-                for imei in filtered_imeis.T.values.tolist()[0]:
-                    # print(type(imei), imei)
-                    if len(str(imei)) in range(14, 16):
-                        tac = str(imei)[:8]
-                        if tac.isdigit():
-                            tac_response = requests.get(dirbs + '/coreapi/api/v1/tac/{}'.format(tac)).json()
-                            imei_response = requests.get(dirbs + '/coreapi/api/v1/imei/{}'.format(imei)).json()
-                            full_status = dict(tac_response, **imei_response)
-                            print(full_status)
-                            records.append(full_status)
-                # records = pd.DataFrame(records)
-                # realtime_checks = pd.DataFrame(list(records['realtime_checks']))
-                # print("valid IMEIs", len(realtime_checks[realtime_checks['gsma_not_found']==False]))
-                # classification_states = pd.DataFrame(list(records['classification_state']))
-                # print("duplicates", len(classification_states[classification_states['blocking_conditions']['duplicates']==False]))
-                # summary.close()
-                # return send_from_directory(directory=upload_folder, filename='summary.tsv')
-                return Response(json.dumps(records), status=200, mimetype='application/json')
-                # return None
+                response = {}
+                invalid_imeis = 0
+                imei_df = pd.read_csv(file, delimiter='\t', encoding='utf-8', header=None) # load file to dataframe
+                if not imei_df.empty and imei_df.shape[0] < int(GLOBAL_CONF['max_file_content']): # input file content validation
+                    filtered_imeis = imei_df.T.drop_duplicates() # drop dupliacte IMEIs from list
+                    for imei in filtered_imeis.T.values.tolist()[0]:
+                        if len(str(imei)) in range(int(GLOBAL_CONF['min_imei_length']), int(GLOBAL_CONF['max_imei_length'])): #imei format validation
+                            tac = str(imei)[:8] # slicing TAC from IMEI
+                            if tac.isdigit(): # TAC format validation
+                                tac_response = requests.get(CORE_URL + '/coreapi/api/v1/tac/{}'.format(tac)).json() # dirbs core TAC api call
+                                imei_response = requests.get(CORE_URL + '/coreapi/api/v1/imei/{}'.format(imei)).json() # dirbs core IMEI api call
+                                full_status = dict(tac_response, **imei_response)
+                                records.append(full_status)
+                            else:
+                                invalid_imeis+=1 # increment invalid imei count in case of TAC validation failure
+                        else:
+                            invalid_imeis+=1 # increment invalid IMEI count in case of IMEI validation failure
+
+                    records = pd.DataFrame(records) # dataframe of all dirbs core api responses
+                    verified_imeis = len(records[records['gsma'].notna()]) # verified IMEI count
+                    classification_states = pd.DataFrame(list(records['classification_state'])) # dataframe of classifcation states
+                    blocking_conditions = pd.DataFrame(list(classification_states['blocking_conditions'])) # dataframe of blocking conditions
+                    informative_condition = pd.DataFrame(list(classification_states['informative_conditions'])) # dataframe of informative conditions
+                    all_conditions = pd.concat([blocking_conditions, informative_condition], axis=1).transpose()
+
+                    #  IMEI count per blocking condition
+                    count_per_condition = {}
+                    for key in blocking_conditions:
+                        count_per_condition[key] = len(blocking_conditions[blocking_conditions[key]])
+
+                    # count IMEIs which does not meeting any condition
+                    no_conditions = 0
+                    for key in all_conditions:
+                        if (~all_conditions[key]).all():
+                            no_conditions+=1
+                    count_per_condition['no_condition'] = no_conditions
+
+                    # IMEI count per informative condition
+                    if not informative_condition.empty:
+                        for key in informative_condition:
+                            count_per_condition[key] = len(informative_condition[informative_condition[key]])
+
+                    # processing compliant status for all IMEIs
+                    compliant = blocking_conditions.transpose()
+
+                    non_complaint = 0
+                    complaint_report = []
+                    imeis = list(records['imei_norm'])
+                    for key in compliant:
+                        if compliant[key].any():
+                            complaint_status = {}
+                            complaint_status['imei'] = imeis[key]
+                            complaint_status['status'] = "inactive/non complaint"
+                            complaint_status['reasons'] = compliant.index[compliant[key]].tolist()
+                            complaint_status['block_date'] = GLOBAL_CONF['block_date']
+                            complaint_report.append(complaint_status)
+                            non_complaint += 1
+                    complaint_report = pd.DataFrame(complaint_report) # dataframe of compliant report
+                    complaint_report.to_csv(os.path.join(upload_folder, "summary.tsv"), sep='\t') # writing non compliant statuses to .tsv file
+
+                    # summary for bulk verify IMEI
+                    response['invalid_imei'] = invalid_imeis
+                    response['verified_imei'] = verified_imeis
+                    response['count_per_condition'] = count_per_condition
+                    response['non_complaint'] = non_complaint
+                    return Response(json.dumps(response), status=200, mimetype='application/json')
             else:
                 return custom_error_handeling("Bad file format", 400, 'application/json')
+        except Exception as e:
+            print(e)
+
+    def send_file(self):
+        try:
+            return send_from_directory(directory=upload_folder, filename='summary.tsv') # returns file when user wnats to download non compliance report
         except Exception as e:
             print(e)
