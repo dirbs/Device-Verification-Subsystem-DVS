@@ -1,6 +1,5 @@
-from app import app
-
+from app import app, Host, Port
 
 app.config.from_object('server_config.DevelopmentConfig')  # app configs
 
-app.run(host='127.0.0.1')
+app.run(host=Host, port=Port)

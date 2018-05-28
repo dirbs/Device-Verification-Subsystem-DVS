@@ -3,12 +3,11 @@ import requests
 import json
 import pandas as pd
 from flask import request, send_from_directory, Response
-from app import CORE_URL, GLOBAL_CONF, UPLOAD_FOLDER, ALLOWED_FILES
+from app import Root, GlobalConfig, UploadDir, AllowedFiles
 from ..assets.error_handling import *
 
-upload_folder = os.path.join(app.root_path, UPLOAD_FOLDER)
+upload_folder = os.path.join(app.root_path, UploadDir)
 
-print(ALLOWED_FILES)
 class BulkCheck():
 
     def get(self):
@@ -19,21 +18,21 @@ class BulkCheck():
             file = request.files['file'] # request file
 
             if file.filename == '':
-                return custom_error_handeling("File not found", 404, 'application/json')
+                return custom_response("File not found", 404, 'application/json')
 
-            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_FILES: # input file type validation
+            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in AllowedFiles: # input file type validation
                 records = []
                 response = {}
                 invalid_imeis = 0
                 imei_df = pd.read_csv(file, delimiter='\t', encoding='utf-8', header=None) # load file to dataframe
-                if not imei_df.empty and imei_df.shape[0] < int(GLOBAL_CONF['max_file_content']): # input file content validation
+                if not imei_df.empty and imei_df.shape[0] < int(GlobalConfig['MaxFileContent']): # input file content validation
                     filtered_imeis = imei_df.T.drop_duplicates() # drop dupliacte IMEIs from list
                     for imei in filtered_imeis.T.values.tolist()[0]:
-                        if len(str(imei)) in range(int(GLOBAL_CONF['min_imei_length']), int(GLOBAL_CONF['max_imei_length'])): #imei format validation
+                        if len(str(imei)) in range(int(GlobalConfig['MinImeiLength']), int(GlobalConfig['MaxImeiLength'])): #imei format validation
                             tac = str(imei)[:8] # slicing TAC from IMEI
                             if tac.isdigit(): # TAC format validation
-                                tac_response = requests.get(CORE_URL + '/coreapi/api/v1/tac/{}'.format(tac)).json() # dirbs core TAC api call
-                                imei_response = requests.get(CORE_URL + '/coreapi/api/v1/imei/{}'.format(imei)).json() # dirbs core IMEI api call
+                                tac_response = requests.get('{}/coreapi/api/v1/tac/{}'.format(Root, tac)).json() # dirbs core TAC api call
+                                imei_response = requests.get('{}/coreapi/api/v1/imei/{}'.format(Root, imei)).json() # dirbs core IMEI api call
                                 full_status = dict(tac_response, **imei_response)
                                 records.append(full_status)
                             else:
@@ -77,7 +76,7 @@ class BulkCheck():
                             complaint_status['imei'] = imeis[key]
                             complaint_status['status'] = "inactive/non complaint"
                             complaint_status['reasons'] = compliant.index[compliant[key]].tolist()
-                            complaint_status['block_date'] = GLOBAL_CONF['block_date']
+                            complaint_status['block_date'] = GlobalConfig['BlockDate']
                             complaint_report.append(complaint_status)
                             non_complaint += 1
                     complaint_report = pd.DataFrame(complaint_report) # dataframe of compliant report
@@ -90,7 +89,7 @@ class BulkCheck():
                     response['non_complaint'] = non_complaint
                     return Response(json.dumps(response), status=200, mimetype='application/json')
             else:
-                return custom_error_handeling("Bad file format", 400, 'application/json')
+                return custom_response("Bad file format", 400, 'application/json')
         except Exception as e:
             print(e)
 
