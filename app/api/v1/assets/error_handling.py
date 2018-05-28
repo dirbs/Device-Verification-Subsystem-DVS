@@ -13,6 +13,6 @@ def bad_request(error=None):
     resp = Response(json.dumps(messages['bad_request']), status=responses['bad_request'], mimetype=mime_types['json'])
     return resp
 
-def custom_error_handeling(message, status, mimetype):
+def custom_response(message, status, mimetype):
     response = Response(json.dumps({"message": message}), status=status, mimetype=mimetype)
     return response
