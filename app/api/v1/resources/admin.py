@@ -16,10 +16,7 @@ class FullStatus():
             tac = imei[:8] # slice TAC from IMEI
             if tac.isdigit(): # TAC format validation
                 tac_response = requests.get('{}/coreapi/api/v1/tac/{}'.format(Root, tac)).json() # dirbs core TAC api call
-                if seen_with==0:
-                    imei_response = requests.get('{}/coreapi/api/v1/imei/{}'.format(Root, imei)).json() # dirbs core IMEI api call without seen with information
-                else:
-                    imei_response = requests.get('{}/coreapi/api/v1/imei/{}?include_seen_with={}'.format(Root, imei, seen_with)).json() # dirbs core IMEI api call with seen with information
+                imei_response = requests.get('{}/coreapi/api/v1/imei/{}?include_seen_with={}'.format(Root, imei, seen_with)).json() # dirbs core IMEI api call with seen with information
                 full_status = dict(tac_response, **imei_response)
                 if full_status['gsma']: # TAC verification
                     response['imei'] = full_status['imei_norm']
@@ -31,10 +28,10 @@ class FullStatus():
                     response['operating_system'] = full_status['gsma']['operating_system']
                     response['radio_access_technology'] = full_status['gsma']['bands']
                     response['classification_state'] = full_status['classification_state']
-                    if 'seen_with' in full_status.keys():
+                    if seen_with==1:
                         response['associated_msisdn'] = full_status['seen_with']
                     blocking_conditions = full_status['classification_state']['blocking_conditions']
-                    complain_status = resource.get_complaince_status(blocking_conditions) # get compliance status
+                    complain_status = resource.get_complaince_status(blocking_conditions, full_status['seen_with']) # get compliance status
                     response = dict(response, **complain_status) if complain_status else response
                     return Response(json.dumps(response), status=200, mimetype='application/json')
                 else:
