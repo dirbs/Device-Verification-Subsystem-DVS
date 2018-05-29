@@ -18,14 +18,14 @@ class BasicStatus():
             tac = args['imei'][:8] # slice TAC from IMEI
             if tac.isdigit(): # TAC format validation
                 tac_response = requests.get('{}/coreapi/api/v1/tac/{}'.format(Root, tac)).json() # dirbs core tac api call
-                imei_response = requests.get('{}/coreapi/api/v1/imei/{}'.format(Root, args['imei'])).json() # dirbs core imei api call
+                imei_response = requests.get('{}/coreapi/api/v1/imei/{}?include_seen_with=1'.format(Root, args['imei'])).json() # dirbs core imei api call
                 basic_status = dict(tac_response, **imei_response) # join api response
                 if basic_status['gsma']: # TAC verification
                     response['imei'] = basic_status['imei_norm']
                     response['brand'] = basic_status['gsma']['brand_name']
                     response['model_name'] = basic_status['gsma']['model_name']
                     blocking_conditions = basic_status['classification_state']['blocking_conditions']
-                    complain_status = resource.get_complaince_status(blocking_conditions) # get compliance status
+                    complain_status = resource.get_complaince_status(blocking_conditions, basic_status['seen_with']) # get compliance status
                     response = dict(response, **complain_status) if complain_status else response
                     return Response(json.dumps(response), status=200, mimetype='application/json')
                 else:
