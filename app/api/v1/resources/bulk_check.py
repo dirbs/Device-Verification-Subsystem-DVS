@@ -29,7 +29,6 @@ class BulkCheck():
                     invalid_imeis += 1  # increment invalid imei count in case of TAC validation failure
             else:
                 invalid_imeis += 1  # increment invalid IMEI count in case of IMEI validation failure
-        print(records)
         records = pd.DataFrame(records)  # dataframe of all dirbs core api responses
         verified_imeis = len(records[records['gsma'].notna()])  # verified IMEI count
         classification_states = pd.DataFrame(list(records['classification_state']))  # dataframe of classifcation states
@@ -84,13 +83,12 @@ class BulkCheck():
 
     def get(self):
         try:
-            indicator = request.form['indicator']
-            print(indicator)
-            if indicator==True:
+            indicator = request.form.get('indicator')
+            if indicator=="True":
                 if 'file' not in request.files: #return not found response if file not uploaded
                     return not_found()
 
-                file = request.files['file'] # request file
+                file = request.files.get('file') # request file
 
                 if file.filename == '':
                     return custom_response("File not found", 404, 'application/json')
@@ -104,12 +102,10 @@ class BulkCheck():
                 else:
                     return custom_response("Bad file format", 400, 'application/json')
             else:
-                tac = request.form['tac']
+                tac = request.form.get('tac')
                 if tac.isdigit() and len(tac)==8:
                     tac = tac+str(GlobalConfig['MinImeiRange'])
-                    print(tac)
                     imei_list = [int(tac)+x for x in range(int(GlobalConfig['MaxImeiRange']))]
-                    print(imei_list)
                     response = self.build_summary(imei_list)
                     return Response(json.dumps(response), status=200, mimetype='application/json')
                 else:
