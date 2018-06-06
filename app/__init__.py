@@ -1,31 +1,27 @@
-
+import sys
+import yaml
 import configparser
 from flask import Flask
 
 app = Flask(__name__)
 
 try:
-    app.config.from_object('server_config.DevelopmentConfig')  # app configs
-    app.config.from_object('server_config.GlobalConfig')  # app global configs
+    # app.config.from_object('server_config.DevelopmentConfig')  # app configs
+    # app.config.from_object('server_config.GlobalConfig')  # app global configs
 
+    global_config = yaml.load(open("etc/config.yml"))
 
-    # config = configparser.ConfigParser()
-    # config.read("config.ini")
+    config = configparser.ConfigParser()
+    config.read("config.ini")
 
-    Root = app.config['DIRBSCORE']  # core api url
-    GlobalConfig = {"MinImeiLength": app.config['MIN_IMEI_LENGTH'],
-                    "MaxImeiLength": app.config['MAX_IMEI_LENGTH'],
-                    "MinImeiRange": app.config['MIN_IMEI_RANGE'],
-                    "MaxImeiRange": app.config['MAX_IMEI_RANGE'],
-                    "HelpUrl": app.config['HELP_URL'],
-                    "BlockDate": app.config['BLOCK_DATE'],
-                    "MinFileContent": app.config['MIN_FILE_CONTENT'],
-                    "MaxFileContent": app.config['MAX_FILE_CONTENT']}  # load global configs
-    AllowedFiles = app.config['ALLOWED_EXT'] # allowed file type for bulk check
-    UploadDir = app.config['UPLOAD_FOLDER'] # path to upload folder of non-compliance report
-    BaseUrl = app.config['BASE_URL'] # app root url
-    Host = app.config['HOST'] # Server Host
-    Port = app.config['PORT'] # Server Port
+    Root = global_config['dirbs_core']['BaseUrl']  # core api url
+    GlobalConfig = global_config['global']  # load global configs
+    AllowedFiles = global_config['allowed_file_types']['AllowedExt']  # allowed file type for bulk check
+    UploadDir = global_config['upload_dir']['UploadFolder']  # path to upload folder of non-compliance report
+    BaseUrl = global_config['application_root']['RootUrl']  # app root url
+
+    Host = str(config['SERVER']['Host'])  # Server Host
+    Port = int(config['SERVER']['Port'])  # Server Port
 
     from app.api.v1 import *
     app.register_blueprint(public_api, url_prefix=BaseUrl)
@@ -34,3 +30,4 @@ try:
 
 except Exception as e:
     print(e)
+    sys.exit(1)

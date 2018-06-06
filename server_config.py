@@ -31,13 +31,15 @@ class DevelopmentConfig(BaseConfig):
 
 class GlobalConfig(BaseConfig):
     """Global Configurations"""
-    MIN_IMEI_LENGTH = 14
-    MAX_IMEI_LENGTH = 16
-    MIN_IMEI_RANGE = "000000"
-    MAX_IMEI_RANGE = "100"
-    HELP_URL = "not confirmed"
-    BLOCK_DATE = "to be decided"
-    MIN_FILE_CONTENT = 1
-    MAX_FILE_CONTENT = 1000000
+    Global = dict(
+    MinImeiLength = 14,
+    MaxImeiLength = 16,
+    MinImeiRange = "000000",
+    MaxImeiRange = "100",
+    HelpUrl = "not confirmed",
+    BlocDate = "to be decided",
+    MinFileContent = 1,
+    MaxFileContent = 1000000
+    )
 
 

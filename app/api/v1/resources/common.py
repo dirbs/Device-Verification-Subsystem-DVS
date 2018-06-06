@@ -1,4 +1,5 @@
 from app import GlobalConfig
+from ..assets.error_handling import *
 
 class CommonResoures():
 
@@ -13,3 +14,4 @@ class CommonResoures():
             return response
         except Exception as e:
             print(e)
+            return internal_error()
