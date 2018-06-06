@@ -1,0 +1,41 @@
+# dirbs core url
+dirbs_core:
+  BaseUrl: http://dirbs.pta.gov.pk/coreapi
+
+
+# dvs global configurations
+global:
+
+  # tac length
+  TacLength: 8
+
+  # minimum and maximum global imei lengths
+  MinImeiLength: 14
+  MaxImeiLength: 16
+
+  # minimum and maximum imei range
+  MinImeiRange: '000000'
+  MaxImeiRange: 100
+
+  # variables to be configured
+  HelpUrl: 'not confirmed'
+  BlockDate: 'to be decided'
+
+  # minimum and maximum file content length
+  MinFileContent: 0
+  MaxFileContent: 1000000
+
+allowed_file_types:
+
+  # allowed file extensions
+  AllowedExt: ['tsv']
+
+upload_dir:
+
+  # path to upload directory
+  UploadFolder: api/v1/assets
+
+application_root:
+
+  # application root url
+  RootUrl: /api/v1

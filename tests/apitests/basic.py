@@ -22,12 +22,12 @@ class BasicTestCase(unittest.TestCase):
         self.assertGreater(len(response.data), 0)
 
     def test_admin_route(self):
-        response = self.client.get('/api/v1/fullstatus?imei=357380062353789&seen_with=0')
+        response = self.client.get('/api/v1/fullstatus?imei=357380062353789&seen_with=0&start=1&limit=3')
         self.assertEqual(response.status_code, 200)
         self.assertGreater(len(response.data), 0)
 
     def test_admin_post_route(self):
-        response = self.client.post('/api/v1/fullstatus?imei=357380062353789&seen_with=1')
+        response = self.client.post('/api/v1/fullstatus?imei=357380062353789&seen_with=1&start=1&limit=3')
         self.assertEqual(response.status_code, 200)
         self.assertGreater(len(response.data), 0)
 
