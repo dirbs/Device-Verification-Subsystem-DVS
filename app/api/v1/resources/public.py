@@ -33,5 +33,6 @@ class BasicStatus():
             else:
                 return custom_response("Bad TAC format", 400, 'application/json')
         except Exception as e:
-            print(e)
+            app.logger.info("This error occurs while retrieving basic status.")
+            app.logger.exception(e)
             return internal_error()

@@ -41,7 +41,8 @@ class FullStatus():
             else:
                 return custom_response("Bad TAC format", 400, 'application/json')
         except Exception as e:
-            print(e)
+            app.logger.info("This error occurs while retrieving full status.")
+            app.logger.exception(e)
             return internal_error()
 
     def paginated_list(self, data, start, limit, imei, seen_with, url): # TODO: optmizaion required
@@ -72,5 +73,6 @@ class FullStatus():
 
             return data, 200
         except Exception as e:
-            print(e)
+            app.logger.info("This error occurs while pagination.")
+            app.logger.exception(e)
             return internal_error()

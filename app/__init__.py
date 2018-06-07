@@ -6,9 +6,6 @@ from flask import Flask
 app = Flask(__name__)
 
 try:
-    # app.config.from_object('server_config.DevelopmentConfig')  # app configs
-    # app.config.from_object('server_config.GlobalConfig')  # app global configs
-
     global_config = yaml.load(open("etc/config.yml"))
 
     config = configparser.ConfigParser()
@@ -29,5 +26,6 @@ try:
     app.register_blueprint(bulk_api, url_prefix=BaseUrl)
 
 except Exception as e:
-    print(e)
+    app.logger.info("This error occurs while parsing configurations and blueprint registration.")
+    app.logger.exception(e)
     sys.exit(1)
