@@ -12,6 +12,7 @@ try:
     config.read("config.ini")
 
     Root = global_config['dirbs_core']['BaseUrl']  # core api url
+    version = global_config['dirbs_core']['Version']  # core api version
     GlobalConfig = global_config['global']  # load global configs
     AllowedFiles = global_config['allowed_file_types']['AllowedExt']  # allowed file type for bulk check
     UploadDir = global_config['upload_dir']['UploadFolder']  # path to upload folder of non-compliance report

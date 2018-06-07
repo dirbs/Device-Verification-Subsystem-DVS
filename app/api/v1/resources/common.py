@@ -1,6 +1,7 @@
 from app import GlobalConfig
 from ..assets.error_handling import *
 
+
 class CommonResoures():
 
     def get_complaince_status(self, blocking_conditions, seen_with):
