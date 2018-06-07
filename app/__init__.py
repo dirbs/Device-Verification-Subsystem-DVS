@@ -27,6 +27,6 @@ try:
     app.register_blueprint(bulk_api, url_prefix=BaseUrl)
 
 except Exception as e:
-    app.logger.info("This error occurs while parsing configurations and blueprint registration.")
+    app.logger.info("Error occurred while parsing configurations and blueprint registration.")
     app.logger.exception(e)
     sys.exit(1)

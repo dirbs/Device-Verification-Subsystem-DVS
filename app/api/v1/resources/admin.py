@@ -42,7 +42,7 @@ class FullStatus():
             else:
                 return custom_response("Bad TAC format", 400, 'application/json')
         except Exception as e:
-            app.logger.info("This error occurs while retrieving full status.")
+            app.logger.info("Error occurred while retrieving full status.")
             app.logger.exception(e)
             return internal_error()
 
@@ -74,7 +74,7 @@ class FullStatus():
             return data, 200
 
         except Exception as e:
-            app.logger.info("This error occurs while pagination.")
+            app.logger.info("Error occurred while pagination.")
             app.logger.exception(e)
             return internal_error()
 

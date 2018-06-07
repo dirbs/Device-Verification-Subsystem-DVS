@@ -83,7 +83,7 @@ class BulkCheck():
             response['non_complaint'] = non_complaint
             return response
         except Exception as e:
-            app.logger.info("This error occurs while summary generation.")
+            app.logger.info("Error occurred while summary generation.")
             app.logger.exception(e)
             return internal_error()
 
@@ -120,7 +120,7 @@ class BulkCheck():
                 else:
                     return custom_response("Upload file or enter TAC.", status=400, mimetype='application/json')
         except Exception as e:
-            app.logger.info("This error occurs while retrieving summary.")
+            app.logger.info("Error occurred while retrieving summary.")
             app.logger.exception(e)
             return internal_error()
 
@@ -128,6 +128,6 @@ class BulkCheck():
         try:
             return send_from_directory(directory=upload_folder, filename='summary.tsv')  # returns file when user wnats to download non compliance report
         except Exception as e:
-            app.logger.info("This error occurs while downloading non compliant report.")
+            app.logger.info("Error occurred while downloading non compliant report.")
             app.logger.exception(e)
             return internal_error()
