@@ -1,11 +1,12 @@
 import requests
 from webargs.flaskparser import use_kwargs
-from app import Root, BaseUrl, GlobalConfig
+from app import Root, BaseUrl, GlobalConfig, version
 from ..assets.error_handling import *
 from ..requests.status_request import full_status_args
 from .common import CommonResoures
 
 resource = CommonResoures()
+
 
 class FullStatus():
 
@@ -13,12 +14,12 @@ class FullStatus():
     def get(self, imei, seen_with, start, limit):
         try:
             response = {}
-            tac = imei[:GlobalConfig['TacLength']] # slice TAC from IMEI
-            if tac.isdigit(): # TAC format validation
-                tac_response = requests.get('{}/api/v1/tac/{}'.format(Root, tac)).json() # dirbs core TAC api call
-                imei_response = requests.get('{}/api/v1/imei/{}?include_seen_with=1'.format(Root, imei)).json() # dirbs core IMEI api call with seen with information
+            tac = imei[:GlobalConfig['TacLength']]  # slice TAC from IMEI
+            if tac.isdigit():  # TAC format validation
+                tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac)).json()  # dirbs core TAC api call
+                imei_response = requests.get('{}/{}/imei/{}?include_seen_with=1'.format(Root, version, imei)).json()  # dirbs core IMEI api call with seen with information
                 full_status = dict(tac_response, **imei_response)
-                if full_status['gsma']: # TAC verification
+                if full_status['gsma']:  # TAC verification
                     response['imei'] = full_status['imei_norm']
                     response['brand'] = full_status['gsma']['brand_name']
                     response['model_name'] = full_status['gsma']['model_name']
@@ -29,7 +30,7 @@ class FullStatus():
                     response['radio_access_technology'] = full_status['gsma']['bands']
                     response['classification_state'] = full_status['classification_state']
                     blocking_conditions = full_status['classification_state']['blocking_conditions']
-                    complain_status = resource.get_complaince_status(blocking_conditions, full_status.get('seen_with')) # get compliance status
+                    complain_status = resource.get_complaince_status(blocking_conditions, full_status.get('seen_with'))  # get compliance status
                     response = dict(response, **complain_status) if complain_status else response
                     if seen_with == 1:
                         response['associated_msisdn'] = full_status.get('seen_with')
@@ -41,10 +42,11 @@ class FullStatus():
             else:
                 return custom_response("Bad TAC format", 400, 'application/json')
         except Exception as e:
-            print(e)
+            app.logger.info("Error occurred while retrieving full status.")
+            app.logger.exception(e)
             return internal_error()
 
-    def paginated_list(self, data, start, limit, imei, seen_with, url): # TODO: optmizaion required
+    def paginated_list(self, data, start, limit, imei, seen_with, url):  # TODO: optmizaion required
         try:
             count = len(data['associated_msisdn'])
             if (count < start):
@@ -69,8 +71,13 @@ class FullStatus():
                 data['next'] = url + '?imei=%s&seen_with=%d&start=%d&limit=%d' % (imei, seen_with, start_copy, limit)
             # finally extract result according to bounds
             data['associated_msisdn'] = data['associated_msisdn'][(start - 1):(start - 1 + limit) if (start - 1 + limit) <= count else count]
-
             return data, 200
+
         except Exception as e:
-            print(e)
+            app.logger.info("Error occurred while pagination.")
+            app.logger.exception(e)
             return internal_error()
+
+
+
+

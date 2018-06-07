@@ -3,10 +3,11 @@ import requests
 import json
 import pandas as pd
 from flask import request, send_from_directory, Response
-from app import Root, GlobalConfig, UploadDir, AllowedFiles
+from app import Root, GlobalConfig, UploadDir, AllowedFiles, version
 from ..assets.error_handling import *
 
 upload_folder = os.path.join(app.root_path, UploadDir)
+
 
 class BulkCheck():
 
@@ -21,9 +22,9 @@ class BulkCheck():
                     tac = str(imei)[:GlobalConfig['TacLength']]  # slicing TAC from IMEI
                     if tac.isdigit():  # TAC format validation
                         tac_response = requests.get(
-                            '{}/api/v1/tac/{}'.format(Root, tac)).json()  # dirbs core TAC api call
+                            '{}/{}/tac/{}'.format(Root, version, tac)).json()  # dirbs core TAC api call
                         imei_response = requests.get(
-                            '{}/api/v1/imei/{}'.format(Root, imei)).json()  # dirbs core IMEI api call
+                            '{}/{}/imei/{}'.format(Root, version, imei)).json()  # dirbs core IMEI api call
                         full_status = dict(tac_response, **imei_response)
                         records.append(full_status)
                     else:
@@ -64,7 +65,7 @@ class BulkCheck():
             imeis = list(records['imei_norm'])
             for key in compliant:
                 if compliant[key].any():
-                    complaint_status = {}
+                    complaint_status = dict()
                     complaint_status['imei'] = imeis[key]
                     complaint_status['status'] = "Non complaint"
                     complaint_status['reasons'] = compliant.index[compliant[key]].tolist()
@@ -82,7 +83,8 @@ class BulkCheck():
             response['non_complaint'] = non_complaint
             return response
         except Exception as e:
-            print(e)
+            app.logger.info("Error occurred while summary generation.")
+            app.logger.exception(e)
             return internal_error()
 
     def get(self):
@@ -97,7 +99,7 @@ class BulkCheck():
                             if not imei_df.empty and \
                                     int(GlobalConfig['MinFileContent']) < imei_df.shape[1] < int(GlobalConfig['MaxFileContent']):  # input file content validation
                                 filtered_imeis = imei_df.T.drop_duplicates().T.values.tolist()[
-                                    0]  # drop dupliacte IMEIs from list
+                                    0]  # drop duplicate IMEIs from list
                                 response = self.build_summary(filtered_imeis)
                                 print(response)
                                 return Response(json.dumps(response), status=200, mimetype='application/json')
@@ -118,12 +120,14 @@ class BulkCheck():
                 else:
                     return custom_response("Upload file or enter TAC.", status=400, mimetype='application/json')
         except Exception as e:
-            print(e)
+            app.logger.info("Error occurred while retrieving summary.")
+            app.logger.exception(e)
             return internal_error()
 
     def send_file(self):
         try:
-            return send_from_directory(directory=upload_folder, filename='summary.tsv') # returns file when user wnats to download non compliance report
+            return send_from_directory(directory=upload_folder, filename='summary.tsv')  # returns file when user wnats to download non compliance report
         except Exception as e:
-            print(e)
+            app.logger.info("Error occurred while downloading non compliant report.")
+            app.logger.exception(e)
             return internal_error()

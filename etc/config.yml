@@ -1,7 +1,7 @@
 # dirbs core url
 dirbs_core:
-  BaseUrl: http://dirbs.pta.gov.pk/coreapi
-
+  BaseUrl: http://dirbs.pta.gov.pk/coreapi/api
+  Version: v1
 
 # dvs global configurations
 global:

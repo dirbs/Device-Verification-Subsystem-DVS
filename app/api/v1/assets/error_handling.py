@@ -26,6 +26,6 @@ def internal_error(error=None):
 
 def custom_response(message, status, mimetype):
     resp = Response(json.dumps({"message": message}),
-                        status=status,
-                        mimetype=mimetype)
+                    status=status,
+                    mimetype=mimetype)
     return resp
