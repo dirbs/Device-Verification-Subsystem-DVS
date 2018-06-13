@@ -14,6 +14,4 @@ class CommonResoures():
                 response['block_date'] = GlobalConfig['BlockDate']
             return response
         except Exception as e:
-            app.logger.info("Error occurred while evaluating compliance status.")
-            app.logger.exception(e)
-            return internal_error()
+            raise e
