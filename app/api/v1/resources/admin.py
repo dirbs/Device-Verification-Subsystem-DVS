@@ -44,7 +44,7 @@ class FullStatus():
         except Exception as e:
             app.logger.info("Error occurred while retrieving full status.")
             app.logger.exception(e)
-            return internal_error()
+            return custom_response("Failed to retrieve full status.", 503, 'application/json')
 
     def paginated_list(self, data, start, limit, imei, seen_with, url):  # TODO: optmizaion required
         try:
@@ -52,8 +52,8 @@ class FullStatus():
             if (count < start):
                 return "Index out of bound.", 400
             # make response
-            data['start'] = start
-            data['limit'] = limit
+            data['start'] = start if start else 1
+            data['limit'] = limit if limit else 3
             data['count'] = count
             # make URLs
             # make previous url
@@ -74,9 +74,7 @@ class FullStatus():
             return data, 200
 
         except Exception as e:
-            app.logger.info("Error occurred while pagination.")
-            app.logger.exception(e)
-            return internal_error()
+            raise e
 
 
 

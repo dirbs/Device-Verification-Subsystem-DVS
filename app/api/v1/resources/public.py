@@ -36,4 +36,4 @@ class BasicStatus():
         except Exception as e:
             app.logger.info("Error occurred while retrieving basic status.")
             app.logger.exception(e)
-            return internal_error()
+            return custom_response("Failed to retrieve basic status.", 503, 'application/json')

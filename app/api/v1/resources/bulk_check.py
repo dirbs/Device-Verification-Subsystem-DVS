@@ -83,9 +83,7 @@ class BulkCheck():
             response['non_complaint'] = non_complaint
             return response
         except Exception as e:
-            app.logger.info("Error occurred while summary generation.")
-            app.logger.exception(e)
-            return internal_error()
+            raise e
 
     def get(self):
         try:
@@ -122,7 +120,7 @@ class BulkCheck():
         except Exception as e:
             app.logger.info("Error occurred while retrieving summary.")
             app.logger.exception(e)
-            return internal_error()
+            return custom_response("Failed to verify bulk imeis.", 503, 'application/json')
 
     def send_file(self):
         try:
@@ -130,4 +128,4 @@ class BulkCheck():
         except Exception as e:
             app.logger.info("Error occurred while downloading non compliant report.")
             app.logger.exception(e)
-            return internal_error()
+            return custom_response("Failed to download non compliant report.", 503, 'application/json')
