@@ -5,21 +5,23 @@ import pandas as pd
 from flask import request, send_from_directory, Response
 from app import Root, GlobalConfig, UploadDir, AllowedFiles, version
 from ..assets.error_handling import *
+from ..assets.responses import responses, mime_types
 
 upload_folder = os.path.join(app.root_path, UploadDir)
 
 
 class BulkCheck():
 
-    def build_summary(self, imeis_list):
+    @staticmethod
+    def build_summary(imeis_list):
         try:
             records = []
             response = {}
             invalid_imeis = 0
             for imei in imeis_list:
-                if len(str(imei)) in range(int(GlobalConfig['MinImeiLength']),
-                                           int(GlobalConfig['MaxImeiLength'])):  # imei format validation
-                    tac = str(imei)[:GlobalConfig['TacLength']]  # slicing TAC from IMEI
+                if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')),
+                                           int(GlobalConfig.get('MaxImeiLength'))):  # imei format validation
+                    tac = str(imei)[:GlobalConfig.get('TacLength')]  # slicing TAC from IMEI
                     if tac.isdigit():  # TAC format validation
                         tac_response = requests.get(
                             '{}/{}/tac/{}'.format(Root, version, tac)).json()  # dirbs core TAC api call
@@ -85,7 +87,8 @@ class BulkCheck():
         except Exception as e:
             raise e
 
-    def get(self):
+    @staticmethod
+    def get():
         try:
             file = request.files.get('file')
             if file:
@@ -96,36 +99,36 @@ class BulkCheck():
                                                   header=None)  # load file to dataframe
                             if not imei_df.empty and \
                                     int(GlobalConfig['MinFileContent']) < imei_df.shape[1] < int(GlobalConfig['MaxFileContent']):  # input file content validation
-                                filtered_imeis = imei_df.T.drop_duplicates().T.values.tolist()[
-                                    0]  # drop duplicate IMEIs from list
-                                response = self.build_summary(filtered_imeis)
-                                print(response)
-                                return Response(json.dumps(response), status=200, mimetype='application/json')
+                                filtered_imeis = imei_df.T.drop_duplicates().T.values.tolist()[0]  # drop duplicate IMEIs from list
+                                response = BulkCheck.build_summary(filtered_imeis)
+                                return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
                         else:
-                            return custom_response("Bad file format", 400, 'application/json')
+                            return custom_response("Bad file format", responses.get('bad_request'), mime_types.get('json'))
                 else:
-                    return custom_response('No file selected.', 400, 'application/json')
+                    return custom_response('No file selected.', responses.get('bad_request'), mime_types.get('json'))
             else:  # check for tac if file not uploaded
                 tac = request.form.get('tac')
                 if tac:
                     if tac.isdigit() and len(tac) == int(GlobalConfig['TacLength']):
                         tac = tac + str(GlobalConfig['MinImeiRange'])
                         imei_list = [int(tac) + x for x in range(int(GlobalConfig['MaxImeiRange']))]
-                        response = self.build_summary(imei_list)
+                        print(imei_list)
+                        response = BulkCheck.build_summary(imei_list)
                         return Response(json.dumps(response), status=200, mimetype='application/json')
                     else:
-                        return custom_response("Invalid TAC", 400, 'application/json')
+                        return custom_response("Invalid TAC", responses.get('bad_request'), mime_types.get('json'))
                 else:
-                    return custom_response("Upload file or enter TAC.", status=400, mimetype='application/json')
+                    return custom_response("Upload file or enter TAC.", status=responses.get('bad_request'), mimetype=mime_types.get('json'))
         except Exception as e:
             app.logger.info("Error occurred while retrieving summary.")
             app.logger.exception(e)
-            return custom_response("Failed to verify bulk imeis.", 503, 'application/json')
+            return custom_response("Failed to verify bulk imeis.", responses.get('service_unavailable'), mime_types.get('json'))
 
-    def send_file(self):
+    @staticmethod
+    def send_file():
         try:
             return send_from_directory(directory=upload_folder, filename='summary.tsv')  # returns file when user wnats to download non compliance report
         except Exception as e:
             app.logger.info("Error occurred while downloading non compliant report.")
             app.logger.exception(e)
-            return custom_response("Failed to download non compliant report.", 503, 'application/json')
+            return custom_response("Failed to verify bulk imeis.", responses.get('service_unavailable'), mime_types.get('json'))

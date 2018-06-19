@@ -20,17 +20,17 @@ def index_route():
 
 @public_api.route('/basicstatus', methods=['GET'])
 def basicstatus():
-    return BasicStatus().get()
+    return BasicStatus.get()
 
 @admin_api.route('/fullstatus', methods=['GET', 'POST'])
 def fullstatus():
-    return FullStatus().get()
+    return FullStatus.get()
 
 @bulk_api.route('/bulk', methods=['GET', 'POST'])
 def bulk():
-    return BulkCheck().get()
+    return BulkCheck.get()
 
 @bulk_api.route('/download', methods=['GET', 'POST'])
 def download():
-    return BulkCheck().send_file()
+    return BulkCheck.send_file()
 
