@@ -9,6 +9,7 @@ public_api = Blueprint('public', __name__)
 admin_api = Blueprint('admin', __name__)
 bulk_api = Blueprint('bulk', __name__)
 
+
 @app.route('/')
 def index_route():
     data = {
@@ -18,19 +19,22 @@ def index_route():
     response = Response(json.dumps(data), status=200, mimetype='application/json')
     return response
 
+
 @public_api.route('/basicstatus', methods=['GET'])
 def basicstatus():
-    return BasicStatus().get()
+    return BasicStatus.get()
+
 
 @admin_api.route('/fullstatus', methods=['GET', 'POST'])
 def fullstatus():
-    return FullStatus().get()
+    return FullStatus.get()
+
 
 @bulk_api.route('/bulk', methods=['GET', 'POST'])
 def bulk():
-    return BulkCheck().get()
+    return BulkCheck.get()
+
 
 @bulk_api.route('/download', methods=['GET', 'POST'])
 def download():
-    return BulkCheck().send_file()
-
+    return BulkCheck.send_file()

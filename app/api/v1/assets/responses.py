@@ -2,7 +2,9 @@ responses = {
     'not_found': 404,
     'bad_request': 400,
     'ok': 200,
+    'no_content': 204,
     'internal_error': 500,
+    'service_unavailable': 503,
 }
 
 messages = {
@@ -13,5 +15,7 @@ messages = {
 }
 
 mime_types = {
-    'json': 'application/json'
+    'json': 'application/json',
+    'text': 'text/plain',
+    'all': 'application/*'
 }
