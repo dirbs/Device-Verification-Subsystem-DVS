@@ -52,16 +52,22 @@ class BasicTestCase(unittest.TestCase):
         self.assertGreater(len(response.data), 0)
 
     def test_bulk_file_route(self):
-        response = self.client.get('/api/v1/bulk', data=dict(file=(io.BytesIO(b"234567890123456	345678901234567	12345	1234af789012345	357380062353789"), 'imeis.tsv'), indicator="True"))
+        response = self.client.get('/api/v1/bulk', data=dict(file=(io.BytesIO(b"234567890123456	345678901234567	12345	"
+                                                                              b"1234af789012345	357380062353789"),
+                                                                   'imeis.tsv'), indicator="True"))
         self.assertEqual(response.status_code, 200)
         self.assertGreater(len(response.data), 0)
 
     def test_bulk_file_post_route(self):
-        response = self.client.get('/api/v1/bulk', data=dict(file=(io.BytesIO(b"234567890123456	345678901234567	12345	1234af789012345	357380062353789"), 'imeis.tsv'), indicator="True"))
+        response = self.client.get('/api/v1/bulk', data=dict(file=(io.BytesIO(b"234567890123456	345678901234567	12345	"
+                                                                              b"1234af789012345	357380062353789"),
+                                                                   'imeis.tsv'), indicator="True"))
         self.assertEqual(response.status_code, 200)
         self.assertGreater(len(response.data), 0)
 
     def test_bulk_file_type(self):
-        response = self.client.get('/api/v1/bulk', data=dict(file=(io.BytesIO(b"234567890123456	345678901234567	12345	1234af789012345	357380062353789"), 'imeis.csv'), indicator="True"))
+        response = self.client.get('/api/v1/bulk', data=dict(file=(io.BytesIO(b"234567890123456	345678901234567	12345	"
+                                                                              b"1234af789012345	357380062353789"),
+                                                                   'imeis.csv'), indicator="True"))
         self.assertEqual(response.status_code, 400)
         self.assertGreater(len(response.data), 0)

@@ -1,10 +1,10 @@
 from app import GlobalConfig
-from ..assets.error_handling import *
 
 
-class CommonResoures():
+class CommonResoures:
 
-    def get_complaince_status(self, blocking_conditions, seen_with):
+    @staticmethod
+    def get_complaince_status(blocking_conditions, seen_with):
         try:
             response = dict()
             response['complaince_status'] = "Non compliant" if any(blocking_conditions[key] for key in blocking_conditions) else "Compliant (Active)" if seen_with else "Compliant (Inactive)"

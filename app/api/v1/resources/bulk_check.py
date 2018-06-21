@@ -1,8 +1,9 @@
 import os
-import requests
-import json
+
 import pandas as pd
-from flask import request, send_from_directory, Response
+import requests
+from flask import request, send_from_directory
+
 from app import Root, GlobalConfig, UploadDir, AllowedFiles, version
 from ..assets.error_handling import *
 from ..assets.responses import responses, mime_types
@@ -10,7 +11,7 @@ from ..assets.responses import responses, mime_types
 upload_folder = os.path.join(app.root_path, UploadDir)
 
 
-class BulkCheck():
+class BulkCheck:
 
     @staticmethod
     def build_summary(imeis_list):
