@@ -25,16 +25,16 @@ def basicstatus():
     return BasicStatus.get()
 
 
-@admin_api.route('/fullstatus', methods=['GET', 'POST'])
+@admin_api.route('/fullstatus', methods=['POST'])
 def fullstatus():
     return FullStatus.get()
 
 
-@bulk_api.route('/bulk', methods=['GET', 'POST'])
+@bulk_api.route('/bulk', methods=['POST'])
 def bulk():
     return BulkCheck.get()
 
 
-@bulk_api.route('/download', methods=['GET', 'POST'])
+@bulk_api.route('/download', methods=['POST'])
 def download():
     return BulkCheck.send_file()

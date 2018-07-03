@@ -24,6 +24,7 @@ class BulkCheck:
                                            int(GlobalConfig.get('MaxImeiLength'))):  # imei format validation
                     tac = str(imei)[:GlobalConfig.get('TacLength')]  # slicing TAC from IMEI
                     if tac.isdigit():  # TAC format validation
+                        print(type(requests.get('{}/{}/tac/{}'.format(Root, version, tac)).text))  # dirbs core TAC api call
                         tac_response = requests.get(
                             '{}/{}/tac/{}'.format(Root, version, tac)).json()  # dirbs core TAC api call
                         imei_response = requests.get(
@@ -96,15 +97,18 @@ class BulkCheck:
                 if file.filename != '':
                         if file and '.' in file.filename and \
                                 file.filename.rsplit('.', 1)[1].lower() in AllowedFiles:  # input file type validation
-                            imei_df = pd.read_csv(file, delimiter='\t', encoding='utf-8',
-                                                  header=None)  # load file to dataframe
+                            imei_df = pd.read_csv(file, delimiter='\t', encoding='utf-8', header=None)  # load file to dataframe
+                            print(imei_df)
                             if not imei_df.empty and \
                                     int(GlobalConfig['MinFileContent']) < imei_df.shape[1] < int(GlobalConfig['MaxFileContent']):  # input file content validation
                                 filtered_imeis = imei_df.T.drop_duplicates().T.values.tolist()[0]  # drop duplicate IMEIs from list
+                                print(filtered_imeis)
                                 response = BulkCheck.build_summary(filtered_imeis)
                                 return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                            else:
+                                return custom_response("File contains incorrect content.", status=responses.get('bad_request'), mimetype=mime_types.get('json'))
                         else:
-                            return custom_response("Bad file format", responses.get('bad_request'), mime_types.get('json'))
+                            return custom_response("System only accepts tsv files.", responses.get('bad_request'), mime_types.get('json'))
                 else:
                     return custom_response('No file selected.', responses.get('bad_request'), mime_types.get('json'))
             else:  # check for tac if file not uploaded

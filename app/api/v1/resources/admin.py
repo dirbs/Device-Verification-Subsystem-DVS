@@ -51,6 +51,10 @@ class FullStatus:
             else:
                 return custom_response("IMEI not found", responses.get('not_found'),
                                        mimetype=mime_types.get('json'))
+        except ValueError as error:
+            return custom_response(str(error), 422,
+                                   mime_types.get('json'))
+
         except Exception as e:
             app.logger.info("Error occurred while retrieving full status.")
             app.logger.exception(e)

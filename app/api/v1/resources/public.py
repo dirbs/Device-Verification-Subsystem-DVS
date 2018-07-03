@@ -34,6 +34,10 @@ class BasicStatus:
                 return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
             else:
                 return custom_response("IMEI not found", responses.get('not_found'), mime_types.get('json'))
+
+        except ValueError as error:
+            return custom_response(str(error), 422, mime_types.get('json'))
+
         except Exception as e:
             app.logger.info("Error occurred while retrieving basic status.")
             app.logger.exception(e)
