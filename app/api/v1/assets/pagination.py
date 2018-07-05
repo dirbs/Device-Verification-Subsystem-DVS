@@ -11,7 +11,9 @@ class Pagination:
                 return "No content on this page.", responses.get('no_content')
 
             # make response
-            data = {'start': start, 'limit': limit, 'count': count}
+            data['start'] = start
+            data['limit'] = limit
+            data['count'] = count
 
             # make URLs
             # make previous url

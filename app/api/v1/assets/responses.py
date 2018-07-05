@@ -5,13 +5,16 @@ responses = {
     'no_content': 204,
     'internal_error': 500,
     'service_unavailable': 503,
+    'timeout': 504,
+    'method_not_allowed': 405
 }
 
 messages = {
     'not_found': 'Record not found.',
     'bad_request': 'Bad Format',
     'ok': 'Status OK',
-    'internal_error': 'There is some internal error'
+    'internal_error': 'There is some internal error',
+    'method_not_allowed': 'Method not allowed.'
 }
 
 mime_types = {
