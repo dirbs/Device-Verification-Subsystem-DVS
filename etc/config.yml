@@ -28,7 +28,7 @@ global:
 allowed_file_types:
 
   # allowed file extensions
-  AllowedExt: ['tsv']
+  AllowedExt: ['tsv', 'txt']
 
 upload_dir:
 

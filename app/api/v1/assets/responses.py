@@ -5,6 +5,7 @@ responses = {
     'no_content': 204,
     'internal_error': 500,
     'service_unavailable': 503,
+    'timeout': 504
 }
 
 messages = {

@@ -3,7 +3,9 @@ from webargs import fields
 
 
 def validate_imei(val):
-    match = re.match(r'^\d{8}[a-fA-F0-9]{6,8}$', val)
+    match = re.match(r'^[a-fA-F0-9]{14,16}$', val)
+    if len(val)==0:
+        raise ValueError("enter imei")
     if len(val) > 16:
         raise ValueError("imei too long")
     if len(val) < 14:

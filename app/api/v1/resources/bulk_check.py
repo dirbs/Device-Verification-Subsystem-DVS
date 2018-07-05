@@ -1,7 +1,8 @@
 import os
-
+import re
 import pandas as pd
 import requests
+
 from flask import request, send_from_directory
 
 from app import Root, GlobalConfig, UploadDir, AllowedFiles, version
@@ -20,19 +21,24 @@ class BulkCheck:
             response = {}
             invalid_imeis = 0
             for imei in imeis_list:
-                if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')),
-                                           int(GlobalConfig.get('MaxImeiLength'))):  # imei format validation
+                if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')), int(GlobalConfig.get('MaxImeiLength')))\
+                        and re.match(r'^[a-fA-F0-9]{14,16}$', str(imei)) is not None:  # imei format validation
                     tac = str(imei)[:GlobalConfig.get('TacLength')]  # slicing TAC from IMEI
-                    if tac.isdigit():  # TAC format validation
-                        print(type(requests.get('{}/{}/tac/{}'.format(Root, version, tac)).text))  # dirbs core TAC api call
-                        tac_response = requests.get(
-                            '{}/{}/tac/{}'.format(Root, version, tac)).json()  # dirbs core TAC api call
-                        imei_response = requests.get(
-                            '{}/{}/imei/{}'.format(Root, version, imei)).json()  # dirbs core IMEI api call
-                        full_status = dict(tac_response, **imei_response)
-                        records.append(full_status)
+                    if tac.isdigit():
+                        tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core TAC api call
+                        imei_response = requests.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
+                        if tac_response.status_code == 200 and imei_response.status_code == 200:
+                            tac_response = tac_response.json()
+                            imei_response = imei_response.json()
+                            full_status = dict(tac_response, **imei_response)
+                            records.append(full_status)
                     else:
-                        invalid_imeis += 1  # increment invalid imei count in case of TAC validation failure
+                        imei_response = requests.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
+                        tac_response = {"gsma": None, "tac": tac}
+                        if imei_response.status_code==200:
+                            imei_response = imei_response.json()
+                            full_status = dict(tac_response, **imei_response)
+                            records.append(full_status)
                 else:
                     invalid_imeis += 1  # increment invalid IMEI count in case of IMEI validation failure
             records = pd.DataFrame(records)  # dataframe of all dirbs core api responses
@@ -77,8 +83,8 @@ class BulkCheck:
                     complaint_report.append(complaint_status)
                     non_complaint += 1
             complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
-            complaint_report.to_csv(os.path.join(upload_folder, "summary.tsv"),
-                                    sep='\t')  # writing non compliant statuses to .tsv file
+            if non_complaint != 0:
+                complaint_report.to_csv(os.path.join(upload_folder, "summary.tsv"), sep='\t')  # writing non compliant statuses to .tsv file
 
             # summary for bulk verify IMEI
             response['invalid_imei'] = invalid_imeis
@@ -97,16 +103,12 @@ class BulkCheck:
                 if file.filename != '':
                         if file and '.' in file.filename and \
                                 file.filename.rsplit('.', 1)[1].lower() in AllowedFiles:  # input file type validation
-                            imei_df = pd.read_csv(file, delimiter='\t', encoding='utf-8', header=None)  # load file to dataframe
-                            print(imei_df)
-                            if not imei_df.empty and \
-                                    int(GlobalConfig['MinFileContent']) < imei_df.shape[1] < int(GlobalConfig['MaxFileContent']):  # input file content validation
-                                filtered_imeis = imei_df.T.drop_duplicates().T.values.tolist()[0]  # drop duplicate IMEIs from list
-                                print(filtered_imeis)
-                                response = BulkCheck.build_summary(filtered_imeis)
+                            imeis = list(set(line.decode('ascii', errors='ignore') for line in (l.strip() for l in file) if line))
+                            if imeis and int(GlobalConfig['MinFileContent']) < len(imeis) < int(GlobalConfig['MaxFileContent']):  # input file content validation
+                                response = BulkCheck.build_summary(imeis)
                                 return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
                             else:
-                                return custom_response("File contains incorrect content.", status=responses.get('bad_request'), mimetype=mime_types.get('json'))
+                                return custom_response("File contains incorrect/no content.", status=responses.get('bad_request'), mimetype=mime_types.get('json'))
                         else:
                             return custom_response("System only accepts tsv files.", responses.get('bad_request'), mime_types.get('json'))
                 else:
@@ -136,4 +138,4 @@ class BulkCheck:
         except Exception as e:
             app.logger.info("Error occurred while downloading non compliant report.")
             app.logger.exception(e)
-            return custom_response("Failed to verify bulk imeis.", responses.get('service_unavailable'), mime_types.get('json'))
+            return custom_response("Compliant report not found.", responses.get('not_found'), mime_types.get('json'))
