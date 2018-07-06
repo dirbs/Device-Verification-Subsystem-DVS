@@ -6,7 +6,7 @@ from .responses import responses, messages, mime_types
 
 @app.errorhandler(responses.get('not_found'))
 def not_found(error=None):
-    resp = Response(json.dumps(messages.get('not_found')),
+    resp = Response(json.dumps({"message":messages.get('not_found'), "status_code": responses.get('not_found')}),
                     status=responses.get('not_found'),
                     mimetype=mime_types.get('json'))
     return resp
@@ -36,7 +36,7 @@ def method_not_allowed(error=None):
 
 
 def custom_response(message, status, mimetype):
-    resp = Response(json.dumps({"message": message}),
+    resp = Response(json.dumps({"message": message, "status_code": status}),
                     status=status,
                     mimetype=mimetype)
     return resp

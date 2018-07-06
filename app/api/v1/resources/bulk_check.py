@@ -110,7 +110,7 @@ class BulkCheck:
                             else:
                                 return custom_response("File contains incorrect/no content.", status=responses.get('bad_request'), mimetype=mime_types.get('json'))
                         else:
-                            return custom_response("System only accepts tsv files.", responses.get('bad_request'), mime_types.get('json'))
+                            return custom_response("System only accepts tsv/txt files.", responses.get('bad_request'), mime_types.get('json'))
                 else:
                     return custom_response('No file selected.', responses.get('bad_request'), mime_types.get('json'))
             else:  # check for tac if file not uploaded

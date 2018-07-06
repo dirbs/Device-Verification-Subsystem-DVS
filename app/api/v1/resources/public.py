@@ -27,7 +27,7 @@ class BasicStatus:
                     imei_response = imei_response.json()
                     basic_status = dict(tac_response, **imei_response)  # join api response
                 else:
-                    return custom_response("Server timeout, Please try again later.", responses.get('timeout'), mime_types.get('json'))
+                    return custom_response("Connection error, Please try again later.", responses.get('timeout'), mime_types.get('json'))
                 if basic_status['gsma']:  # TAC verification
                     response['imei'] = basic_status['imei_norm']
                     response['brand'] = basic_status['gsma']['brand_name']
