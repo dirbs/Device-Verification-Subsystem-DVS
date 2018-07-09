@@ -28,7 +28,7 @@ class FullStatus:
                     imei_response = imei_response.json()
                     full_status = dict(tac_response, **imei_response)
                 else:
-                    return custom_response("Server timeout, Please try again later.", responses.get('timeout'), mime_types.get('json'))
+                    return custom_response("Connection error, Please try again later.", responses.get('timeout'), mime_types.get('json'))
                 if full_status['gsma']:  # TAC verification
                     response['imei'] = full_status['imei_norm']
                     response['brand'] = full_status['gsma']['brand_name']
@@ -60,8 +60,7 @@ class FullStatus:
                 return custom_response("Bad TAC format", responses.get('bad_request'), mime_types.get('json'))
 
         except ValueError as error:
-            return custom_response(str(error), 422,
-                                   mime_types.get('json'))
+            return custom_response(str(error), 422, mime_types.get('json'))
 
         except Exception as e:
             app.logger.info("Error occurred while retrieving full status.")

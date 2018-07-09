@@ -1,6 +1,6 @@
 # dirbs core url
 dirbs_core:
-  BaseUrl: http://dirbs.pta.gov.pk/coreapi/api
+  BaseUrl: http://dirbs.pta.gov.pk/core_api/api
   Version: v1
 
 # dvs global configurations
@@ -15,7 +15,7 @@ global:
 
   # minimum and maximum imei range
   MinImeiRange: '000000'
-  MaxImeiRange: 10 # TODO: change it to 1000000 after testing
+  MaxImeiRange: 1000000 # TODO: change it to 1000000 after testing
 
   # variables to be configured
   HelpUrl: 'not confirmed'
