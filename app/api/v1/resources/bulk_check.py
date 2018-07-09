@@ -20,8 +20,10 @@ class BulkCheck:
             records = []
             response = {}
             invalid_imeis = 0
-            for imei in imeis_list:
-                if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')), int(GlobalConfig.get('MaxImeiLength')))\
+            for imei in imeis_list:  # TODO: implement bulk check through core's bulk api
+                print(imei)
+                if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')),
+                                           int(GlobalConfig.get('MaxImeiLength')))\
                         and re.match(r'^[a-fA-F0-9]{14,16}$', str(imei)) is not None:  # imei format validation
                     tac = str(imei)[:GlobalConfig.get('TacLength')]  # slicing TAC from IMEI
                     if tac.isdigit():
