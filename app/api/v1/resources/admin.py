@@ -3,7 +3,7 @@ from flask import request
 from webargs.flaskparser import parser
 
 from app import Root, BaseUrl, GlobalConfig, version
-from .common import CommonResoures
+from .common import CommonResources
 from ..assets.error_handling import *
 from ..assets.pagination import Pagination
 from ..assets.responses import responses, mime_types
@@ -40,7 +40,7 @@ class FullStatus:
                     response['radio_access_technology'] = full_status['gsma']['bands']
                     response['classification_state'] = full_status['classification_state']
                     blocking_conditions = full_status['classification_state']['blocking_conditions']
-                    complain_status = CommonResoures.get_complaince_status(blocking_conditions, full_status.get(
+                    complain_status = CommonResources.get_complaince_status(blocking_conditions, full_status.get(
                         'seen_with'))  # get compliance status
                     response = dict(response, **complain_status) if complain_status else response
                     if seen_with == 1:

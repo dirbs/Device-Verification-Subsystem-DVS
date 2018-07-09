@@ -2,8 +2,10 @@ import sys
 import yaml
 import configparser
 from flask import Flask
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 try:
     global_config = yaml.load(open("etc/config.yml"))

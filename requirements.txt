@@ -3,5 +3,4 @@ PyYAML
 flask
 requests
 webargs
-pandas
-PyYAML
+flask_cors
