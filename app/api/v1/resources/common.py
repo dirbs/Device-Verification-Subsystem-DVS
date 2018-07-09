@@ -24,6 +24,7 @@ class CommonResources:
                                                                                                          version=version,
                                                                                                          imei=imei,
                                                                                                          seen_with=seen_with))  # dirbs core imei api call
+        print("hello")
         if imei_response.status_code == 200:
             return imei_response.json()
         else:
@@ -41,8 +42,6 @@ class CommonResources:
     def get_status(imei, seen_with, tac):
         imei_response = CommonResources.get_imei(imei, seen_with)
         tac_response = CommonResources.get_tac(tac)
-        print(imei_response)
-        print(tac_response)
         if imei_response:
             return {"response": dict(imei_response, **tac_response), "message": "success", "status": responses.get('ok')}
         else:
