@@ -3,3 +3,4 @@ PyYAML
 flask
 requests
 webargs
+flask_cors

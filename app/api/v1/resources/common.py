@@ -1,7 +1,9 @@
-from app import GlobalConfig
+import requests
+from app import GlobalConfig, Root, version
+from ..assets.responses import responses
 
 
-class CommonResoures:
+class CommonResources:
 
     @staticmethod
     def get_complaince_status(blocking_conditions, seen_with):
@@ -15,3 +17,53 @@ class CommonResoures:
             return response
         except Exception as e:
             raise e
+
+    @staticmethod
+    def get_imei(imei, seen_with):
+        imei_response = requests.get('{base}/{version}/imei/{imei}?include_seen_with={seen_with}'.format(base=Root,
+                                                                                                         version=version,
+                                                                                                         imei=imei,
+                                                                                                         seen_with=seen_with))  # dirbs core imei api call
+        if imei_response.status_code == 200:
+            return imei_response.json()
+        else:
+            return {}
+
+    @staticmethod
+    def get_tac(tac):
+        tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core tac api call
+        if tac_response.status_code == 200:
+            return tac_response.json()
+        else:
+            return {"gsma": None, "tac": tac}
+
+    @staticmethod
+    def get_status(imei, seen_with, tac):
+        imei_response = CommonResoures.get_imei(imei, seen_with)
+        tac_response = CommonResoures.get_tac(tac)
+        print(imei_response)
+        print(tac_response)
+        if imei_response:
+            return {"response": dict(imei_response, **tac_response), "message": "success", "status": responses.get('ok')}
+        else:
+            return {"response": {}, "message": "Connection error, Please try again later.", "status": responses.get('timeout')}
+
+    @staticmethod
+    def serialize(status_response, status_type):
+        response = dict()
+        if status_type == "basic":
+            response['imei'] = status_response['imei_norm']
+            response['brand'] = status_response['gsma']['brand_name']
+            response['model_name'] = status_response['gsma']['model_name']
+        else:
+            response['imei'] = status_response['imei_norm']
+            response['brand'] = status_response['gsma']['brand_name']
+            response['model_name'] = status_response['gsma']['model_name']
+            response['model_number'] = status_response['gsma']['marketing_name']
+            response['device_type'] = status_response['gsma']['device_type']
+            response['manufacturer'] = status_response['gsma']['manufacturer']
+            response['operating_system'] = status_response['gsma']['operating_system']
+            response['radio_access_technology'] = status_response['gsma']['bands']
+            response['classification_state'] = status_response['classification_state']
+        return response
+

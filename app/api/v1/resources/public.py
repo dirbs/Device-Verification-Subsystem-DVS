@@ -3,12 +3,10 @@ from flask import request
 from webargs.flaskparser import parser
 
 from app import Root, GlobalConfig, version
-from .common import CommonResoures
+from .common import CommonResources
 from ..assets.error_handling import *
 from ..assets.responses import responses, mime_types
 from ..requests.status_request import basic_status_args
-
-resource = CommonResoures()
 
 
 class BasicStatus:
@@ -33,7 +31,7 @@ class BasicStatus:
                     response['brand'] = basic_status['gsma']['brand_name']
                     response['model_name'] = basic_status['gsma']['model_name']
                     blocking_conditions = basic_status['classification_state']['blocking_conditions']
-                    complain_status = resource.get_complaince_status(blocking_conditions,
+                    complain_status = CommonResources.get_complaince_status(blocking_conditions,
                                                                      basic_status['seen_with'])  # get compliance status
                     response = dict(response, **complain_status) if complain_status else response
                     return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
