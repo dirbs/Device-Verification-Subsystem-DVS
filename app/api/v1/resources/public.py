@@ -15,7 +15,7 @@ class BasicStatus:
     def get():
         try:
             args = parser.parse(basic_status_args, request)
-            response = dict()
+            response = dict({"imei": args['imei'], "compliance": {}, "gsma": {}})
             tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
             if tac.isdigit():
                 tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core tac api call
@@ -28,22 +28,17 @@ class BasicStatus:
                     return custom_response("Connection error, Please try again later.", responses.get('timeout'), mime_types.get('json'))
                 if basic_status['gsma']:  # TAC verification
                     response['imei'] = basic_status['imei_norm']
-                    response['brand'] = basic_status['gsma']['brand_name']
-                    response['model_name'] = basic_status['gsma']['model_name']
+                    response['gsma']['brand'] = basic_status['gsma']['brand_name']
+                    response['gsma']['model_name'] = basic_status['gsma']['model_name']
                     blocking_conditions = basic_status['classification_state']['blocking_conditions']
-                    complain_status = CommonResources.get_complaince_status(blocking_conditions,
+                    response = CommonResources.get_complaince_status(response, blocking_conditions,
                                                                      basic_status['seen_with'])  # get compliance status
-                    response = dict(response, **complain_status) if complain_status else response
                     return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
                 else:
                     data = {
-                        "imei": "",
-                        "brand": "",
-                        "model_name": "",
-                        "complaince_status": "",
-                        "inactivity_reasons": "",
-                        "link_to_help": "",
-                        "block_date": ""
+                        "imei": args['imei'],
+                        "compliance": None,
+                        "gsma": None
                     }
                     return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
             else:
