@@ -6,13 +6,14 @@ from ..assets.responses import responses
 class CommonResources:
 
     @staticmethod
-    def get_complaince_status(response, blocking_conditions, seen_with):
+    def get_complaince_status(response, blocking_conditions, seen_with, status):
         try:
             response['compliance']['status'] = "Non compliant" if any(blocking_conditions[key] for key in blocking_conditions) else "Compliant (Active)" if seen_with else "Compliant (Inactive)"
             if response['compliance']['status'] == "Non compliant":
-                response['compliance']['inactivity_reasons'] = [key for key in blocking_conditions if blocking_conditions[key]]
-                response['compliance']['link_to_help'] = GlobalConfig['HelpUrl']
                 response['compliance']['block_date'] = GlobalConfig['BlockDate']
+                if status == "basic":
+                    response['compliance']['inactivity_reasons'] = [key for key in blocking_conditions if blocking_conditions[key]]
+                    response['compliance']['link_to_help'] = GlobalConfig['HelpUrl']
             return response
         except Exception as e:
             raise e

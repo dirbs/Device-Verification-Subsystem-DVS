@@ -32,7 +32,7 @@ class BasicStatus:
                     response['gsma']['model_name'] = basic_status['gsma']['model_name']
                     blocking_conditions = basic_status['classification_state']['blocking_conditions']
                     response = CommonResources.get_complaince_status(response, blocking_conditions,
-                                                                     basic_status['seen_with'])  # get compliance status
+                                                                     basic_status['seen_with'], "basic")  # get compliance status
                     return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
                 else:
                     data = {
