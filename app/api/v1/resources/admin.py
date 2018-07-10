@@ -43,7 +43,7 @@ class FullStatus:
                     response = CommonResources.get_complaince_status(response,
                                                                      blocking_conditions,
                                                                      full_status.get('seen_with'), "full")  # get compliance status
-                    response['associated_msisdn'] = full_status.get('seen_with')
+                    response['seen_with'] = full_status.get('seen_with')
                     if len(full_status.get('seen_with')) > 0:
                         response = Pagination.paginate(data=response, start=args.get('start', 1),
                                                        limit=args.get('limit', 2), imei=imei,
