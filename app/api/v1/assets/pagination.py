@@ -8,7 +8,7 @@ class Pagination:
         try:
             count = len(data['associated_msisdn'])
             if count < start:
-                return "No content on this page.", responses.get('no_content')
+                return data
 
             # make response
             data['start'] = start

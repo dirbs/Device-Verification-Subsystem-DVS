@@ -43,7 +43,7 @@ class FullStatus:
                     complain_status = CommonResources.get_complaince_status(blocking_conditions, full_status.get(
                         'seen_with'))  # get compliance status
                     response = dict(response, **complain_status) if complain_status else response
-                    if seen_with == 1:
+                    if seen_with == 1 and len(full_status.get('seen_with')) > 0:
                         response['associated_msisdn'] = full_status.get('seen_with')
                         response, status = Pagination.paginate(data=response, start=args.get('start', 1),
                                                                limit=args.get('limit', 2), imei=imei,
@@ -54,8 +54,22 @@ class FullStatus:
                     return Response(json.dumps(response), status=responses.get('ok'),
                                     mimetype=mime_types.get('json'))
                 else:
-                    return custom_response("IMEI not found", responses.get('not_found'),
-                                           mimetype=mime_types.get('json'))
+                    data = {
+                        "imei": "",
+                        "brand": "",
+                        "model_name": "",
+                        "model_number": "",
+                        "device_type": "",
+                        "manufacturer": "",
+                        "operating_system": "",
+                        "radio_access_technology": "",
+                        "classification_state": "",
+                        "complaince_status": "",
+                        "inactivity_reasons": "",
+                        "link_to_help": "",
+                        "block_date": ""
+                    }
+                    return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
             else:
                 return custom_response("Bad TAC format", responses.get('bad_request'), mime_types.get('json'))
 

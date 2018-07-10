@@ -36,7 +36,16 @@ class BasicStatus:
                     response = dict(response, **complain_status) if complain_status else response
                     return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
                 else:
-                    return custom_response("IMEI not found", responses.get('not_found'), mime_types.get('json'))
+                    data = {
+                        "imei": "",
+                        "brand": "",
+                        "model_name": "",
+                        "complaince_status": "",
+                        "inactivity_reasons": "",
+                        "link_to_help": "",
+                        "block_date": ""
+                    }
+                    return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
             else:
                 return custom_response("Bad TAC format", responses.get('bad_request'), mime_types.get('json'))
 
