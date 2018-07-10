@@ -1,5 +1,4 @@
 import json
-import time
 from app import app
 from .resources.public import BasicStatus
 from .resources.admin import FullStatus
