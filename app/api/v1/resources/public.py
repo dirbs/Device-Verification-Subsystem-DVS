@@ -18,25 +18,21 @@ class BasicStatus:
             response = dict()
             tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
             if tac.isdigit():
-                tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core tac api call
-                imei_response = requests.get('{}/{}/imei/{}?include_seen_with=1'.format(Root, version, args['imei']))  # dirbs core imei api call
-                if tac_response.status_code == 200 and imei_response.status_code == 200:
-                    tac_response = tac_response.json()
-                    imei_response = imei_response.json()
-                    basic_status = dict(tac_response, **imei_response)  # join api response
+                status = CommonResources.get_status(imei=args.get('imei'), seen_with=1, tac=tac)
+                basic_status = status.get('response')
+                if basic_status:
+                    print(basic_status)
+                    if basic_status['gsma']:  # TAC verification
+                        response = CommonResources.serialize(basic_status, "basic")
+                        blocking_conditions = basic_status['classification_state']['blocking_conditions']
+                        complain_status = CommonResources.get_complaince_status(blocking_conditions,
+                                                                         basic_status['seen_with'])  # get compliance status
+                        response = dict(response, **complain_status) if complain_status else response
+                        return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                    else:
+                        return custom_response("IMEI not found", responses.get('not_found'), mime_types.get('json'))
                 else:
-                    return custom_response("Connection error, Please try again later.", responses.get('timeout'), mime_types.get('json'))
-                if basic_status['gsma']:  # TAC verification
-                    response['imei'] = basic_status['imei_norm']
-                    response['brand'] = basic_status['gsma']['brand_name']
-                    response['model_name'] = basic_status['gsma']['model_name']
-                    blocking_conditions = basic_status['classification_state']['blocking_conditions']
-                    complain_status = CommonResources.get_complaince_status(blocking_conditions,
-                                                                     basic_status['seen_with'])  # get compliance status
-                    response = dict(response, **complain_status) if complain_status else response
-                    return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
-                else:
-                    return custom_response("IMEI not found", responses.get('not_found'), mime_types.get('json'))
+                    return custom_response(basic_status.get('message'), basic_status.get('status'), mime_types.get('json'))
             else:
                 return custom_response("Bad TAC format", responses.get('bad_request'), mime_types.get('json'))
 

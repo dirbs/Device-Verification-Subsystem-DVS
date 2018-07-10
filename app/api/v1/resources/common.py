@@ -24,7 +24,6 @@ class CommonResources:
                                                                                                          version=version,
                                                                                                          imei=imei,
                                                                                                          seen_with=seen_with))  # dirbs core imei api call
-        print("hello")
         if imei_response.status_code == 200:
             return imei_response.json()
         else:
