@@ -1,6 +1,12 @@
 import sys
+
 import yaml
 import configparser
+
+from urllib3.util.retry import Retry
+import requests
+from requests.adapters import HTTPAdapter
+
 from flask import Flask
 from flask_cors import CORS
 
@@ -22,6 +28,12 @@ try:
 
     Host = str(config['SERVER']['Host'])  # Server Host
     Port = int(config['SERVER']['Port'])  # Server Port
+
+    session = requests.Session()
+    retry = Retry(total=3, backoff_factor=1, status_forcelist=[502, 503, 504])
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
 
     from app.api.v1 import *
     app.register_blueprint(public_api, url_prefix=BaseUrl)

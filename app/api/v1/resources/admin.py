@@ -18,7 +18,6 @@ class FullStatus:
             args = parser.parse(full_status_args, request)
             response = {}
             imei = args.get('imei')
-            seen_with = args.get('seen_with', 0)
             tac = imei[:GlobalConfig['TacLength']]  # slice TAC from IMEI
             if tac.isdigit():
                 tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core TAC api call
@@ -43,11 +42,11 @@ class FullStatus:
                     complain_status = CommonResources.get_complaince_status(blocking_conditions, full_status.get(
                         'seen_with'))  # get compliance status
                     response = dict(response, **complain_status) if complain_status else response
-                    if seen_with == 1:
-                        response['associated_msisdn'] = full_status.get('seen_with')
+                    response['associated_msisdn'] = full_status.get('seen_with')
+                    if full_status.get('seen_with'):
                         response, status = Pagination.paginate(data=response, start=args.get('start', 1),
                                                                limit=args.get('limit', 2), imei=imei,
-                                                               seen_with=seen_with, url='{}/fullstatus'.format(BaseUrl))
+                                                               url='{}/fullstatus'.format(BaseUrl))
                         return Response(json.dumps(response), status=status,
                                         mimetype=mime_types.get('json'))
 
