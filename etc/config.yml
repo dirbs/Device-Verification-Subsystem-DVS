@@ -15,7 +15,7 @@ global:
 
   # minimum and maximum imei range
   MinImeiRange: '000000'
-  MaxImeiRange: 1000000  # TODO: change it to 1000000 after testing
+  MaxImeiRange: 1000  # TODO: change it to 1000000 after testing
 
   # variables to be configured
   HelpUrl: 'not confirmed'
@@ -38,4 +38,11 @@ upload_dir:
 application_root:
 
   # application root url
-  RootUrl: /api/v1
+  RootUrl: '/api/v1'
+  ServerIP: '192.168.100.74'
+
+# celery configurations
+celery:
+
+  CeleryBrokerUrl: 'pyamqp://guest@localhost:5672//'
+  CeleryResultBackend: 'amqp://'
