@@ -15,7 +15,7 @@ class BasicStatus:
     def get():
         try:
             args = parser.parse(basic_status_args, request)
-            response = dict()
+            response = dict({"imei": args['imei'], "compliance": {}, "gsma": {}})
             tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
             if tac.isdigit():
                 status = CommonResources.get_status(imei=args.get('imei'), seen_with=1, tac=tac)

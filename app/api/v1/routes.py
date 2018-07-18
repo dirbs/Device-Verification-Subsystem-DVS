@@ -30,12 +30,21 @@ def index():
 
 @public_api.route('/basicstatus', methods=['GET'])
 def basicstatus():
-    return BasicStatus.get()
-
+    response = BasicStatus.get()
+    if response.status_code in [504, 503]:
+        response = BasicStatus.get()
+        if response.status_code in [504, 503]:
+            response = BasicStatus.get()
+    return response
 
 @admin_api.route('/fullstatus', methods=['POST'])
 def fullstatus():
-    return FullStatus.get()
+    response = FullStatus.get()
+    if response.status_code in [504, 503]:
+        response = FullStatus.get()
+        if response.status_code in [504, 503]:
+            response = FullStatus.get()
+    return response
 
 
 @bulk_api.route('/bulk', methods=['POST'])

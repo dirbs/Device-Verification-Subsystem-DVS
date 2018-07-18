@@ -16,7 +16,8 @@ class FullStatus:
     def get():
         try:
             args = parser.parse(full_status_args, request)
-            response = {}
+            response = dict({"imei": args['imei'], "compliance": {}, "gsma": {},
+                             "subscribers": "N/A", "stolen_status": "N/A", "registration_status": "N/A"})
             imei = args.get('imei')
             tac = imei[:GlobalConfig['TacLength']]  # slice TAC from IMEI
             if tac.isdigit():
@@ -30,31 +31,41 @@ class FullStatus:
                     return custom_response("Connection error, Please try again later.", responses.get('timeout'), mime_types.get('json'))
                 if full_status['gsma']:  # TAC verification
                     response['imei'] = full_status['imei_norm']
-                    response['brand'] = full_status['gsma']['brand_name']
-                    response['model_name'] = full_status['gsma']['model_name']
-                    response['model_number'] = full_status['gsma']['marketing_name']
-                    response['device_type'] = full_status['gsma']['device_type']
-                    response['manufacturer'] = full_status['gsma']['manufacturer']
-                    response['operating_system'] = full_status['gsma']['operating_system']
-                    response['radio_access_technology'] = full_status['gsma']['bands']
+                    response['gsma']['brand'] = full_status['gsma']['brand_name']
+                    response['gsma']['model_name'] = full_status['gsma']['model_name']
+                    response['gsma']['model_number'] = full_status['gsma']['marketing_name']
+                    response['gsma']['device_type'] = full_status['gsma']['device_type']
+                    response['gsma']['manufacturer'] = full_status['gsma']['manufacturer']
+                    response['gsma']['operating_system'] = full_status['gsma']['operating_system']
+                    response['gsma']['radio_access_technology'] = full_status['gsma']['bands']
                     response['classification_state'] = full_status['classification_state']
                     blocking_conditions = full_status['classification_state']['blocking_conditions']
-                    complain_status = CommonResources.get_complaince_status(blocking_conditions, full_status.get(
-                        'seen_with'))  # get compliance status
-                    response = dict(response, **complain_status) if complain_status else response
-                    response['associated_msisdn'] = full_status.get('seen_with')
-                    if full_status.get('seen_with'):
-                        response, status = Pagination.paginate(data=response, start=args.get('start', 1),
-                                                               limit=args.get('limit', 2), imei=imei,
-                                                               url='{}/fullstatus'.format(BaseUrl))
-                        return Response(json.dumps(response), status=status,
+                    response = CommonResources.get_complaince_status(response,
+                                                                     blocking_conditions,
+                                                                     full_status.get('seen_with'), "full")  # get compliance status
+                    response['seen_with'] = full_status.get('seen_with')
+                    if len(full_status.get('seen_with')) > 0:
+                        response = Pagination.paginate(data=response, start=args.get('start', 1),
+                                                       limit=args.get('limit', 2), imei=imei,
+                                                       url='{}/fullstatus'.format(BaseUrl))
+                        return Response(json.dumps(response), status=responses.get('ok'),
                                         mimetype=mime_types.get('json'))
 
                     return Response(json.dumps(response), status=responses.get('ok'),
                                     mimetype=mime_types.get('json'))
                 else:
-                    return custom_response("IMEI not found", responses.get('not_found'),
-                                           mimetype=mime_types.get('json'))
+                    data = {
+                        "imei": args['imei'],
+                        "gsma": None,
+                        "compliance": None,
+                        "classification_state": None,
+                        "seen_with": None,
+                        "stolen_status": None,
+                        "registration_status": None,
+                        "subscribers": None
+
+                    }
+                    return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
             else:
                 return custom_response("Bad TAC format", responses.get('bad_request'), mime_types.get('json'))
 
