@@ -23,6 +23,7 @@ class Pagination:
                 start_copy = max(1, start - limit)
                 limit_copy = max(1, start - 1)
                 data['previous'] = url + '?imei=%s&start=%d&limit=%d' % (imei, start_copy, limit_copy)
+                
 
             # make next url
             if start + limit > count:

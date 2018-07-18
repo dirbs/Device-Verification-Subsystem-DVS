@@ -39,10 +39,8 @@ class CommonResources:
 
     @staticmethod
     def get_status(imei, seen_with, tac):
-        imei_response = CommonResoures.get_imei(imei, seen_with)
-        tac_response = CommonResoures.get_tac(tac)
-        print(imei_response)
-        print(tac_response)
+        imei_response = CommonResources.get_imei(imei, seen_with)
+        tac_response = CommonResources.get_tac(tac)
         if imei_response:
             return {"response": dict(imei_response, **tac_response), "message": "success", "status": responses.get('ok')}
         else:

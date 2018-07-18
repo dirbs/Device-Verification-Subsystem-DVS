@@ -1,3 +1,5 @@
+celery
+urllib3
 pandas
 PyYAML
 flask
