@@ -6,15 +6,14 @@ from ..assets.responses import responses
 class CommonResources:
 
     @staticmethod
-    def get_complaince_status(blocking_conditions, seen_with, status):
+    def get_complaince_status(blocking_conditions, seen_with):
         try:
             response = dict()
             response['complaince_status'] = "Non compliant" if any(blocking_conditions[key] for key in blocking_conditions) else "Compliant (Active)" if seen_with else "Compliant (Inactive)"
             if response['complaince_status'] == "Non compliant":
+                response['inactivity_reasons'] = [key for key in blocking_conditions if blocking_conditions[key]]
+                response['link_to_help'] = GlobalConfig['HelpUrl']
                 response['block_date'] = GlobalConfig['BlockDate']
-                if status == "basic":
-                    response['inactivity_reasons'] = [key.capitalize() for key in blocking_conditions if blocking_conditions[key]]
-                    response['link_to_help'] = GlobalConfig['HelpUrl']
             return response
         except Exception as e:
             raise e
@@ -40,8 +39,10 @@ class CommonResources:
 
     @staticmethod
     def get_status(imei, seen_with, tac):
-        imei_response = CommonResources.get_imei(imei, seen_with)
-        tac_response = CommonResources.get_tac(tac)
+        imei_response = CommonResoures.get_imei(imei, seen_with)
+        tac_response = CommonResoures.get_tac(tac)
+        print(imei_response)
+        print(tac_response)
         if imei_response:
             return {"response": dict(imei_response, **tac_response), "message": "success", "status": responses.get('ok')}
         else:
