@@ -35,6 +35,11 @@ $ python setup.py build
 $ python setup.py install
 ```
 
+9. Install rabbitmq-server
+```bash
+$ sudo apt-get install rabbitmq-server
+```
+
 ### Usage
 #### Running Tests
 Run test-suits:

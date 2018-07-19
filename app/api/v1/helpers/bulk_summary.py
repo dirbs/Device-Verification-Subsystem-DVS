@@ -59,45 +59,60 @@ class BulkSummary:
 
     @staticmethod
     def get_records(imeis, tac_response, records, invalid_imeis):
-        for imei in imeis:
-            if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')),
-                                       int(GlobalConfig.get('MaxImeiLength'))) \
-                    and re.match(r'^[a-fA-F0-9]{14,16}$', str(imei)) is not None:  # imei format validation
-                imei_response = session.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
-                if imei_response.status_code == 200:
-                    imei_response = imei_response.json()
-                    full_status = dict(tac_response, **imei_response)
-                    records.append(full_status)
-            else:
-                invalid_imeis[0] = invalid_imeis[0] + 1  # increment invalid IMEI count in case of IMEI validation failure
-
-        return {"records": records, "invalid_imeis": invalid_imeis[0]}
+        try:
+            while imeis:  # queue not empty
+                try:
+                    imei = imeis.pop(-1)  # pop the last item from queue
+                    if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')),
+                                               int(GlobalConfig.get('MaxImeiLength'))) \
+                            and re.match(r'^[a-fA-F0-9]{14,16}$', str(imei)) is not None:  # imei format validation
+                        imei_response = session.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
+                        if imei_response.status_code == 200:
+                            imei_response = imei_response.json()
+                            full_status = dict(tac_response, **imei_response)
+                            records.append(full_status)
+                    else:
+                        invalid_imeis[0] = invalid_imeis[0] + 1  # increment invalid IMEI count in case of IMEI validation failure
+                except ConnectionError:
+                    imeis.insert(0, imei)  # in case of connection error append imei at first index
+                    pass
+            return {"records": records, "invalid_imeis": invalid_imeis[0]}
+        except Exception as error:
+            raise error
 
     @staticmethod
     def get_imei_records(imeis, records, invalid_imeis):
-        for imei in imeis:
-            if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')),
-                                       int(GlobalConfig.get('MaxImeiLength'))) \
-                    and re.match(r'^[a-fA-F0-9]{14,16}$', str(imei)) is not None:  # imei format validation
-                tac = str(imei)[:GlobalConfig.get('TacLength')]  # slicing TAC from IMEI
-                if tac.isdigit():
-                    tac_response = session.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core TAC api call
-                    imei_response = session.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
-                    if tac_response.status_code == 200 and imei_response.status_code == 200:
-                        tac_response = tac_response.json()
-                        imei_response = imei_response.json()
-                        full_status = dict(tac_response, **imei_response)
-                        records.append(full_status)
-                else:
-                    imei_response = session.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
-                    tac_response = {"gsma": None, "tac": tac}
-                    if imei_response.status_code == 200:
-                        imei_response = imei_response.json()
-                        full_status = dict(tac_response, **imei_response)
-                        records.append(full_status)
-            else:
-                invalid_imeis[0] = invalid_imeis[0] + 1  # increment invalid IMEI count in case of IMEI validation failure
-        return records, invalid_imeis[0]
+        try:
+            while imeis:  # queue not empty
+                try:
+                    imei = imeis.pop(-1)   # pop the last item from queue
+                    if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')),
+                                               int(GlobalConfig.get('MaxImeiLength'))) \
+                            and re.match(r'^[a-fA-F0-9]{14,16}$', str(imei)) is not None:  # imei format validation
+                        tac = str(imei)[:GlobalConfig.get('TacLength')]  # slicing TAC from IMEI
+                        if tac.isdigit():
+                            tac_response = session.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core TAC api call
+                            imei_response = session.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
+                            if tac_response.status_code == 200 and imei_response.status_code == 200:
+                                tac_response = tac_response.json()
+                                imei_response = imei_response.json()
+                                full_status = dict(tac_response, **imei_response)
+                                records.append(full_status)
+                        else:
+                            imei_response = session.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
+                            tac_response = {"gsma": None, "tac": tac}
+                            if imei_response.status_code == 200:
+                                imei_response = imei_response.json()
+                                full_status = dict(tac_response, **imei_response)
+                                records.append(full_status)
+                    else:
+                        invalid_imeis[0] = invalid_imeis[0] + 1  # increment invalid IMEI count in case of IMEI validation failure
+                except ConnectionError:
+                    imeis.insert(0, imei)  # in case of connection error append imei at first index
+                    pass
+            return records, invalid_imeis[0]
+        except Exception as error:
+            raise error
 
     @staticmethod
     def start_threads(imeis_list, type, tac_response=None):
@@ -112,12 +127,15 @@ class BulkSummary:
             for imei in imeis_list:
                 threads.append(Thread(target=BulkSummary.get_imei_records, args=(imei, records, invalid_imeis)))
 
+        # start threads for all imei chunks
         for x in threads:
             x.start()
 
+        # stop all threads on completion
         for t in threads:
             t.join()
 
+        # start thread for summary generation
         summary = Thread(target=BulkSummary.build_summary, args=(response, records, invalid_imeis))
         summary.start()
         summary.join()
@@ -128,7 +146,7 @@ class BulkSummary:
     @celery.task
     def get_summary(imeis_list, type, tac=None):
         try:
-            imeis_list = list(imeis_list[i:i + 1000] for i in range(0, len(imeis_list), 1000))
+            imeis_list = list(imeis_list[i:i + 10000] for i in range(0, len(imeis_list), 10000))  # make 100 chunks for 1 million imeis
             if type == "tac":
                 tac_response = session.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core TAC api call
                 if tac_response.status_code != 200:
@@ -137,12 +155,10 @@ class BulkSummary:
                     tac_response = tac_response.json()
 
                 response = BulkSummary.start_threads(imeis_list=imeis_list, tac_response=tac_response, type=type)
-
                 return response
 
             else:
                 response = BulkSummary.start_threads(imeis_list=imeis_list, type=type)
-
                 return response
 
         except Exception as e:
