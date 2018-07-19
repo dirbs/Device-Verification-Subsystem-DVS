@@ -4,11 +4,11 @@ from .responses import responses
 class Pagination:
 
     @staticmethod
-    def paginate(data, start, limit, imei, seen_with, url):  # TODO: optmizaion required
+    def paginate(data, start, limit, imei, url):  # TODO: optmizaion required
         try:
-            count = len(data['associated_msisdn'])
+            count = len(data['seen_with'])
             if count < start:
-                return "No content on this page.", responses.get('no_content')
+                return data
 
             # make response
             data['start'] = start
@@ -22,20 +22,20 @@ class Pagination:
             else:
                 start_copy = max(1, start - limit)
                 limit_copy = max(1, start - 1)
-                data['previous'] = url + '?imei=%s&seen_with=%d&start=%d&limit=%d' % (
-                    imei, seen_with, start_copy, limit_copy)
+                data['previous'] = url + '?imei=%s&start=%d&limit=%d' % (imei, start_copy, limit_copy)
+                
 
             # make next url
             if start + limit > count:
                 data['next'] = ''
             else:
                 start_copy = start + limit
-                data['next'] = url + '?imei=%s&seen_with=%d&start=%d&limit=%d' % (imei, seen_with, start_copy, limit)
+                data['next'] = url + '?imei=%s&start=%d&limit=%d' % (imei, start_copy, limit)
 
             # finally extract result according to bounds
-            data['associated_msisdn'] = data['associated_msisdn'][
+            data['seen_with'] = data['seen_with'][
                                         (start - 1):(start - 1 + limit) if (start - 1 + limit) <= count else count]
-            return data, responses.get('ok')
+            return data
 
         except Exception as e:
             raise e
