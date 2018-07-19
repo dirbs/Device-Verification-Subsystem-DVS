@@ -27,7 +27,7 @@ class BulkCheck:
                             if imeis and int(GlobalConfig['MinFileContent']) < len(imeis) < int(GlobalConfig['MaxFileContent']):  # input file content validation
                                 response = BulkSummary.get_summary.apply_async((imeis, "imeis"))
                                 data = {
-                                    "message": "PLease wait your file is being processed.",
+                                    "message": "Please wait your file is being processed.",
                                     "task_id": response.id
                                 }
                                 BulkCheck.task_list.append(response.id)
@@ -47,7 +47,7 @@ class BulkCheck:
                         imei_list = [int(imei) + x for x in range(int(GlobalConfig['MaxImeiRange']))]
                         response = BulkSummary.get_summary.apply_async((imei_list, "tac", tac))
                         data = {
-                            "message": "PLease wait your file is being processed.",
+                            "message": "Please wait your request is being processed.",
                             "task_id": response.id
                         }
                         BulkCheck.task_list.append(response.id)

@@ -56,6 +56,7 @@ def bulk():
 def download(filename):
     return BulkCheck.send_file(filename)
 
+
 @bulk_api.route('/bulkstatus/<tracking_id>', methods=['POST'])
 def status(tracking_id):
     return BulkCheck.check_status(tracking_id)

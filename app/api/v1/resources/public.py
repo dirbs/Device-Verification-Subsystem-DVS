@@ -26,11 +26,11 @@ class BasicStatus:
                         response = CommonResources.serialize(basic_status, "basic")
                         blocking_conditions = basic_status['classification_state']['blocking_conditions']
                         complain_status = CommonResources.get_complaince_status(blocking_conditions,
-                                                                         basic_status['seen_with'])  # get compliance status
+                                                                         basic_status['seen_with'], "basic")  # get compliance status
                         response = dict(response, **complain_status) if complain_status else response
                         return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
                     else:
-                        return custom_response("IMEI not found", responses.get('not_found'), mime_types.get('json'))
+                        return custom_response("IMEI not found", responses.get('ok'), mime_types.get('json'))
                 else:
                     return custom_response(basic_status.get('message'), basic_status.get('status'), mime_types.get('json'))
             else:
