@@ -47,21 +47,20 @@ class CommonResources:
             return {"response": {}, "message": "Connection error, Please try again later.", "status": responses.get('timeout')}
 
     @staticmethod
-    def serialize(status_response, status_type):
-        response = dict()
+    def serialize(response, status_response, status_type):
         if status_type == "basic":
             response['imei'] = status_response['imei_norm']
-            response['brand'] = status_response['gsma']['brand_name']
-            response['model_name'] = status_response['gsma']['model_name']
+            response['gsma']['brand'] = status_response['gsma']['brand_name']
+            response['gsma']['model_name'] = status_response['gsma']['model_name']
         else:
             response['imei'] = status_response['imei_norm']
-            response['brand'] = status_response['gsma']['brand_name']
-            response['model_name'] = status_response['gsma']['model_name']
-            response['model_number'] = status_response['gsma']['marketing_name']
-            response['device_type'] = status_response['gsma']['device_type']
-            response['manufacturer'] = status_response['gsma']['manufacturer']
-            response['operating_system'] = status_response['gsma']['operating_system']
-            response['radio_access_technology'] = status_response['gsma']['bands']
-            response['classification_state'] = status_response['classification_state']
+            response['gsma']['brand'] = status_response['gsma']['brand_name']
+            response['gsma']['model_name'] = status_response['gsma']['model_name']
+            response['gsma']['model_number'] = status_response['gsma']['marketing_name']
+            response['gsma']['device_type'] = status_response['gsma']['device_type']
+            response['gsma']['manufacturer'] = status_response['gsma']['manufacturer']
+            response['gsma']['operating_system'] = status_response['gsma']['operating_system']
+            response['gsma']['radio_access_technology'] = status_response['gsma']['bands']
+            response['gsma']['classification_state'] = status_response['classification_state']
         return response
 
