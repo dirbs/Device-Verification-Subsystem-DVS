@@ -53,7 +53,7 @@ class BulkCheck:
                         BulkCheck.task_list.append(response.id)
                         return Response(json.dumps(data), status=200, mimetype='application/json')
                     else:
-                        return custom_response("Invalid TAC", responses.get('bad_request'), mime_types.get('json'))
+                        return custom_response("Invalid TAC, Enter 8 digit TAC.", responses.get('bad_request'), mime_types.get('json'))
                 else:
                     return custom_response("Upload file or enter TAC.", status=responses.get('bad_request'), mimetype=mime_types.get('json'))
         except Exception as e:
@@ -68,7 +68,7 @@ class BulkCheck:
         except Exception as e:
             app.logger.info("Error occurred while downloading non compliant report.")
             app.logger.exception(e)
-            return custom_response("Compliant report not found.", responses.get('not_found'), mime_types.get('json'))
+            return custom_response("Compliant report not found.", responses.get('ok'), mime_types.get('json'))
 
     @staticmethod
     def check_status(task_id):
