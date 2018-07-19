@@ -40,7 +40,7 @@ class FullStatus:
                     response['classification_state'] = full_status['classification_state']
                     blocking_conditions = full_status['classification_state']['blocking_conditions']
                     complain_status = CommonResources.get_complaince_status(blocking_conditions, full_status.get(
-                        'seen_with'))  # get compliance status
+                        'seen_with'), "full")  # get compliance status
                     response = dict(response, **complain_status) if complain_status else response
                     response['associated_msisdn'] = full_status.get('seen_with')
                     if full_status.get('seen_with'):
@@ -53,7 +53,7 @@ class FullStatus:
                     return Response(json.dumps(response), status=responses.get('ok'),
                                     mimetype=mime_types.get('json'))
                 else:
-                    return custom_response("IMEI not found", responses.get('not_found'),
+                    return custom_response("IMEI not found", responses.get('ok'),
                                            mimetype=mime_types.get('json'))
             else:
                 return custom_response("Bad TAC format", responses.get('bad_request'), mime_types.get('json'))
