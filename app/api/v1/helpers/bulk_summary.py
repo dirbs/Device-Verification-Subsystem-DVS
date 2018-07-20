@@ -146,7 +146,7 @@ class BulkSummary:
     @celery.task
     def get_summary(imeis_list, type, tac=None):
         try:
-            imeis_list = list(imeis_list[i:i + 100000] for i in range(0, len(imeis_list), 100000))  # make 100 chunks for 1 million imeis
+            imeis_list = list(imeis_list[i:i + 10000] for i in range(0, len(imeis_list), 10000))  # make 100 chunks for 1 million imeis
             if type == "tac":
                 tac_response = session.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core TAC api call
                 if tac_response.status_code != 200:
