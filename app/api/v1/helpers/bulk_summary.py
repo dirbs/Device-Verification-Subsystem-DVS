@@ -63,6 +63,7 @@ class BulkSummary:
             while imeis:  # queue not empty
                 try:
                     imei = imeis.pop(-1)  # pop the last item from queue
+                    print(imei)
                     if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')),
                                                int(GlobalConfig.get('MaxImeiLength'))) \
                             and re.match(r'^[a-fA-F0-9]{14,16}$', str(imei)) is not None:  # imei format validation

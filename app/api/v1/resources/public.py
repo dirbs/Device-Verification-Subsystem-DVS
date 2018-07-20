@@ -21,19 +21,16 @@ class BasicStatus:
                 status = CommonResources.get_status(imei=args.get('imei'), seen_with=1, tac=tac)
                 basic_status = status.get('response')
                 if basic_status:
+                    blocking_conditions = basic_status['classification_state']['blocking_conditions']
+                    response = CommonResources.get_complaince_status(response, blocking_conditions,
+                                                                     basic_status['seen_with'],
+                                                                     "basic")  # get compliance status
                     if basic_status['gsma']:  # TAC verification
                         response = CommonResources.serialize(response, basic_status, "basic")
-                        blocking_conditions = basic_status['classification_state']['blocking_conditions']
-                        response = CommonResources.get_complaince_status(response, blocking_conditions,
-                                                                         basic_status['seen_with'], "basic")  # get compliance status
                         return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
                     else:
-                        data = {
-                            "imei": args['imei'],
-                            "gsma": None,
-                            "compliance": None
-                        }
-                        return custom_response(json.dumps(data), responses.get('ok'), mime_types.get('json'))
+                        print(response)
+                        return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
                 else:
                     return custom_response(basic_status.get('message'), basic_status.get('status'), mime_types.get('json'))
             else:

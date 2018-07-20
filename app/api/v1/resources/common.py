@@ -12,7 +12,7 @@ class CommonResources:
             if response['compliance']['status'] == "Non compliant":
                 response['compliance']['block_date'] = GlobalConfig['BlockDate']
                 if status == "basic":
-                    response['compliance']['inactivity_reasons'] = [key for key in blocking_conditions if blocking_conditions[key]]
+                    response['compliance']['inactivity_reasons'] = [key.capitalize() for key in blocking_conditions if blocking_conditions[key]]
                     response['compliance']['link_to_help'] = GlobalConfig['HelpUrl']
             return response
         except Exception as e:
@@ -61,6 +61,5 @@ class CommonResources:
             response['gsma']['manufacturer'] = status_response['gsma']['manufacturer']
             response['gsma']['operating_system'] = status_response['gsma']['operating_system']
             response['gsma']['radio_access_technology'] = status_response['gsma']['bands']
-            response['gsma']['classification_state'] = status_response['classification_state']
         return response
 
