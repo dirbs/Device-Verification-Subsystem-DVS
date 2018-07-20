@@ -21,43 +21,24 @@ class FullStatus:
             imei = args.get('imei')
             tac = imei[:GlobalConfig['TacLength']]  # slice TAC from IMEI
             if tac.isdigit():
-                tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core TAC api call
-                imei_response = requests.get('{}/{}/imei/{}?include_seen_with=1'.format(Root, version, imei))  # dirbs core IMEI api call with seen with information
-                if tac_response.status_code == 200 and imei_response.status_code == 200:
-                    tac_response = tac_response.json()
-                    imei_response = imei_response.json()
-                    full_status = dict(tac_response, **imei_response)
-                else:
-                    return custom_response("Connection error, Please try again later.", responses.get('timeout'), mime_types.get('json'))
+                status = CommonResources.get_status(imei=args.get('imei'), seen_with=1, tac=tac)
+                full_status = status.get('response')
+                blocking_conditions = full_status['classification_state']['blocking_conditions']
+                response = CommonResources.get_complaince_status(response, blocking_conditions,
+                                                                 full_status['seen_with'],
+                                                                 "full")  # get compliance status
+                response['classification_state'] = full_status['classification_state']
+                response['seen_with'] = full_status.get('seen_with')
+                if len(full_status.get('seen_with')) > 0:
+                    response = Pagination.paginate(data=response, start=args.get('start', 1),
+                                                   limit=args.get('limit', 2), imei=imei,
+                                                   url='{}/fullstatus'.format(BaseUrl))
                 if full_status['gsma']:  # TAC verification
-                    response = CommonResources.serialize(response, full_status, "full")
-                    blocking_conditions = full_status['classification_state']['blocking_conditions']
-                    response = CommonResources.get_complaince_status(response, blocking_conditions,
-                                                                     full_status['seen_with'],
-                                                                     "full")  # get compliance status
-                    response['seen_with'] = full_status.get('seen_with')
-                    if len(full_status.get('seen_with')) > 0:
-                        response = Pagination.paginate(data=response, start=args.get('start', 1),
-                                                       limit=args.get('limit', 2), imei=imei,
-                                                       url='{}/fullstatus'.format(BaseUrl))
+                        response = CommonResources.serialize(response, full_status, "full")
                         return Response(json.dumps(response), status=responses.get('ok'),
                                         mimetype=mime_types.get('json'))
-
-                    return Response(json.dumps(response), status=responses.get('ok'),
-                                    mimetype=mime_types.get('json'))
                 else:
-                    data = {
-                        "imei": args['imei'],
-                        "gsma": None,
-                        "compliance": None,
-                        "classification_state": None,
-                        "seen_with": None,
-                        "stolen_status": None,
-                        "registration_status": None,
-                        "subscribers": None
-
-                    }
-                    return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                    return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
             else:
                 return custom_response("Bad TAC format", responses.get('bad_request'), mime_types.get('json'))
 
