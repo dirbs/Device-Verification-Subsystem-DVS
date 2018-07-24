@@ -30,6 +30,7 @@ try:
     UploadDir = global_config['upload_dir']['UploadFolder']  # path to upload folder of non-compliance report
     BaseUrl = global_config['application_root']['RootUrl']  # app root url
     ServerAddress = global_config['application_root']['ServerIP']  # server address
+    CeleryConf = global_config['celery']
 
     Host = str(config['SERVER']['Host'])  # Server Host
     Port = int(config['SERVER']['Port'])  # Server Port
@@ -43,8 +44,8 @@ try:
     session.mount('https://', adapter)
 
     # celery configurations
-    app.config['CELERY_BROKER_URL'] = global_config['celery']['CeleryBrokerUrl']
-    app.config['result_backend'] = global_config['celery']['CeleryResultBackend']
+    app.config['CELERY_BROKER_URL'] = CeleryConf['RabbitmqUrl']
+    app.config['result_backend'] = CeleryConf['RabbitmqBackend']
     app.config['broker_pool_limit'] = None
 
     celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])

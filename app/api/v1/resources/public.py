@@ -18,18 +18,17 @@ class BasicStatus:
             response = dict({"imei": args['imei'], "compliance": {}, "gsma": {}})
             tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
             if tac.isdigit():
-                status = CommonResources.get_status(imei=args.get('imei'), seen_with=1, tac=tac)
+                status = CommonResources.get_status(imei=args.get('imei'), tac=tac)
                 basic_status = status.get('response')
                 if basic_status:
                     blocking_conditions = basic_status['classification_state']['blocking_conditions']
                     response = CommonResources.get_complaince_status(response, blocking_conditions,
-                                                                     basic_status['seen_with'],
+                                                                     basic_status['subscribers'],
                                                                      "basic")  # get compliance status
                     if basic_status['gsma']:  # TAC verification
                         response = CommonResources.serialize(response, basic_status, "basic")
                         return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
                     else:
-                        print(response)
                         return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
                 else:
                     return custom_response(basic_status.get('message'), basic_status.get('status'), mime_types.get('json'))

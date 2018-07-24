@@ -8,26 +8,25 @@ class CommonResources:
     @staticmethod
     def get_complaince_status(response, blocking_conditions, seen_with, status):
         try:
-            response['compliance']['status'] = "Non compliant" if any(blocking_conditions[key] for key in blocking_conditions) else "Compliant (Active)" if seen_with else "Compliant (Inactive)"
+            response['compliance']['status'] = "Non compliant" if any(key['condition_met'] for key in blocking_conditions) else "Compliant (Active)" if seen_with else "Compliant (Inactive)"
             if response['compliance']['status'] == "Non compliant":
                 response['compliance']['block_date'] = GlobalConfig['BlockDate']
                 if status == "basic":
-                    response['compliance']['inactivity_reasons'] = [key.capitalize() for key in blocking_conditions if blocking_conditions[key]]
+                    response['compliance']['inactivity_reasons'] = [key['condition_name'].capitalize() for key in blocking_conditions if blocking_conditions[key]['condition_met']]
                     response['compliance']['link_to_help'] = GlobalConfig['HelpUrl']
             return response
         except Exception as e:
             raise e
 
     @staticmethod
-    def get_imei(imei, seen_with):
-        imei_response = requests.get('{base}/{version}/imei/{imei}?include_seen_with={seen_with}'.format(base=Root,
-                                                                                                         version=version,
-                                                                                                         imei=imei,
-                                                                                                         seen_with=seen_with))  # dirbs core imei api call
-        if imei_response.status_code == 200:
-            return imei_response.json()
-        else:
-            return {}
+    def get_imei(imei):
+        imei_url = requests.get('{base}/{version}/imei/{imei}'.format(base=Root, version=version, imei=imei))  # dirbs core imei api call
+        response = imei_url.json()
+
+        seen_with_url = requests.get('{base}/{version}/imei/{imei}/subscribers'.format(base=Root, version=version, imei=imei))  # dirbs core imei api call
+        seen_with_resp = seen_with_url.json()
+        response = dict(response, **seen_with_resp)
+        return response
 
     @staticmethod
     def get_tac(tac):
@@ -38,8 +37,8 @@ class CommonResources:
             return {"gsma": None, "tac": tac}
 
     @staticmethod
-    def get_status(imei, seen_with, tac):
-        imei_response = CommonResources.get_imei(imei, seen_with)
+    def get_status(imei, tac):
+        imei_response = CommonResources.get_imei(imei)
         tac_response = CommonResources.get_tac(tac)
         if imei_response:
             return {"response": dict(imei_response, **tac_response), "message": "success", "status": responses.get('ok')}
@@ -57,9 +56,9 @@ class CommonResources:
             response['gsma']['brand'] = status_response['gsma']['brand_name']
             response['gsma']['model_name'] = status_response['gsma']['model_name']
             response['gsma']['model_number'] = status_response['gsma']['marketing_name']
-            response['gsma']['device_type'] = status_response['gsma']['device_type']
+            response['gsma']['device_type'] = status_response['gsma']['gsma_device_type']
             response['gsma']['manufacturer'] = status_response['gsma']['manufacturer']
-            response['gsma']['operating_system'] = status_response['gsma']['operating_system']
+            response['gsma']['operating_system'] = status_response['gsma'].get('operating_system')
             response['gsma']['radio_access_technology'] = status_response['gsma']['bands']
         return response
 
