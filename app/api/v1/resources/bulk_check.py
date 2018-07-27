@@ -72,7 +72,6 @@ class BulkCheck:
 
     @staticmethod
     def check_status(task_id):
-        print(BulkCheck.task_list)
         if task_id in BulkCheck.task_list:
             task = BulkSummary.get_summary.AsyncResult(task_id)
             if task.state == 'SUCCESS' and task.get():
