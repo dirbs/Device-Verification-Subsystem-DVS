@@ -6,7 +6,7 @@ class Pagination:
     @staticmethod
     def paginate(data, start, limit, imei, url):  # TODO: optmizaion required
         try:
-            count = len(data['seen_with'])
+            count = len(data['subscribers'])
             if count < start:
                 return data
 
@@ -33,8 +33,7 @@ class Pagination:
                 data['next'] = url + '?imei=%s&start=%d&limit=%d' % (imei, start_copy, limit)
 
             # finally extract result according to bounds
-            data['seen_with'] = data['seen_with'][
-                                        (start - 1):(start - 1 + limit) if (start - 1 + limit) <= count else count]
+            data['subscribers'] = data['subscribers'][(start - 1):(start - 1 + limit) if (start - 1 + limit) <= count else count]
             return data
 
         except Exception as e:

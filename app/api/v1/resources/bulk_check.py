@@ -25,7 +25,7 @@ class BulkCheck:
                                 file.filename.rsplit('.', 1)[1].lower() in AllowedFiles:  # input file type validation
                             imeis = list(set(line.decode('ascii', errors='ignore') for line in (l.strip() for l in file) if line))
                             if imeis and int(GlobalConfig['MinFileContent']) < len(imeis) < int(GlobalConfig['MaxFileContent']):  # input file content validation
-                                response = BulkSummary.get_summary.apply_async((imeis, "imeis"))
+                                response = BulkSummary.get_summary.apply_async((imeis, "file"))
                                 data = {
                                     "message": "Please wait your file is being processed.",
                                     "task_id": response.id
@@ -44,8 +44,8 @@ class BulkCheck:
                 if tac:
                     if tac.isdigit() and len(tac) == int(GlobalConfig['TacLength']):
                         imei = tac + str(GlobalConfig['MinImeiRange'])
-                        imei_list = [int(imei) + x for x in range(int(GlobalConfig['MaxImeiRange']))]
-                        response = BulkSummary.get_summary.apply_async((imei_list, "tac", tac))
+                        imei_list = [str(int(imei) + x) for x in range(int(GlobalConfig['MaxImeiRange']))]
+                        response = BulkSummary.get_summary.apply_async((imei_list, "tac"))
                         data = {
                             "message": "Please wait your request is being processed.",
                             "task_id": response.id
@@ -74,7 +74,7 @@ class BulkCheck:
     def check_status(task_id):
         if task_id in BulkCheck.task_list:
             task = BulkSummary.get_summary.AsyncResult(task_id)
-            if task.state == 'SUCCESS':
+            if task.state == 'SUCCESS' and task.get():
                 response = {
                     "state": task.state,
                     "result": task.get()
@@ -84,14 +84,10 @@ class BulkCheck:
                 response = {
                     'state': task.state
                 }
-            elif task.state != 'FAILURE':
-                response = {
-                    'state': task.state
-                }
             else:
                 # something went wrong in the background job
                 response = {
-                    'state': task.state
+                    'state': 'Processing Failed.'
                 }
         else:
             response = {

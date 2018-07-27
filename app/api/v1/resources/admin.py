@@ -17,19 +17,21 @@ class FullStatus:
         try:
             args = parser.parse(full_status_args, request)
             response = dict({"imei": args['imei'], "compliance": {}, "gsma": {},
-                             "subscribers": "N/A", "stolen_status": "N/A", "registration_status": "N/A"})
+                             "subscribers": [], "stolen_status": [], "registration_status": []})
             imei = args.get('imei')
             tac = imei[:GlobalConfig['TacLength']]  # slice TAC from IMEI
             if tac.isdigit():
-                status = CommonResources.get_status(imei=args.get('imei'), seen_with=1, tac=tac)
+                status = CommonResources.get_status(imei=args.get('imei'), tac=tac)
                 full_status = status.get('response')
                 blocking_conditions = full_status['classification_state']['blocking_conditions']
                 response = CommonResources.get_complaince_status(response, blocking_conditions,
-                                                                 full_status['seen_with'],
+                                                                 full_status['subscribers'],
                                                                  "full")  # get compliance status
                 response['classification_state'] = full_status['classification_state']
-                response['seen_with'] = full_status.get('seen_with')
-                if len(full_status.get('seen_with')) > 0:
+                response['stolen_status'] = full_status.get('stolen_status')
+                response['registration_status'] = full_status.get('registration_status')
+                response['subscribers'] = full_status.get('subscribers')
+                if len(full_status.get('subscribers')) > 0:
                     response = Pagination.paginate(data=response, start=args.get('start', 1),
                                                    limit=args.get('limit', 2), imei=imei,
                                                    url='{}/fullstatus'.format(BaseUrl))

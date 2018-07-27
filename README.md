@@ -39,6 +39,10 @@ $ python setup.py install
 ```bash
 $ sudo apt-get install rabbitmq-server
 ```
+9. Start celery worker
+```bash
+$ celery -A app.celery worker --concurrency=10 --loglevel=info
+```
 
 ### Usage
 #### Running Tests

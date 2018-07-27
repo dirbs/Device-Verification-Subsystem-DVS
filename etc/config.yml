@@ -1,10 +1,10 @@
 # dirbs core url
 dirbs_core:
-  BaseUrl: http://dirbs.pta.gov.pk/core_api/api
-  Version: v1
+#  BaseUrl: http://dirbs.pta.gov.pk/core_api/api
+#  Version: v1
 #  BaseUrl: http://172.16.12.4/api
-  Corev2: 'http://192.168.100.89:5000/api'
-  Version2: v2
+  BaseUrl: 'http://192.168.100.89:5000/api'
+  Version: v2
 
 # dvs global configurations
 global:
@@ -47,5 +47,11 @@ application_root:
 # celery configurations
 celery:
 
-  CeleryBrokerUrl: 'pyamqp://guest@localhost:5672//'
-  CeleryResultBackend: 'amqp://'
+  RabbitmqUrl: 'pyamqp://'
+  RabbitmqBackend: 'amqp://'
+
+  RedisUrl: 'redis://'
+  RedisBackend: 'redis://'
+
+  RpcUrl: 'rpc://'
+  RpcBackend: 'rpc://'
