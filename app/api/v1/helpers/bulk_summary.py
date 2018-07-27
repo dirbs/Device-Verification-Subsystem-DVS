@@ -12,11 +12,22 @@ upload_folder = os.path.join(app.root_path, UploadDir)
 
 class BulkSummary:
     @staticmethod
-    def count_per_blocking_condition(blocking_conditions):
-        count_per_condition = {}
-        for key in blocking_conditions:
-            count_per_condition[key] = len(blocking_conditions[blocking_conditions[key]])
-        return count_per_condition
+    def count_condition(conditions, count):
+        condition = []
+        for c in conditions.transpose():
+            cond = {}
+            for i in conditions.transpose()[c]:
+                cond[i['condition_name']] = i['condition_met']  # serialize conditions in list of dictionaries
+            condition.append(cond)
+        condition = pd.DataFrame(condition)
+        for key in condition:  # iterate over list
+            count[key] = len(condition[condition[key]])  # count meeting conditions
+        return count, condition
+
+    @staticmethod
+    def status_count(state):
+        count = len(state[state['status'] == "pending"])  # count pending imeis in registration and stolen lists
+        return count
 
     @staticmethod
     def no_condition_count(all_conditions):
@@ -25,13 +36,6 @@ class BulkSummary:
             if (~all_conditions[key]).all():
                 no_conditions += 1
         return no_conditions
-
-    @staticmethod
-    def count_per_info_condition(count_per_condition, informative_condition):
-        if not informative_condition.empty:
-            for key in informative_condition:
-                count_per_condition[key] = len(informative_condition[informative_condition[key]])
-        return count_per_condition
 
     @staticmethod
     def generate_compliant_report(blocking_conditions, records):
@@ -46,86 +50,45 @@ class BulkSummary:
                 complaint_status['imei'] = imeis[key]
                 complaint_status['status'] = "Non complaint"
                 complaint_status['reasons'] = compliant.index[compliant[key]].tolist()
-                complaint_status['block_date'] = GlobalConfig['BlockDate']
                 complaint_report.append(complaint_status)
                 non_complaint += 1
         complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
         report_name = "report not generated."
         if non_complaint != 0:
-            report_name = 'compliant_report'+str(uuid.uuid4())+'.tsv'
+            report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
             complaint_report.to_csv(os.path.join(upload_folder, report_name),
                                     sep='\t')  # writing non compliant statuses to .tsv file
-        return non_complaint, report_name
+        return non_complaint, report_name, complaint_report
 
     @staticmethod
-    def get_records(imeis, tac_response, records, invalid_imeis):
+    def get_records(imeis, records, unprocessed_imeis):
         try:
-            while imeis:  # queue not empty
+            for imei in range(len(imeis)):  # queue not empty
                 try:
                     imei = imeis.pop(-1)  # pop the last item from queue
-                    if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')),
-                                               int(GlobalConfig.get('MaxImeiLength'))) \
-                            and re.match(r'^[a-fA-F0-9]{14,16}$', str(imei)) is not None:  # imei format validation
-                        imei_response = session.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
-                        if imei_response.status_code == 200:
-                            imei_response = imei_response.json()
-                            full_status = dict(tac_response, **imei_response)
-                            records.append(full_status)
-                    else:
-                        invalid_imeis[0] = invalid_imeis[0] + 1  # increment invalid IMEI count in case of IMEI validation failure
+                    batch_req = {
+                        "imeis": imei
+                    }
+                    headers = {'content-type': 'application/json','charset': 'utf-8'}
+                    imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core IMEI api call
+                    if imei_response.status_code == 200:
+                        imei_response = imei_response.json()
+                        # full_status = dict(tac_response, **imei_response)
+                        records.extend(imei_response['results'])
                 except ConnectionError:
-                    imeis.insert(0, imei)  # in case of connection error append imei at first index
+                    unprocessed_imeis.append(len(imei))  # in case of connection error append imei at first index
                     pass
-            return {"records": records, "invalid_imeis": invalid_imeis[0]}
         except Exception as error:
             raise error
 
     @staticmethod
-    def get_imei_records(imeis, records, invalid_imeis):
-        try:
-            while imeis:  # queue not empty
-                try:
-                    imei = imeis.pop(-1)   # pop the last item from queue
-                    if len(str(imei)) in range(int(GlobalConfig.get('MinImeiLength')),
-                                               int(GlobalConfig.get('MaxImeiLength'))) \
-                            and re.match(r'^[a-fA-F0-9]{14,16}$', str(imei)) is not None:  # imei format validation
-                        tac = str(imei)[:GlobalConfig.get('TacLength')]  # slicing TAC from IMEI
-                        if tac.isdigit():
-                            tac_response = session.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core TAC api call
-                            imei_response = session.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
-                            if tac_response.status_code == 200 and imei_response.status_code == 200:
-                                tac_response = tac_response.json()
-                                imei_response = imei_response.json()
-                                full_status = dict(tac_response, **imei_response)
-                                records.append(full_status)
-                        else:
-                            imei_response = session.get('{}/{}/imei/{}'.format(Root, version, imei))  # dirbs core IMEI api call
-                            tac_response = {"gsma": None, "tac": tac}
-                            if imei_response.status_code == 200:
-                                imei_response = imei_response.json()
-                                full_status = dict(tac_response, **imei_response)
-                                records.append(full_status)
-                    else:
-                        invalid_imeis[0] = invalid_imeis[0] + 1  # increment invalid IMEI count in case of IMEI validation failure
-                except ConnectionError:
-                    imeis.insert(0, imei)  # in case of connection error append imei at first index
-                    pass
-            return records, invalid_imeis[0]
-        except Exception as error:
-            raise error
-
-    @staticmethod
-    def start_threads(imeis_list, type, tac_response=None):
+    def start_threads(imeis_list, invalid_imeis):
         response = {}
         threads = []
         records = []
-        invalid_imeis = [0]
-        if type == "tac":
-            for imei in imeis_list:
-                threads.append(Thread(target=BulkSummary.get_records, args=(imei, tac_response, records, invalid_imeis)))
-        else:
-            for imei in imeis_list:
-                threads.append(Thread(target=BulkSummary.get_imei_records, args=(imei, records, invalid_imeis)))
+        unprocessed_imeis = []
+        for imei in imeis_list:
+            threads.append(Thread(target=BulkSummary.get_records, args=(imei, records, unprocessed_imeis)))
 
         # start threads for all imei chunks
         for x in threads:
@@ -136,7 +99,7 @@ class BulkSummary:
             t.join()
 
         # start thread for summary generation
-        summary = Thread(target=BulkSummary.build_summary, args=(response, records, invalid_imeis))
+        summary = Thread(target=BulkSummary.build_summary, args=(response, records, invalid_imeis, unprocessed_imeis))
         summary.start()
         summary.join()
 
@@ -144,57 +107,75 @@ class BulkSummary:
 
     @staticmethod
     @celery.task
-    def get_summary(imeis_list, type, tac=None):
+    def get_summary(imeis_list, input_type):
         try:
+            invalid_imeis = 0
+            filtered_list = []
+            if input_type=="file":
+                for imei in imeis_list:
+                    if re.match(r'^[a-fA-F0-9]{14,16}$', imei) is None:
+                            invalid_imeis += 1
+                    else:
+                        filtered_list.append(imei)
+
+                imeis_list = filtered_list
+            print(imeis_list)
             imeis_list = list(imeis_list[i:i + 10000] for i in range(0, len(imeis_list), 10000))  # make 100 chunks for 1 million imeis
-            if type == "tac":
-                tac_response = session.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core TAC api call
-                if tac_response.status_code != 200:
-                    tac_response = {"gsma": None, "tac": tac}
-                else:
-                    tac_response = tac_response.json()
-
-                response = BulkSummary.start_threads(imeis_list=imeis_list, tac_response=tac_response, type=type)
-                return response
-
-            else:
-                response = BulkSummary.start_threads(imeis_list=imeis_list, type=type)
-                return response
+            imeis_chunks = []
+            for imeis in imeis_list:
+                imeis_chunks.append(list(imeis[i:i + 1000] for i in range(0, len(imeis), 1000)))
+            response = BulkSummary.start_threads(imeis_list=imeis_chunks, invalid_imeis=invalid_imeis)
+            return response
 
         except Exception as e:
             raise e
 
 
     @staticmethod
-    def build_summary(response, records, invalid_imeis):  # TODO: implement bulk check through core's bulk api
+    def build_summary(response, records, invalid_imeis, unprocessed_imeis):  # TODO: implement bulk check through core's bulk api
         try:
-            records = pd.DataFrame(records)  # dataframe of all dirbs core api responses
-            verified_imeis = len(records[records['gsma'].notna()])  # verified IMEI count
-            classification_states = pd.DataFrame(list(records['classification_state']))  # dataframe of classifcation states
-            blocking_conditions = pd.DataFrame(list(classification_states['blocking_conditions']))  # dataframe of blocking conditions
-            informative_condition = pd.DataFrame(list(classification_states['informative_conditions']))  # dataframe of informative conditions
-            realtime_checks = pd.DataFrame(list(records['realtime_checks']))  # dataframe of realtime checks
-            is_paired = pd.DataFrame(list(records['is_paired']))  # dataframe of is paired information
-            all_conditions = pd.concat([blocking_conditions, informative_condition, realtime_checks, is_paired], axis=1).transpose()
+            if records:
+                result = pd.DataFrame(records)  # main dataframe for results
+                blocking_condition = pd.DataFrame(i['blocking_conditions'] for i in result['classification_state'])  # datafame for blocking conditions
+                info_condition = pd.DataFrame(i['informative_conditions'] for i in result['classification_state'])  # datafame for informative conditions
 
-            #  IMEI count per blocking condition
-            count_per_condition = BulkSummary.count_per_blocking_condition(blocking_conditions)
+                registration_list = pd.DataFrame(r for r in result['registration_status']).transpose().values.tolist()  # datafame for registratios status
 
-            # count IMEIs which does not meeting any condition
-            count_per_condition['no_condition'] = BulkSummary.no_condition_count(all_conditions)
+                stolen_list = pd.DataFrame(r for r in result['stolen_status']).transpose().values.tolist()  # datafame for stolen status
 
-            # IMEI count per informative condition
-            count_per_condition = BulkSummary.count_per_info_condition(count_per_condition, informative_condition)
+                count_per_condition = {}
 
-            # processing compliant status for all IMEIs
-            non_compliant, filename = BulkSummary.generate_compliant_report(blocking_conditions, records)
+                realtime = pd.DataFrame(list(result['realtime_checks']))  # dataframe of realtime checks
 
-            # summary for bulk verify IMEI
-            response['invalid_imei'] = invalid_imeis[0]
-            response['verified_imei'] = verified_imeis
-            response['count_per_condition'] = count_per_condition
-            response['non_complaint'] = non_compliant
-            response['compliant_report_name'] = filename
+                #  IMEI count per blocking condition
+                count_per_condition, block = BulkSummary.count_condition(count=count_per_condition, conditions=blocking_condition)
+
+                # IMEI count per informative condition
+                count_per_condition, info = BulkSummary.count_condition(count=count_per_condition, conditions=info_condition)
+
+                all_conditions = pd.concat([block, info, realtime], axis=1).transpose()
+
+                # count IMEIs which does not meeting any condition
+                count_per_condition['no_condition'] = BulkSummary.no_condition_count(all_conditions)
+
+                # count pending registration
+                reg_count = BulkSummary.status_count(pd.DataFrame(registration_list[0]))
+
+                # count pending stolen verification
+                stolen_count = BulkSummary.status_count(pd.DataFrame(stolen_list[0]))
+
+                # processing compliant status for all IMEIs
+                non_compliant, filename, report = BulkSummary.generate_compliant_report(block, result)
+
+                # summary for bulk verify IMEI
+                response['unprocessed_imeis'] = sum(unprocessed_imeis)
+                response['invalid_imei'] = invalid_imeis
+                response['pending_registration'] = reg_count
+                response['pending_stolen_verification'] = stolen_count
+                response['verified_imei'] = len(records)
+                response['count_per_condition'] = count_per_condition
+                response['non_complaint'] = non_compliant
+                response['compliant_report_name'] = filename
 
             return response
         except Exception as e:
