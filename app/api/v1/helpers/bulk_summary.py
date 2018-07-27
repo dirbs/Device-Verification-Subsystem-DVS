@@ -132,7 +132,7 @@ class BulkSummary:
 
 
     @staticmethod
-    def build_summary(response, records, invalid_imeis, unprocessed_imeis):  # TODO: implement bulk check through core's bulk api
+    def build_summary(response, records, invalid_imeis, unprocessed_imeis):
         try:
             if records:
                 result = pd.DataFrame(records)  # main dataframe for results
