@@ -1,11 +1,9 @@
-import requests
 from flask import request
 from webargs.flaskparser import parser
 
-from app import Root, BaseUrl, GlobalConfig, version
+from app import GlobalConfig
 from .common import CommonResources
 from ..assets.error_handling import *
-from ..assets.pagination import Pagination
 from ..assets.responses import responses, mime_types
 from ..requests.status_request import full_status_args
 
@@ -15,34 +13,22 @@ class FullStatus:
     @staticmethod
     def get():
         try:
+            response = dict()
             args = parser.parse(full_status_args, request)
-            response = dict({"imei": args['imei'], "compliance": {}, "gsma": {},
-                             "subscribers": [], "stolen_status": [], "registration_status": []})
             imei = args.get('imei')
             tac = imei[:GlobalConfig['TacLength']]  # slice TAC from IMEI
-            if tac.isdigit():
-                status = CommonResources.get_status(imei=args.get('imei'), tac=tac)
-                full_status = status.get('response')
-                blocking_conditions = full_status['classification_state']['blocking_conditions']
-                response = CommonResources.get_complaince_status(response, blocking_conditions,
-                                                                 full_status['subscribers'],
-                                                                 "full")  # get compliance status
-                response['classification_state'] = full_status['classification_state']
-                response['stolen_status'] = full_status.get('stolen_status')
-                response['registration_status'] = full_status.get('registration_status')
-                response['subscribers'] = full_status.get('subscribers')
-                if len(full_status.get('subscribers')) > 0:
-                    response = Pagination.paginate(data=response, start=args.get('start', 1),
-                                                   limit=args.get('limit', 2), imei=imei,
-                                                   url='{}/fullstatus'.format(BaseUrl))
-                if full_status['gsma']:  # TAC verification
-                        response = CommonResources.serialize(response, full_status, "full")
-                        return Response(json.dumps(response), status=responses.get('ok'),
-                                        mimetype=mime_types.get('json'))
-                else:
-                    return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
-            else:
-                return custom_response("Bad TAC format", responses.get('bad_request'), mime_types.get('json'))
+            status = CommonResources.get_imei(imei=args.get('imei'))
+            gsma = CommonResources.get_tac(tac, "full")  # get gsma data from tac
+            blocking_conditions = status['classification_state']['blocking_conditions']
+            subscribers = CommonResources.subscribers(status.get('imei_norm'), args.get('start',1), args.get('limit',10))  # get subscribers data
+            compliance = CommonResources.get_compliance_status(blocking_conditions, subscribers['subscribers']['data'], "full")  # get compliance status
+            pairings = CommonResources.pairings(status.get('imei_norm'), args.get('start',1), args.get('limit',10))
+            response['imei'] = status.get('imei_norm')
+            response['classification_state'] = status['classification_state']
+            response['stolen_status'] = "stolen_status"  # status.get('stolen_status').get('status')
+            response['registration_status'] = "registration_status"  # status.get('registration_status').get('status')
+            response = dict(response, **gsma, **subscribers, **pairings, **compliance)
+            return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
 
         except ValueError as error:
             return custom_response(str(error), 422, mime_types.get('json'))
