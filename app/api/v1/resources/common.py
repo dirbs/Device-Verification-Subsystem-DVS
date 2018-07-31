@@ -35,11 +35,9 @@ class CommonResources:
             if tac_response.status_code == 200:
                 tac_response = tac_response.json()
                 if tac_response['gsma']:
-                    print(tac_response['gsma'])
                     response = CommonResources.serialize(response, tac_response['gsma'], status_type)
                     return response
                 elif tac_response['registration']:
-                    print(tac_response['registration'])
                     response = CommonResources.serialize(response, tac_response['registration'], status_type)
                     return response
             return {"gsma": None}
