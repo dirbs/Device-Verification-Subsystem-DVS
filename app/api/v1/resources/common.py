@@ -1,5 +1,5 @@
 import requests
-from app import GlobalConfig, Root, version
+from app import GlobalConfig, Root, version, conditions
 
 
 class CommonResources:
@@ -12,7 +12,11 @@ class CommonResources:
             if response['status'] == "Non compliant":
                 response['block_date'] = GlobalConfig['BlockDate']
                 if status == "basic":
-                    response['inactivity_reasons'] = [key['condition_name'].capitalize() for key in blocking_conditions if key['condition_met']]
+                    voilating_conditions = [key['condition_name'] for key in blocking_conditions if key['condition_met']]
+                    response['inactivity_reasons'] = []
+                    for condition in conditions['conditions']:
+                        if condition['name'] in voilating_conditions:
+                            response['inactivity_reasons'].append(condition['reason'])
                     response['link_to_help'] = GlobalConfig['HelpUrl']
             return {'compliance': response}
         except Exception as e:
@@ -43,6 +47,24 @@ class CommonResources:
             return {"gsma": None}
         except Exception as error:
             raise error
+
+    @staticmethod
+    def get_status(status, status_type):
+        if status_type == "stolen":
+            if status['provisional_only']:
+                return "Pending report verification"
+            elif status['provisional_only'] is None:
+                return "No report"
+            else:
+                return "Verified lost"
+        else:
+            if status['provisional_only']:
+                return "Pending Registration."
+            elif status['provisional_only'] is None:
+                return "Not registered"
+            else:
+                return "Registered"
+
 
     @staticmethod
     def subscribers(imei, start, limit):

@@ -1,6 +1,6 @@
 import os
 import re
-from app import Root, GlobalConfig, UploadDir, version, session, celery
+from app import Root, UploadDir, version, session, celery, conditions
 from ..assets.error_handling import *
 
 from threading import Thread
@@ -25,11 +25,6 @@ class BulkSummary:
         return count, condition
 
     @staticmethod
-    def status_count(state):
-        count = len(state[state['status'] == "pending"])  # count pending imeis in registration and stolen lists
-        return count
-
-    @staticmethod
     def no_condition_count(all_conditions):
         no_conditions = 0
         for key in all_conditions:
@@ -49,7 +44,11 @@ class BulkSummary:
                 complaint_status = dict()
                 complaint_status['imei'] = imeis[key]
                 complaint_status['status'] = "Non complaint"
-                complaint_status['reasons'] = compliant.index[compliant[key]].tolist()
+                voilating_conditions = compliant.index[compliant[key]].tolist()
+                complaint_status['reasons'] = []
+                for condition in conditions['conditions']:
+                    if condition['name'] in voilating_conditions:
+                        complaint_status['reasons'].append(condition['reason'])
                 complaint_report.append(complaint_status)
                 non_complaint += 1
         complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
@@ -69,11 +68,11 @@ class BulkSummary:
                     batch_req = {
                         "imeis": imei
                     }
-                    headers = {'content-type': 'application/json','charset': 'utf-8'}
+                    print(len(imei))
+                    headers = {'content-type': 'application/json', 'charset': 'utf-8'}
                     imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core IMEI api call
                     if imei_response.status_code == 200:
                         imei_response = imei_response.json()
-                        # full_status = dict(tac_response, **imei_response)
                         records.extend(imei_response['results'])
                 except ConnectionError:
                     unprocessed_imeis.append(len(imei))  # in case of connection error append imei at first index
@@ -129,7 +128,6 @@ class BulkSummary:
         except Exception as e:
             raise e
 
-
     @staticmethod
     def build_summary(response, records, invalid_imeis, unprocessed_imeis):
         try:
@@ -138,9 +136,11 @@ class BulkSummary:
                 blocking_condition = pd.DataFrame(i['blocking_conditions'] for i in result['classification_state'])  # datafame for blocking conditions
                 info_condition = pd.DataFrame(i['informative_conditions'] for i in result['classification_state'])  # datafame for informative conditions
 
-                registration_list = pd.DataFrame(r for r in result['registration_status']).transpose().values.tolist()  # datafame for registratios status
+                registration_list = pd.DataFrame(list(result['registration_status']))  # datafame for registratios status
+                pending_reg_count = len(registration_list.loc[registration_list['provisional_only']==True])
 
-                stolen_list = pd.DataFrame(r for r in result['stolen_status']).transpose().values.tolist()  # datafame for stolen status
+                stolen_list = pd.DataFrame(list(result['stolen_status']))   # datafame for stolen status
+                pending_stolen_count = len(stolen_list.loc[stolen_list['provisional_only']==True])
 
                 count_per_condition = {}
 
@@ -157,20 +157,14 @@ class BulkSummary:
                 # count IMEIs which does not meeting any condition
                 count_per_condition['no_condition'] = BulkSummary.no_condition_count(all_conditions)
 
-                # count pending registration
-                reg_count = BulkSummary.status_count(pd.DataFrame(registration_list[0]))
-
-                # count pending stolen verification
-                stolen_count = BulkSummary.status_count(pd.DataFrame(stolen_list[0]))
-
                 # processing compliant status for all IMEIs
                 non_compliant, filename, report = BulkSummary.generate_compliant_report(block, result)
 
                 # summary for bulk verify IMEI
                 response['unprocessed_imeis'] = sum(unprocessed_imeis)
                 response['invalid_imei'] = invalid_imeis
-                response['pending_registration'] = reg_count
-                response['pending_stolen_verification'] = stolen_count
+                response['pending_registration'] = pending_reg_count
+                response['pending_stolen_verification'] = pending_stolen_count
                 response['verified_imei'] = len(records)
                 response['count_per_condition'] = count_per_condition
                 response['non_complaint'] = non_compliant
