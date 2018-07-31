@@ -1,8 +1,7 @@
-import requests
 from flask import request
 from webargs.flaskparser import parser
 
-from app import Root, GlobalConfig, version
+from app import GlobalConfig
 from .common import CommonResources
 from ..assets.error_handling import *
 from ..assets.responses import responses, mime_types
@@ -15,26 +14,14 @@ class BasicStatus:
     def get():
         try:
             args = parser.parse(basic_status_args, request)
-            response = dict({"imei": args['imei'], "compliance": {}, "gsma": {}})
             tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
-            if tac.isdigit():
-                status = CommonResources.get_status(imei=args.get('imei'), tac=tac)
-                basic_status = status.get('response')
-                if basic_status:
-                    blocking_conditions = basic_status['classification_state']['blocking_conditions']
-                    response = CommonResources.get_complaince_status(response, blocking_conditions,
-                                                                     basic_status['subscribers'],
-                                                                     "basic")  # get compliance status
-                    if basic_status['gsma']:  # TAC verification
-                        response = CommonResources.serialize(response, basic_status, "basic")
-                        return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
-                    else:
-                        return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
-                else:
-                    return custom_response(basic_status.get('message'), basic_status.get('status'), mime_types.get('json'))
-            else:
-                return custom_response("Bad TAC format", responses.get('bad_request'), mime_types.get('json'))
-
+            status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
+            subscribers = CommonResources.subscribers(args.get('imei'), 1, 10)  # get subscribers data
+            blocking_conditions = status['classification_state']['blocking_conditions']  # extract blocking conditions from imei response
+            compliance = CommonResources.get_compliance_status(blocking_conditions, subscribers['subscribers']['data'], "basic")  # get compliance status
+            gsma = CommonResources.get_tac(tac, "basic")  # get gsma data from tac
+            response = dict(compliance, **gsma, **{'imei': status.get('imei_norm')})  # merge responses
+            return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
         except ValueError as error:
             return custom_response(str(error), 422, mime_types.get('json'))
 
