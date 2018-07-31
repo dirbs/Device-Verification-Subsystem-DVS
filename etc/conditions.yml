@@ -1,0 +1,7 @@
+conditions:
+
+  - name: 'simple_dimension'
+    reason: 'IMEI violated simple dimension'
+
+  - name: 'compound_dimension'
+    reason: 'IMEI violated compound dimension'

@@ -18,6 +18,8 @@ CORS(app)
 try:
     global_config = yaml.load(open("etc/config.yml"))
 
+    conditions = yaml.load(open("etc/conditions.yml"))
+
     config = configparser.ConfigParser()
     config.read("config.ini")
 

@@ -21,6 +21,12 @@ basic_status_args = {
 
 full_status_args = {
     "imei": fields.Str(required=True, validate=validate_imei),
-    "start": fields.Int(validate=lambda p: validate_start_limit(p, "start")),
-    "limit": fields.Int(validate=lambda p: validate_start_limit(p, "limit"))
+    "subscribers": fields.Nested({
+        "start": fields.Int(validate=lambda p: validate_start_limit(p, "start")),
+        "limit": fields.Int(validate=lambda p: validate_start_limit(p, "limit"))
+    }),
+    "pairs": fields.Nested({
+        "start": fields.Int(validate=lambda p: validate_start_limit(p, "start")),
+        "limit": fields.Int(validate=lambda p: validate_start_limit(p, "limit"))
+    })
 }
