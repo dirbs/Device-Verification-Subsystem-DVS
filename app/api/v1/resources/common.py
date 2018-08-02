@@ -16,7 +16,7 @@ class CommonResources:
             raise error
 
     @staticmethod
-    def populate_status(resp, status, status_type, blocking_condition=None, reason_list=None):
+    def populate_status(resp, status, status_type, blocking_condition=None, reason_list=None, imei=None):
         try:
             if status == 'Compliant (Active)' or status == 'Provisionally Compliant' or status == 'Compliant (Inactive)':
                 resp['status'] = status
@@ -26,12 +26,16 @@ class CommonResources:
                 if status_type == "basic":
                     resp['inactivity_reasons'] = CommonResources.populate_reasons(blocking_condition, reason_list)
                     resp['link_to_help'] = GlobalConfig['HelpUrl']
+                elif status_type == "bulk":
+                    resp['imei'] = imei
+                    resp['inactivity_reasons'] = CommonResources.populate_reasons(blocking_condition, reason_list)
+                    return resp
             return {"compliant": resp}
         except Exception as error:
             raise error
 
     @staticmethod
-    def compliance_status(resp, status_type):
+    def compliance_status(resp, status_type, imei=None):
         try:
             status = {}
             seen_with = resp['realtime_checks']['ever_observed_on_network']
@@ -44,28 +48,28 @@ class CommonResources:
                        blocking_conditions):  # checks if IMEI meeting any blocking condition
                     status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, [])
                 elif stolen_status:  # device's stolen request is pending
-                    status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ["Your device IMEI's stolen report is pending"])
+                    status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ['Your device stolen report is pending'])
                 elif stolen_status is None:  # device is not stolen
                     status = CommonResources.populate_status(status, 'Compliant (Active)', status_type)
                 else:  # device is stolen
-                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ["Your device has been stolen"])
+                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device has been stolen'])
             else:
                 if reg_status:  # device's registration request is pending
                     if stolen_status:  # device's stolen request pending
-                        status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ["Your device's stolen report is pending"])
+                        status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ['Your device is stolen report is pending'])
                     elif stolen_status is False:  # device is stolen
-                        status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ["Your device's stolen"])
+                        status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device is stolen'])
                     else:  # device is not stolen
                         status = CommonResources.populate_status(status, 'Provisionally Compliant', status_type)
                 elif reg_status is None:  # device is not registered
-                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ["Your device's not registered"])
+                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device is not registered'])
                 else:  # device is registered
                     if stolen_status:  # stolen request is pending
-                        status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ["Your device's stolen report is pending"])
+                        status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ['Your device stolen report is pending'])
                     elif stolen_status is None:  # device is not stolen
                         status = CommonResources.populate_status(status, 'Compliant (Inactive)', status_type)
                     else:  # stolen device
-                        status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ["Your device's stolen"])
+                        status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device is stolen'])
             return status
         except Exception as error:
             raise error
