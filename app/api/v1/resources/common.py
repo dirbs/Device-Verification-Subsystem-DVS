@@ -5,22 +5,70 @@ from app import GlobalConfig, Root, version, conditions
 class CommonResources:
 
     @staticmethod
-    def get_compliance_status(blocking_conditions, seen_with, status):
+    def populate_reasons(blocking, reasons_list):
         try:
-            response = dict()
-            response['status'] = "Non compliant" if any(key['condition_met'] for key in blocking_conditions) else "Compliant (Active)" if seen_with else "Compliant (Inactive)"
-            if response['status'] == "Non compliant":
-                response['block_date'] = GlobalConfig['BlockDate']
-                if status == "basic":
-                    voilating_conditions = [key['condition_name'] for key in blocking_conditions if key['condition_met']]
-                    response['inactivity_reasons'] = []
-                    for condition in conditions['conditions']:
-                        if condition['name'] in voilating_conditions:
-                            response['inactivity_reasons'].append(condition['reason'])
-                    response['link_to_help'] = GlobalConfig['HelpUrl']
-            return {'compliance': response}
-        except Exception as e:
-            raise e
+            voilating_conditions = [key['condition_name'] for key in blocking if key['condition_met']]
+            for condition in conditions['conditions']:
+                if condition['name'] in voilating_conditions:
+                    reasons_list.append(condition['reason'])
+            return reasons_list
+        except Exception as error:
+            raise error
+
+    @staticmethod
+    def populate_status(resp, status, status_type, blocking_condition=None, reason_list=None):
+        try:
+            if status == 'Compliant (Active)' or status == 'Provisionally Compliant' or status == 'Compliant (Inactive)':
+                resp['status'] = status
+            else:
+                resp['status'] = status
+                resp['block_date'] = GlobalConfig['BlockDate']
+                if status_type == "basic":
+                    resp['inactivity_reasons'] = CommonResources.populate_reasons(blocking_condition, reason_list)
+                    resp['link_to_help'] = GlobalConfig['HelpUrl']
+            return {"compliant": resp}
+        except Exception as error:
+            raise error
+
+    @staticmethod
+    def compliance_status(resp, status_type):
+        try:
+            status = {}
+            seen_with = resp['realtime_checks']['ever_observed_on_network']
+            blocking_conditions = resp['classification_state']['blocking_conditions']
+            stolen_status = resp['stolen_status']['provisional_only']
+            reg_status = resp['registration_status']['provisional_only']
+
+            if seen_with:  # checks if IMEI has ever been seen on network
+                if any(key['condition_met'] for key in
+                       blocking_conditions):  # checks if IMEI meeting any blocking condition
+                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, [])
+                elif stolen_status:  # device's stolen request is pending
+                    status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ["Your device IMEI's stolen report is pending"])
+                elif stolen_status is None:  # device is not stolen
+                    status = CommonResources.populate_status(status, 'Compliant (Active)', status_type)
+                else:  # device is stolen
+                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ["Your device has been stolen"])
+            else:
+                if reg_status:  # device's registration request is pending
+                    if stolen_status:  # device's stolen request pending
+                        status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ["Your device's stolen report is pending"])
+                    elif stolen_status is False:  # device is stolen
+                        status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ["Your device's stolen"])
+                    else:  # device is not stolen
+                        status = CommonResources.populate_status(status, 'Provisionally Compliant', status_type)
+                elif reg_status is None:  # device is not registered
+                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ["Your device's not registered"])
+                else:  # device is registered
+                    if stolen_status:  # stolen request is pending
+                        status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ["Your device's stolen report is pending"])
+                    elif stolen_status is None:  # device is not stolen
+                        status = CommonResources.populate_status(status, 'Compliant (Inactive)', status_type)
+                    else:  # stolen device
+                        status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ["Your device's stolen"])
+            return status
+        except Exception as error:
+            raise error
 
     @staticmethod
     def get_imei(imei):

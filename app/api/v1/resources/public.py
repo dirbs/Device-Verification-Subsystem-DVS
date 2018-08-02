@@ -16,9 +16,7 @@ class BasicStatus:
             args = parser.parse(basic_status_args, request)
             tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
-            subscribers = CommonResources.subscribers(args.get('imei'), 1, 10)  # get subscribers data
-            blocking_conditions = status['classification_state']['blocking_conditions']  # extract blocking conditions from imei response
-            compliance = CommonResources.get_compliance_status(blocking_conditions, subscribers['subscribers']['data'], "basic")  # get compliance status
+            compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
             gsma = CommonResources.get_tac(tac, "basic")  # get gsma data from tac
             response = dict(compliance, **gsma, **{'imei': status.get('imei_norm')})  # merge responses
             return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
