@@ -7,6 +7,7 @@ from ..assets.responses import responses, mime_types
 from ..helpers.bulk_summary import BulkSummary
 
 from flask import request, send_from_directory
+from datetime import datetime
 
 upload_folder = os.path.join(app.root_path, UploadDir)
 
@@ -16,7 +17,7 @@ class BulkCheck:
     @staticmethod
     def summary():
         try:
-            task_file = open(os.path.join(upload_folder, 'task_ids.txt'), '+a')
+            read_file = open(os.path.join(upload_folder, 'task_ids.csv'), 'a+')
             file = request.files.get('file')
             if file:
                 if file.filename != '':
@@ -29,7 +30,7 @@ class BulkCheck:
                                     "message": "Please wait your file is being processed.",
                                     "task_id": response.id
                                 }
-                                task_file.write(response.id+'\n')
+                                read_file.write(response.id+','+datetime.now().strftime("%m-%d-%Y %H:%M:%S")+'\n')
                                 return Response(json.dumps(data), status=200, mimetype='application/json')
 
                             else:
@@ -49,7 +50,7 @@ class BulkCheck:
                             "message": "Please wait your request is being processed.",
                             "task_id": response.id
                         }
-                        task_file.write(response.id+'\n')
+                        read_file.write(response.id + ',' + datetime.now().strftime("%m-%d-%Y %H:%M:%S") + '\n')
                         return Response(json.dumps(data), status=200, mimetype='application/json')
                     else:
                         return custom_response("Invalid TAC, Enter 8 digit TAC.", responses.get('bad_request'), mime_types.get('json'))

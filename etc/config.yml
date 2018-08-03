@@ -38,7 +38,7 @@ allowed_file_types:
 upload_dir:
 
   # path to upload directory
-  UploadFolder: api/v1/assets
+  UploadFolder: api/v1/reports
 
 application_root:
 
