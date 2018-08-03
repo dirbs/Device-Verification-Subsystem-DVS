@@ -28,7 +28,7 @@ class FullStatus:
             response['classification_state'] = status['classification_state']
             response['registration_status'] = CommonResources.get_status(status['registration_status'], "registration")
             response['stolen_status'] = CommonResources.get_status(status['stolen_status'], "stolen")
-            compliance = CommonResources.get_compliance_status(blocking_conditions, subscribers['subscribers']['data'], "full")  # get compliance status
+            compliance = CommonResources.compliance_status(status, "full")  # get compliance status
             response = dict(response, **gsma, **subscribers, **pairings, **compliance)
             return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
 

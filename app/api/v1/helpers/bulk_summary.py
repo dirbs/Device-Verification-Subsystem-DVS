@@ -1,6 +1,7 @@
 import os
 import re
-from app import Root, UploadDir, version, session, celery, conditions
+from app import Root, UploadDir, version, session, celery
+from ..resources.common import CommonResources
 from ..assets.error_handling import *
 
 from threading import Thread
@@ -33,23 +34,13 @@ class BulkSummary:
         return no_conditions
 
     @staticmethod
-    def generate_compliant_report(blocking_conditions, records):
-        compliant = blocking_conditions.transpose()
-
+    def generate_compliant_report(records):
         non_complaint = 0
         complaint_report = []
-        imeis = list(records['imei_norm'])
-        for key in compliant:
-            if compliant[key].any():
-                complaint_status = dict()
-                complaint_status['imei'] = imeis[key]
-                complaint_status['status'] = "Non complaint"
-                voilating_conditions = compliant.index[compliant[key]].tolist()
-                complaint_status['reasons'] = []
-                for condition in conditions['conditions']:
-                    if condition['name'] in voilating_conditions:
-                        complaint_status['reasons'].append(condition['reason'])
-                complaint_report.append(complaint_status)
+        for key in records:
+            status = CommonResources.compliance_status(resp=key, status_type="bulk", imei=key['imei_norm'])
+            if status['status'] != 'Compliant (Active)' and status['status'] != 'Provisionally Compliant' and status['status'] != 'Compliant (Inactive)':
+                complaint_report.append(status)
                 non_complaint += 1
         complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
         report_name = "report not generated."
@@ -68,7 +59,7 @@ class BulkSummary:
                     batch_req = {
                         "imeis": imei
                     }
-                    print(len(imei))
+                    # print(len(imei))
                     headers = {'content-type': 'application/json', 'charset': 'utf-8'}
                     imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core IMEI api call
                     if imei_response.status_code == 200:
@@ -158,7 +149,7 @@ class BulkSummary:
                 count_per_condition['no_condition'] = BulkSummary.no_condition_count(all_conditions)
 
                 # processing compliant status for all IMEIs
-                non_compliant, filename, report = BulkSummary.generate_compliant_report(block, result)
+                non_compliant, filename, report = BulkSummary.generate_compliant_report(records)
 
                 # summary for bulk verify IMEI
                 response['unprocessed_imeis'] = sum(unprocessed_imeis)
