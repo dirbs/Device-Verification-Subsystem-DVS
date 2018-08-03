@@ -18,7 +18,9 @@ global:
 
   # minimum and maximum imei range
   MinImeiRange: '000000'
-  MaxImeiRange: 10000  # TODO: change it to 1000000 after testing
+  MaxImeiRange: 100000  # TODO: change it to 1000000 after testing
+
+  ChunkSize: 10000  # there will be ChunkSize/MaxImeiRange number of threads
 
   # variables to be configured
   HelpUrl: 'not confirmed'
