@@ -46,30 +46,30 @@ class CommonResources:
             if seen_with:  # checks if IMEI has ever been seen on network
                 if any(key['condition_met'] for key in
                        blocking_conditions):  # checks if IMEI meeting any blocking condition
-                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, [])
+                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, [], imei=imei)
                 elif stolen_status:  # device's stolen request is pending
-                    status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ['Your device stolen report is pending'])
+                    status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ['Your device stolen report is pending'], imei=imei)
                 elif stolen_status is None:  # device is not stolen
                     status = CommonResources.populate_status(status, 'Compliant (Active)', status_type)
                 else:  # device is stolen
-                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device has been stolen'])
+                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device has been stolen'], imei=imei)
             else:
                 if reg_status:  # device's registration request is pending
                     if stolen_status:  # device's stolen request pending
-                        status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ['Your device is stolen report is pending'])
+                        status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ['Your device is stolen report is pending'], imei=imei)
                     elif stolen_status is False:  # device is stolen
-                        status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device is stolen'])
+                        status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device is stolen'], imei=imei)
                     else:  # device is not stolen
                         status = CommonResources.populate_status(status, 'Provisionally Compliant', status_type)
                 elif reg_status is None:  # device is not registered
-                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device is not registered'])
+                    status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device is not registered'], imei=imei)
                 else:  # device is registered
                     if stolen_status:  # stolen request is pending
-                        status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ['Your device stolen report is pending'])
+                        status = CommonResources.populate_status(status, 'Provisionally Non Compliant', status_type, blocking_conditions, ['Your device stolen report is pending'], imei=imei)
                     elif stolen_status is None:  # device is not stolen
                         status = CommonResources.populate_status(status, 'Compliant (Inactive)', status_type)
                     else:  # stolen device
-                        status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device is stolen'])
+                        status = CommonResources.populate_status(status, 'Non Compliant', status_type, blocking_conditions, ['Your device is stolen'], imei=imei)
             return status
         except Exception as error:
             raise error

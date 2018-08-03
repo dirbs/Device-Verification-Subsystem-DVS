@@ -1,6 +1,6 @@
 import os
 
-from app import GlobalConfig, UploadDir, AllowedFiles, celery
+from app import GlobalConfig, UploadDir, AllowedFiles
 
 from ..assets.error_handling import *
 from ..assets.responses import responses, mime_types
@@ -49,7 +49,6 @@ class BulkCheck:
                             "message": "Please wait your request is being processed.",
                             "task_id": response.id
                         }
-                        # BulkCheck.task_list.append(response.id)
                         task_file.write(response.id+'\n')
                         return Response(json.dumps(data), status=200, mimetype='application/json')
                     else:

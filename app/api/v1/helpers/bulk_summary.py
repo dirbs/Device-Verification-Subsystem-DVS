@@ -1,6 +1,6 @@
 import os
 import re
-from app import Root, UploadDir, version, session, celery
+from app import Root, UploadDir, version, session, celery, GlobalConfig
 from ..resources.common import CommonResources
 from ..assets.error_handling import *
 
@@ -109,7 +109,7 @@ class BulkSummary:
                         filtered_list.append(imei)
 
                 imeis_list = filtered_list
-            imeis_list = list(imeis_list[i:i + 10000] for i in range(0, len(imeis_list), 10000))  # make 100 chunks for 1 million imeis
+            imeis_list = list(imeis_list[i:i + GlobalConfig['ChunkSize']] for i in range(0, len(imeis_list), GlobalConfig['ChunkSize']))  # make 100 chunks for 1 million imeis
             imeis_chunks = []
             for imeis in imeis_list:
                 imeis_chunks.append(list(imeis[i:i + 1000] for i in range(0, len(imeis), 1000)))

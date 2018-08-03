@@ -21,7 +21,6 @@ class FullStatus:
             paginate_pairs = args.get('pairs')
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response from core
             gsma = CommonResources.get_tac(tac, "full")  # get gsma data from tac
-            blocking_conditions = status['classification_state']['blocking_conditions']
             subscribers = CommonResources.subscribers(status.get('imei_norm'), paginate_sub.get('start', 1), paginate_sub.get('limit', 10))  # get subscribers data
             pairings = CommonResources.pairings(status.get('imei_norm'), paginate_pairs.get('start', 1), paginate_pairs.get('limit', 10))  # get pairing data
             response['imei'] = status.get('imei_norm')
