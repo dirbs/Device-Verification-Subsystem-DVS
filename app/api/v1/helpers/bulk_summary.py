@@ -5,11 +5,11 @@ from ..resources.common import CommonResources
 from ..assets.error_handling import *
 
 from threading import Thread
+
 import pandas as pd
 import uuid
 
-upload_folder = os.path.join(app.root_path, UploadDir)
-
+upload_report = os.path.join(app.root_path, UploadDir['ReportFolder'])
 
 class BulkSummary:
     @staticmethod
@@ -46,7 +46,7 @@ class BulkSummary:
         report_name = "report not generated."
         if non_complaint != 0:
             report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
-            complaint_report.to_csv(os.path.join(upload_folder, report_name),
+            complaint_report.to_csv(os.path.join(upload_report, report_name),
                                     sep='\t')  # writing non compliant statuses to .tsv file
         return non_complaint, report_name, complaint_report
 
@@ -59,7 +59,6 @@ class BulkSummary:
                     batch_req = {
                         "imeis": imei
                     }
-                    # print(len(imei))
                     headers = {'content-type': 'application/json', 'charset': 'utf-8'}
                     imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core IMEI api call
                     if imei_response.status_code == 200:

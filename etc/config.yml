@@ -38,7 +38,8 @@ allowed_file_types:
 upload_dir:
 
   # path to upload directory
-  UploadFolder: api/v1/assets
+  ReportFolder: api/v1/reports
+  TaskFile: api/v1/assets
 
 application_root:
 
@@ -57,3 +58,5 @@ celery:
 
   RpcUrl: 'rpc://'
   RpcBackend: 'rpc://'
+
+  CeleryTasks: ['app.api.v1.helpers.scheduled', 'app.api.v1.helpers.bulk_summary']
