@@ -7,9 +7,9 @@ from ..assets.responses import responses, mime_types
 from ..helpers.bulk_summary import BulkSummary
 
 from flask import request, send_from_directory
-from datetime import datetime
 
-upload_folder = os.path.join(app.root_path, UploadDir)
+upload_report = os.path.join(app.root_path, UploadDir['ReportFolder'])
+upload_task_id = os.path.join(app.root_path, UploadDir['TaskFile'])
 
 
 class BulkCheck:
@@ -17,7 +17,7 @@ class BulkCheck:
     @staticmethod
     def summary():
         try:
-            read_file = open(os.path.join(upload_folder, 'task_ids.csv'), 'a+')
+            task_file = open(os.path.join(upload_task_id, 'task_ids.txt'), 'a+')
             file = request.files.get('file')
             if file:
                 if file.filename != '':
@@ -30,7 +30,7 @@ class BulkCheck:
                                     "message": "Please wait your file is being processed.",
                                     "task_id": response.id
                                 }
-                                read_file.write(response.id+','+datetime.now().strftime("%m-%d-%Y %H:%M:%S")+'\n')
+                                task_file.write(response.id+'\n')
                                 return Response(json.dumps(data), status=200, mimetype='application/json')
 
                             else:
@@ -50,7 +50,7 @@ class BulkCheck:
                             "message": "Please wait your request is being processed.",
                             "task_id": response.id
                         }
-                        read_file.write(response.id + ',' + datetime.now().strftime("%m-%d-%Y %H:%M:%S") + '\n')
+                        task_file.write(response.id+'\n')
                         return Response(json.dumps(data), status=200, mimetype='application/json')
                     else:
                         return custom_response("Invalid TAC, Enter 8 digit TAC.", responses.get('bad_request'), mime_types.get('json'))
@@ -64,7 +64,7 @@ class BulkCheck:
     @staticmethod
     def send_file(filename):
         try:
-            return send_from_directory(directory=upload_folder, filename=filename)  # returns file when user wnats to download non compliance report
+            return send_from_directory(directory=upload_report, filename=filename)  # returns file when user wnats to download non compliance report
         except Exception as e:
             app.logger.info("Error occurred while downloading non compliant report.")
             app.logger.exception(e)
@@ -72,7 +72,7 @@ class BulkCheck:
 
     @staticmethod
     def check_status(task_id):
-        with open(os.path.join(upload_folder, 'task_ids.txt'), 'r') as f:
+        with open(os.path.join(upload_task_id, 'task_ids.txt'), 'r') as f:
             if task_id in list(f.read().splitlines()):
                 task = BulkSummary.get_summary.AsyncResult(task_id)
                 if task.state == 'SUCCESS' and task.get():
