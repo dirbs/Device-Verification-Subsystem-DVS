@@ -1,6 +1,6 @@
 import os
 
-from app import GlobalConfig, UploadDir, AllowedFiles
+from app import GlobalConfig, task_dir, report_dir, AllowedFiles
 
 from ..assets.error_handling import *
 from ..assets.responses import responses, mime_types
@@ -14,7 +14,7 @@ class BulkCheck:
     @staticmethod
     def summary():
         try:
-            task_file = open(os.path.join(UploadDir['TaskFile'], 'task_ids.txt'), 'a+')
+            task_file = open(os.path.join(task_dir, 'task_ids.txt'), 'a+')
             file = request.files.get('file')
             if file:
                 if file.filename != '':
@@ -61,7 +61,7 @@ class BulkCheck:
     @staticmethod
     def send_file(filename):
         try:
-            return send_from_directory(directory=UploadDir['ReportFolder'], filename=filename)  # returns file when user wnats to download non compliance report
+            return send_from_directory(directory=report_dir, filename=filename)  # returns file when user wnats to download non compliance report
         except Exception as e:
             app.logger.info("Error occurred while downloading non compliant report.")
             app.logger.exception(e)
@@ -69,7 +69,7 @@ class BulkCheck:
 
     @staticmethod
     def check_status(task_id):
-        with open(os.path.join(UploadDir['TaskFile'], 'task_ids.txt'), 'r') as f:
+        with open(os.path.join(task_dir, 'task_ids.txt'), 'r') as f:
             if task_id in list(f.read().splitlines()):
                 task = BulkSummary.get_summary.AsyncResult(task_id)
                 if task.state == 'SUCCESS' and task.get():

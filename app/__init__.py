@@ -29,7 +29,8 @@ try:
     version = global_config['dirbs_core']['Version']  # core api version
     GlobalConfig = global_config['global']  # load global configs
     AllowedFiles = global_config['allowed_file_types']['AllowedExt']  # allowed file type for bulk check
-    UploadDir = global_config['upload_dir']  # path to upload folder of non-compliance report
+    task_dir = str(config['UPLOADS']['task_dir'])  # path to task_ids file upload
+    report_dir = str(config['UPLOADS']['report_dir'])  # path to non compliant report upload
     BaseUrl = global_config['application_root']['RootUrl']  # app root url
     ServerAddress = global_config['application_root']['ServerIP']  # server address
     CeleryConf = global_config['celery']
