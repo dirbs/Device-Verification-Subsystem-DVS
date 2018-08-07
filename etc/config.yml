@@ -32,12 +32,6 @@ allowed_file_types:
   # allowed file extensions
   AllowedExt: ['tsv', 'txt']
 
-upload_dir:
-
-  # path to upload directory
-  ReportFolder: api/v1/reports
-  TaskFile: api/v1/assets
-
 application_root:
 
   # application root url

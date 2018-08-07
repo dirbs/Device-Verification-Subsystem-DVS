@@ -1,6 +1,6 @@
 import os
 import re
-from app import Root, UploadDir, version, session, celery, GlobalConfig
+from app import Root, report_dir, version, session, celery, GlobalConfig
 from ..resources.common import CommonResources
 from ..assets.error_handling import *
 
@@ -48,7 +48,7 @@ class BulkSummary:
         report_name = "report not generated."
         if non_complaint != 0:
             report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
-            complaint_report.to_csv(os.path.join(UploadDir['ReportFolder'], report_name),
+            complaint_report.to_csv(os.path.join(report_dir, report_name),
                                     sep='\t')  # writing non compliant statuses to .tsv file
         return non_complaint, report_name, complaint_report
 
