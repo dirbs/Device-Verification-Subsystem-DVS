@@ -1,8 +1,5 @@
 # dirbs core url
 dirbs_core:
-#  BaseUrl: http://dirbs.pta.gov.pk/core_api/api
-#  Version: v1
-#  BaseUrl: http://172.16.12.4/api
   BaseUrl: 'http://192.168.100.89:5000/api'
   Version: v2
 
