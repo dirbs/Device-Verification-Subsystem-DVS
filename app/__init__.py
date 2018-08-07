@@ -25,7 +25,6 @@ try:
     config.read("config.ini")
 
     # importing configurable variables
-
     Root = global_config['dirbs_core']['BaseUrl']  # core api url
     version = global_config['dirbs_core']['Version']  # core api version
     GlobalConfig = global_config['global']  # load global configs
@@ -39,7 +38,6 @@ try:
     Port = int(config['SERVER']['Port'])  # Server Port
 
     # requests session
-
     session = requests.Session()
     retry = Retry(total=3, backoff_factor=1, status_forcelist=[502, 503, 504])
     adapter = HTTPAdapter(max_retries=retry)
@@ -51,10 +49,13 @@ try:
     app.config['result_backend'] = CeleryConf['RabbitmqBackend']
     app.config['broker_pool_limit'] = None
 
+    # register tasks
     app.config['imports'] = CeleryConf['CeleryTasks']
 
+    # initialize celery
     celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 
+    # schedule task
     celery.conf.beat_schedule = {
         'delete-every-hour': {
             'task': 'app.api.v1.helpers.scheduled.delete_files',
@@ -62,6 +63,7 @@ try:
         },
     }
 
+    # update configurations
     celery.conf.update(app.config)
 
     # application blueprints registration

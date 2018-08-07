@@ -9,9 +9,9 @@ from threading import Thread
 import pandas as pd
 import uuid
 
-upload_report = os.path.join(app.root_path, UploadDir['ReportFolder'])
-
 class BulkSummary:
+
+    # count per condition classification state
     @staticmethod
     def count_condition(conditions, count):
         condition = []
@@ -25,6 +25,7 @@ class BulkSummary:
             count[key] = len(condition[condition[key]])  # count meeting conditions
         return count, condition
 
+    # count IMEIs meeting no condition
     @staticmethod
     def no_condition_count(all_conditions):
         no_conditions = 0
@@ -33,6 +34,7 @@ class BulkSummary:
                 no_conditions += 1
         return no_conditions
 
+    # generate compliant report and count non compliant IMEIs
     @staticmethod
     def generate_compliant_report(records):
         non_complaint = 0
@@ -46,10 +48,11 @@ class BulkSummary:
         report_name = "report not generated."
         if non_complaint != 0:
             report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
-            complaint_report.to_csv(os.path.join(upload_report, report_name),
+            complaint_report.to_csv(os.path.join(UploadDir['ReportFolder'], report_name),
                                     sep='\t')  # writing non compliant statuses to .tsv file
         return non_complaint, report_name, complaint_report
 
+    # get records from core v2
     @staticmethod
     def get_records(imeis, records, unprocessed_imeis):
         try:
