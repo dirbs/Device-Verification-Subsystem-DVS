@@ -20,6 +20,10 @@ class CommonResources:
         try:
             if status == 'Compliant (Active)' or status == 'Provisionally Compliant' or status == 'Compliant (Inactive)':
                 resp['status'] = status
+                if status_type=="bulk":
+                    return resp
+                else:
+                    return {"compliant": resp}
             else:
                 resp['status'] = status
                 resp['block_date'] = block_date
@@ -30,7 +34,7 @@ class CommonResources:
                     resp['imei'] = imei
                     resp['inactivity_reasons'] = CommonResources.populate_reasons(blocking_condition, reason_list)
                     return resp
-            return {"compliant": resp}
+                return {"compliant": resp}
         except Exception as error:
             raise error
 
