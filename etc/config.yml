@@ -20,8 +20,7 @@ global:
   ChunkSize: 10000  # there will be ChunkSize/MaxImeiRange number of threads
 
   # variables to be configured
-  HelpUrl: 'not confirmed'
-  BlockDate: 'to be decided'
+  HelpUrl: 'dirbs.net.pk/help'
 
   # minimum and maximum file content length
   MinFileContent: 0
