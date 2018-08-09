@@ -1,5 +1,4 @@
 celery==4.2.0
-urllib3==1.22
 pandas==0.23.0
 PyYAML==3.12
 flask==0.12.2
