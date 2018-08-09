@@ -34,6 +34,7 @@ try:
     BaseUrl = global_config['application_root']['RootUrl']  # app root url
     ServerAddress = global_config['application_root']['ServerIP']  # server address
     CeleryConf = global_config['celery']
+    secret = global_config['secret_keys']  # secret keys for recaptcha validation
 
     Host = str(config['SERVER']['Host'])  # Server Host
     Port = int(config['SERVER']['Port'])  # Server Port
