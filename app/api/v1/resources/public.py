@@ -1,5 +1,5 @@
-import urllib
-import requests
+import urllib.request
+import urllib.parse
 from flask import request
 from webargs.flaskparser import parser
 
@@ -16,17 +16,21 @@ class BasicStatus:
     def get():
         try:
             args = parser.parse(basic_status_args, request)
-            captcha_uri = 'https://www.google.com/recaptcha/api/siteverify'
-            recaptcha_response = args.get('token')
-            private_recaptcha = secret['web'] if args.get('source')=="web" else secret['ios'] if args.get('source')=="ios" else secret['android']
-            params = {
-                'secret': private_recaptcha,
-                'response': recaptcha_response
-            }
-            headers = {'content-type': 'application/json', 'charset': 'utf-8'}
-            data = requests.post(captcha_uri, data=json.dumps(params), headers=headers)  # dirbs core IMEI api call
 
-            result = data.json()
+            captcha_uri = 'https://www.google.com/recaptcha/api/siteverify'
+
+            recaptcha_response = args.get('token')
+
+            private_recaptcha = secret['web'] if args.get('source')=="web" else secret['ios'] if args.get('source')=="ios" else secret['android']
+
+            params = urllib.parse.urlencode({
+                        'secret': private_recaptcha,
+                        'response': recaptcha_response
+                    }).encode("utf-8")
+
+            data = urllib.request.urlopen(captcha_uri, params).read().decode("utf-8")
+            result = json.loads(data)
+
             success = result.get('success', None)
 
             if success:
