@@ -32,6 +32,11 @@ allowed_file_types:
   # allowed file extensions
   AllowedExt: ['tsv', 'txt']
 
+secret_keys:
+  iOS: '6LeiL2cUAAAAAOfD9TwVSPeQ7vTe39Lrot2fy0Ol'
+  web: '6Ld-kmIUAAAAAIo6AMv9PkpJsShh0fOHEfSPP3Q4'
+  android: ''
+
 application_root:
 
   # application root url

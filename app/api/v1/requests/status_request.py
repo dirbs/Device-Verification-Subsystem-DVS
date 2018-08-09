@@ -16,7 +16,9 @@ def validate_start_limit(val, input):
 
 
 basic_status_args = {
-    "imei": fields.Str(required=True, validate=validate_imei)
+    "imei": fields.Str(required=True, validate=validate_imei),
+    "token": fields.Str(required=True),
+    "source": fields.Str(required=True)
 }
 
 full_status_args = {
