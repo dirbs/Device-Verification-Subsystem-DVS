@@ -1,7 +1,13 @@
 conditions:
 
-  - name: 'simple_dimension'
-    reason: 'IMEI violated simple dimension'
+  - name: 'duplicate'
+    reason: 'IMEI is duplicate'
 
-  - name: 'compound_dimension'
-    reason: 'IMEI violated compound dimension'
+  - name: 'gsma_not_found'
+    reason: 'GSMA not found'
+
+  - name: 'malformed'
+    reason: 'IMEI is malformed'
+
+  - name: 'local_stolen'
+    reason: 'Device is stolen'
