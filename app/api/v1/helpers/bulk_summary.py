@@ -41,7 +41,7 @@ class BulkSummary:
         complaint_report = []
         for key in records:
             status = CommonResources.compliance_status(resp=key, status_type="bulk", imei=key['imei_norm'])
-            if status['status'] != 'Compliant (Active)' and status['status'] != 'Provisionally Compliant' and status['status'] != 'Compliant (Inactive)':
+            if "Compliant" not in status['status']:
                 complaint_report.append(status)
                 non_complaint += 1
         complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
