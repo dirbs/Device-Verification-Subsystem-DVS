@@ -91,9 +91,7 @@ class BulkSummary:
             t.join()
 
         # start thread for summary generation
-        summary = Thread(target=BulkSummary.build_summary, args=(response, records, invalid_imeis, unprocessed_imeis))
-        summary.start()
-        summary.join()
+        response = BulkSummary.build_summary(response, records, invalid_imeis, unprocessed_imeis)
 
         return response
 

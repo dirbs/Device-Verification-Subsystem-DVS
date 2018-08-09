@@ -1,6 +1,6 @@
 # dirbs core url
 dirbs_core:
-  BaseUrl: 'http://192.168.100.89:5000/api'
+  BaseUrl: 'http://192.168.100.12:5000/api'
   Version: v2
 
 # dvs global configurations
@@ -15,9 +15,9 @@ global:
 
   # minimum and maximum imei range
   MinImeiRange: '000000'
-  MaxImeiRange: 100000  # TODO: change it to 1000000 after testing
+  MaxImeiRange: 10000  # TODO: change it to 1000000 after testing
 
-  ChunkSize: 10000  # there will be ChunkSize/MaxImeiRange number of threads
+  ChunkSize: 10000  # there will be MaxImeiRange/ChunkSize number of threads
 
   # variables to be configured
   HelpUrl: 'dirbs.net.pk/help'
