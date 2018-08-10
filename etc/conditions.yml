@@ -11,3 +11,6 @@ conditions:
 
   - name: 'local_stolen'
     reason: 'Device is stolen'
+
+  - name: 'duplicate_large'
+    reason: 'IMEI met duplicate large criteria'
