@@ -146,7 +146,7 @@ class BulkSummary:
                 all_conditions = pd.concat([block, info, realtime], axis=1).transpose()
 
                 # count IMEIs which does not meeting any condition
-                count_per_condition['no_condition'] = BulkSummary.no_condition_count(all_conditions)
+                no_condition = BulkSummary.no_condition_count(all_conditions)
 
                 # processing compliant status for all IMEIs
                 non_compliant, filename, report = BulkSummary.generate_compliant_report(records)
@@ -158,6 +158,7 @@ class BulkSummary:
                 response['pending_stolen_verification'] = pending_stolen_count
                 response['verified_imei'] = len(records)
                 response['count_per_condition'] = count_per_condition
+                response['no_condition'] = no_condition
                 response['non_complaint'] = non_compliant
                 response['compliant_report_name'] = filename
 
