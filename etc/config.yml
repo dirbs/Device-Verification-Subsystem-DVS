@@ -32,9 +32,9 @@ allowed_file_types:
   AllowedExt: ['tsv', 'txt']
 
 secret_keys:
-  iOS: '6LeiL2cUAAAAAOfD9TwVSPeQ7vTe39Lrot2fy0Ol'
+  iOS: '6LeiL2cUAAAAABZxGIBQoaTYjVyNceWJiSrj2Z7K'
   web: '6Ld-kmIUAAAAAIo6AMv9PkpJsShh0fOHEfSPP3Q4'
-  android: ''
+  android: '6LeBMWkUAAAAAKNK4gOgfuBDEI1KWTIQEviCmPa7'
 
 application_root:
 
