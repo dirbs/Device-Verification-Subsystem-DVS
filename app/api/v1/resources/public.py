@@ -21,7 +21,7 @@ class BasicStatus:
 
             recaptcha_response = args.get('token')
 
-            private_recaptcha = secret['web'] if args.get('source')=="web" else secret['ios'] if args.get('source')=="ios" else secret['android']
+            private_recaptcha = secret['web'] if args.get('source')=="web" else secret['iOS'] if args.get('source')=="ios" else secret['android']
 
             params = urllib.parse.urlencode({
                         'secret': private_recaptcha,
