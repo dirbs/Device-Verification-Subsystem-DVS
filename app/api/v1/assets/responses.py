@@ -10,7 +10,7 @@ responses = {
 }
 
 messages = {
-    'not_found': 'Record not found.',
+    'not_found': 'Resource not found.',
     'bad_request': 'Bad Format',
     'ok': 'Status OK',
     'internal_error': 'There is some internal error',
