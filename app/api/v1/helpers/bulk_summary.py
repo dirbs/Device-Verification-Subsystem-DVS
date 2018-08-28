@@ -107,7 +107,6 @@ class BulkSummary:
                             invalid_imeis += 1
                     else:
                         filtered_list.append(imei)
-
                 imeis_list = filtered_list
             imeis_list = list(imeis_list[i:i + GlobalConfig['ChunkSize']] for i in range(0, len(imeis_list), GlobalConfig['ChunkSize']))  # make 100 chunks for 1 million imeis
             imeis_chunks = []
