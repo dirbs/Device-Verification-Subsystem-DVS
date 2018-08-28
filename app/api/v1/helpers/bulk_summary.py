@@ -1,5 +1,6 @@
 import os
 import re
+
 from app import Root, report_dir, version, session, celery, GlobalConfig
 from ..resources.common import CommonResources
 from ..assets.error_handling import *
@@ -56,19 +57,19 @@ class BulkSummary:
     @staticmethod
     def get_records(imeis, records, unprocessed_imeis):
         try:
-            for imei in range(len(imeis)):  # queue not empty
+            for imei in range(len(imeis)):
                 try:
                     imei = imeis.pop(-1)  # pop the last item from queue
                     batch_req = {
                         "imeis": imei
                     }
                     headers = {'content-type': 'application/json', 'charset': 'utf-8'}
-                    imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core IMEI api call
+                    imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core batch api call
                     if imei_response.status_code == 200:
                         imei_response = imei_response.json()
                         records.extend(imei_response['results'])
                 except ConnectionError:
-                    unprocessed_imeis.append(len(imei))  # in case of connection error append imei at first index
+                    unprocessed_imeis.append(len(imei))  # in case of connection error append imei count to unprocessed IMEIs list
                     pass
         except Exception as error:
             raise error
@@ -90,7 +91,7 @@ class BulkSummary:
         for t in threads:
             t.join()
 
-        # start thread for summary generation
+        # send records for summary generation
         response = BulkSummary.build_summary(response, records, invalid_imeis, unprocessed_imeis)
 
         return response
@@ -123,13 +124,13 @@ class BulkSummary:
         try:
             if records:
                 result = pd.DataFrame(records)  # main dataframe for results
-                blocking_condition = pd.DataFrame(i['blocking_conditions'] for i in result['classification_state'])  # datafame for blocking conditions
-                info_condition = pd.DataFrame(i['informative_conditions'] for i in result['classification_state'])  # datafame for informative conditions
+                blocking_condition = pd.DataFrame(i['blocking_conditions'] for i in result['classification_state'])  # dataframe for blocking conditions
+                info_condition = pd.DataFrame(i['informative_conditions'] for i in result['classification_state'])  # dataframe for informative conditions
 
-                registration_list = pd.DataFrame(list(result['registration_status']))  # datafame for registratios status
+                registration_list = pd.DataFrame(list(result['registration_status']))  # dataframe for registration status
                 pending_reg_count = len(registration_list.loc[registration_list['provisional_only']==True])
 
-                stolen_list = pd.DataFrame(list(result['stolen_status']))   # datafame for stolen status
+                stolen_list = pd.DataFrame(list(result['stolen_status']))   # dataframe for stolen status
                 pending_stolen_count = len(stolen_list.loc[stolen_list['provisional_only']==True])
 
                 count_per_condition = {}
@@ -142,7 +143,7 @@ class BulkSummary:
                 # IMEI count per informative condition
                 count_per_condition, info = BulkSummary.count_condition(count=count_per_condition, conditions=info_condition)
 
-                all_conditions = pd.concat([block, info, realtime], axis=1).transpose()
+                all_conditions = pd.concat([block, info, realtime], axis=1).transpose()  # concatenate dataframes for all conditions
 
                 # count IMEIs which does not meeting any condition
                 no_condition = BulkSummary.no_condition_count(all_conditions)
