@@ -7,7 +7,7 @@ from app import GlobalConfig, secret
 from .common import CommonResources
 from ..assets.error_handling import *
 from ..assets.responses import responses, mime_types
-from ..requests.status_request import basic_status_args
+from ..requests.status_request import basic_status_args, sms_args
 
 
 class BasicStatus:
@@ -42,6 +42,30 @@ class BasicStatus:
                 return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
             else:
                 return custom_response("ReCaptcha Failed!", status=responses.get('ok'), mimetype=mime_types.get('json'))
+        except ValueError as error:
+            return custom_response(str(error), 422, mime_types.get('json'))
+
+        except Exception as e:
+            app.logger.info("Error occurred while retrieving basic status.")
+            app.logger.exception(e)
+            return custom_response("Failed to retrieve basic status.", responses.get('service_unavailable'),
+                                   mime_types.get('json'))
+
+    @staticmethod
+    def get_basic():
+        try:
+            args = parser.parse(sms_args, request)
+
+            tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
+            status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
+            compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
+            gsma = CommonResources.get_tac(tac, "basic")  # get gsma data from tac
+            message = "imei: "+ status.get('imei_norm') + '\n' + \
+                      ''.join(key + ": " + str(value).replace("[","").replace("]","") + "\n" for key, value in compliance['compliant'].items())
+            if gsma['gsma']:
+                message = message + ''.join(key + ": " + str(value) + "\n" for key, value in gsma['gsma'].items() if gsma['gsma'])
+            return Response(message, status=responses.get('ok'), mimetype=mime_types.get('txt'))
+
         except ValueError as error:
             return custom_response(str(error), 422, mime_types.get('json'))
 

@@ -1,7 +1,6 @@
 import os
-import re
 
-from app import Root, report_dir, version, session, celery, GlobalConfig
+from app import Root, report_dir, version, session, GlobalConfig
 from ..resources.common import CommonResources
 from ..assets.error_handling import *
 
@@ -16,9 +15,10 @@ class BulkSummary:
     @staticmethod
     def count_condition(conditions, count):
         condition = []
-        for c in conditions.transpose():
+        transponsed = conditions.transpose()
+        for c in transponsed:
             cond = {}
-            for i in conditions.transpose()[c]:
+            for i in transponsed[c]:
                 cond[i['condition_name']] = i['condition_met']  # serialize conditions in list of dictionaries
             condition.append(cond)
         condition = pd.DataFrame(condition)
@@ -76,7 +76,6 @@ class BulkSummary:
 
     @staticmethod
     def start_threads(imeis_list, invalid_imeis):
-        response = {}
         threads = []
         records = []
         unprocessed_imeis = []
@@ -91,41 +90,23 @@ class BulkSummary:
         for t in threads:
             t.join()
 
-        # send records for summary generation
-        response = BulkSummary.build_summary(response, records, invalid_imeis, unprocessed_imeis)
-
-        return response
+        return records, invalid_imeis, unprocessed_imeis
 
     @staticmethod
-    @celery.task
-    def get_summary(imeis_list, input_type):
-        try:
-            invalid_imeis = 0
-            filtered_list = []
-            if input_type=="file":
-                for imei in imeis_list:
-                    if re.match(r'^[a-fA-F0-9]{14,16}$', imei) is None:
-                            invalid_imeis += 1
-                    else:
-                        filtered_list.append(imei)
-                imeis_list = filtered_list
-            imeis_list = list(imeis_list[i:i + GlobalConfig['ChunkSize']] for i in range(0, len(imeis_list), GlobalConfig['ChunkSize']))  # make 100 chunks for 1 million imeis
-            imeis_chunks = []
-            for imeis in imeis_list:
-                imeis_chunks.append(list(imeis[i:i + 1000] for i in range(0, len(imeis), 1000)))
-            response = BulkSummary.start_threads(imeis_list=imeis_chunks, invalid_imeis=invalid_imeis)
-            return response
-
-        except Exception as e:
-            raise e
+    def chunked_data(imeis_list):
+        imeis_list = list(imeis_list[i:i + GlobalConfig['ChunkSize']] for i in
+                          range(0, len(imeis_list), GlobalConfig['ChunkSize']))  # make 100 chunks for 1 million imeis
+        imeis_chunks = []
+        for imeis in imeis_list:
+            imeis_chunks.append(list(imeis[i:i + 1000] for i in range(0, len(imeis), 1000)))
+        return imeis_chunks
 
     @staticmethod
-    def build_summary(response, records, invalid_imeis, unprocessed_imeis):
+    def build_summary(records, invalid_imeis, unprocessed_imeis):
         try:
+            response = {}
             if records:
                 result = pd.DataFrame(records)  # main dataframe for results
-                blocking_condition = pd.DataFrame(i['blocking_conditions'] for i in result['classification_state'])  # dataframe for blocking conditions
-                info_condition = pd.DataFrame(i['informative_conditions'] for i in result['classification_state'])  # dataframe for informative conditions
 
                 registration_list = pd.DataFrame(list(result['registration_status']))  # dataframe for registration status
                 pending_reg_count = len(registration_list.loc[registration_list['provisional_only']==True])
@@ -136,6 +117,10 @@ class BulkSummary:
                 count_per_condition = {}
 
                 realtime = pd.DataFrame(list(result['realtime_checks']))  # dataframe of realtime checks
+
+                blocking_condition = pd.DataFrame(i['blocking_conditions'] for i in result['classification_state'] if i['blocking_conditions'])  # dataframe for blocking conditions
+
+                info_condition = pd.DataFrame(i['informative_conditions'] for i in result['classification_state'] if i['informative_conditions'])  # dataframe for informative conditions
 
                 #  IMEI count per blocking condition
                 count_per_condition, block = BulkSummary.count_condition(count=count_per_condition, conditions=blocking_condition)

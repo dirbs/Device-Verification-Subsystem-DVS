@@ -33,6 +33,12 @@ def basicstatus():
     response = BasicStatus.get()
     return response
 
+@public_api.route('/sms', methods=['GET'])
+def sms_verifcation():
+    response = BasicStatus.get_basic()
+    return response
+
+
 @admin_api.route('/fullstatus', methods=['POST'])
 def fullstatus():
     response = FullStatus.get()
@@ -42,6 +48,10 @@ def fullstatus():
 @bulk_api.route('/bulk', methods=['POST'])
 def bulk():
     return BulkCheck.summary()
+
+@bulk_api.route('/drs_bulk', methods=['POST'])
+def drs_bulk():
+    return BulkCheck.drs_summary()
 
 
 @bulk_api.route('/download/<filename>', methods=['POST'])
