@@ -90,11 +90,12 @@ class CommonResources:
             tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core tac api call
             if tac_response.status_code == 200:
                 tac_response = tac_response.json()
-                if tac_response['registration']:
-                    response = CommonResources.serialize_reg(response, tac_response['gsma'], tac_response['registration'], status_type)
+                if tac_response['gsma']:
+                    response = CommonResources.serialize(response, tac_response['gsma'], tac_response['registration'],
+                                                         status_type)
                     return response
-                elif tac_response['gsma']:
-                    response = CommonResources.serialize(response, tac_response['gsma'], tac_response['registration'], status_type)
+                elif tac_response['registration']:
+                    response = CommonResources.serialize_reg(response, tac_response['registration'], status_type)
                     return response
             return {"gsma": None}
         except Exception as error:
@@ -151,34 +152,34 @@ class CommonResources:
     def serialize(response, gsma_resp, reg_resp, status_type):
         try:
             if status_type == "basic":
-                response['brand'] = gsma_resp['brand_name']
-                response['model_name'] = reg_resp['model'] if reg_resp['model'] else gsma_resp['model_name']
+                response['brand'] = gsma_resp.get('brand_name')
+                response['model_name'] = reg_resp.get('model') if reg_resp else gsma_resp.get('model_name')
             else:
-                response['brand'] = gsma_resp['brand_name']
-                response['model_name'] = reg_resp['model'] if reg_resp['model'] else gsma_resp['model_name']
-                response['model_number'] = gsma_resp['marketing_name']
-                response['device_type'] = gsma_resp['gsma_device_type']
+                response['brand'] = gsma_resp.get('brand_name')
+                response['model_name'] = reg_resp.get('model') if reg_resp else gsma_resp.get('model_name')
+                response['model_number'] = gsma_resp.get('marketing_name')
+                response['device_type'] = gsma_resp.get('gsma_device_type')
                 response['operating_system'] = gsma_resp.get('operating_system')
-                response['radio_access_technology'] = gsma_resp['bands']
-                response['manufacturer'] = gsma_resp['manufacturer']
+                response['radio_access_technology'] = gsma_resp.get('bands')
+                response['manufacturer'] = gsma_resp.get('manufacturer')
             return {'gsma': response}
         except Exception as error:
             raise error
 
     @staticmethod
-    def serialize_reg(response, gsma_resp, reg_resp, status_type):
+    def serialize_reg(response, reg_resp, status_type):
         try:
             if status_type == "basic":
-                response['brand'] = reg_resp['brand_name']
-                response['model_name'] = reg_resp['model']
+                response['brand'] = reg_resp.get('brand_name')
+                response['model_name'] = reg_resp.get('model')
             else:
-                response['brand'] = reg_resp['brand_name']
-                response['model_name'] = reg_resp['model']
-                response['model_number'] = reg_resp['model_number']
-                response['device_type'] = reg_resp['device_type']
-                response['manufacturer'] = gsma_resp.get('manufacturer')
-                response['operating_system'] = gsma_resp.get('operating_system')
-                response['radio_access_technology'] = reg_resp['radio_interface']
+                response['brand'] = reg_resp.get('brand_name')
+                response['model_name'] = reg_resp.get('model')
+                response['model_number'] = reg_resp.get('model_number')
+                response['device_type'] = reg_resp.get('device_type')
+                response['manufacturer'] = reg_resp.get('manufacturer')
+                response['operating_system'] = reg_resp.get('operating_system')
+                response['radio_access_technology'] = reg_resp.get('radio_interface')
             return {'gsma': response}
         except Exception as error:
             raise error
