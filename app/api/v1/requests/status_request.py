@@ -21,6 +21,10 @@ basic_status_args = {
     "source": fields.Str(required=True)
 }
 
+sms_args = {
+    "imei": fields.Str(required=True, validate=validate_imei)
+}
+
 full_status_args = {
     "imei": fields.Str(required=True, validate=validate_imei),
     "subscribers": fields.Nested({
