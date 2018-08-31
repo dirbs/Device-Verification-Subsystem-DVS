@@ -17,7 +17,8 @@ global:
   MinImeiRange: '000000'
   MaxImeiRange: 10000  # TODO: change it to 1000000 after testing
 
-  ChunkSize: 10000  # there will be MaxImeiRange/ChunkSize number of threads
+  NoOfThreads: 10
+  ImeiBatchSize: 1000
 
   # variables to be configured
   HelpUrl: 'dirbs.net.pk/help'

@@ -5,6 +5,7 @@ from ..resources.common import CommonResources
 from ..assets.error_handling import *
 
 from threading import Thread
+from math import ceil
 
 import pandas as pd
 import uuid
@@ -60,14 +61,17 @@ class BulkSummary:
             for imei in range(len(imeis)):
                 try:
                     imei = imeis.pop(-1)  # pop the last item from queue
-                    batch_req = {
-                        "imeis": imei
-                    }
-                    headers = {'content-type': 'application/json', 'charset': 'utf-8'}
-                    imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core batch api call
-                    if imei_response.status_code == 200:
-                        imei_response = imei_response.json()
-                        records.extend(imei_response['results'])
+                    if imei:
+                        batch_req = {
+                            "imeis": imei
+                        }
+                        headers = {'content-type': 'application/json', 'charset': 'utf-8'}
+                        imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core batch api call
+                        if imei_response.status_code == 200:
+                            imei_response = imei_response.json()
+                            records.extend(imei_response['results'])
+                    else:
+                        continue
                 except ConnectionError:
                     unprocessed_imeis.append(len(imei))  # in case of connection error append imei count to unprocessed IMEIs list
                     pass
@@ -94,11 +98,11 @@ class BulkSummary:
 
     @staticmethod
     def chunked_data(imeis_list):
-        imeis_list = list(imeis_list[i:i + GlobalConfig['ChunkSize']] for i in
-                          range(0, len(imeis_list), GlobalConfig['ChunkSize']))  # make 100 chunks for 1 million imeis
+        chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
+        imeis_list = list(imeis_list[i:i + chunksize] for i in range(0, len(imeis_list), chunksize))  # make 100 chunks for 1 million imeis
         imeis_chunks = []
         for imeis in imeis_list:
-            imeis_chunks.append(list(imeis[i:i + 1000] for i in range(0, len(imeis), 1000)))
+            imeis_chunks.append(list(imeis[i:i + GlobalConfig['ImeiBatchSize']] for i in range(0, len(imeis), GlobalConfig['ImeiBatchSize'])))
         return imeis_chunks
 
     @staticmethod
