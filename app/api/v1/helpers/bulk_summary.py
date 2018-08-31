@@ -118,9 +118,11 @@ class BulkSummary:
 
                 realtime = pd.DataFrame(list(result['realtime_checks']))  # dataframe of realtime checks
 
-                blocking_condition = pd.DataFrame(i['blocking_conditions'] for i in result['classification_state'] if i['blocking_conditions'])  # dataframe for blocking conditions
+                classification_states = pd.DataFrame(list(result['classification_state']))  # dataframe of classifcation states
 
-                info_condition = pd.DataFrame(i['informative_conditions'] for i in result['classification_state'] if i['informative_conditions'])  # dataframe for informative conditions
+                blocking_condition = pd.DataFrame(list(classification_states['blocking_conditions']))  # dataframe of blocking conditions
+
+                info_condition = pd.DataFrame(list(classification_states['informative_conditions']))  # dataframe for informative conditions
 
                 #  IMEI count per blocking condition
                 count_per_condition, block = BulkSummary.count_condition(count=count_per_condition, conditions=blocking_condition)
