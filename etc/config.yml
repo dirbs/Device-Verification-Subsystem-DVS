@@ -63,6 +63,10 @@ secret_keys:
   web: '6Ld-kmIUAAAAAIo6AMv9PkpJsShh0fOHEfSPP3Q4'
   android: '6LeBMWkUAAAAAKNK4gOgfuBDEI1KWTIQEviCmPa7'
 
+# application base url
+application_base:
+  BaseUrl: '/api/v1'
+
 # celery configurations
 celery:
 

@@ -57,8 +57,7 @@ try:
     AllowedFiles = global_config['allowed_file_types']['AllowedExt']  # allowed file type for bulk check
     task_dir = str(config['UPLOADS']['task_dir'])  # path to task_ids file upload
     report_dir = str(config['UPLOADS']['report_dir'])  # path to non compliant report upload
-    BaseUrl = global_config['application_root']['RootUrl']  # app root url
-    ServerAddress = global_config['application_root']['ServerIP']  # server address
+    BaseUrl = global_config['application_base']['BaseUrl']  # app root url
     CeleryConf = global_config['celery']
     secret = global_config['secret_keys']  # secret keys for recaptcha validation
 
