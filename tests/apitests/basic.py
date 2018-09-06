@@ -1,3 +1,11 @@
+###################################################
+#                                                 #
+# Copyright (c) 2018 Qualcomm Technologies, Inc.  #
+#                                                 #
+# All rights reserved.                            #
+#                                                 #
+###################################################
+
 import unittest
 from app import app
 import io

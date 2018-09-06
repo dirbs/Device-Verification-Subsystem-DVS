@@ -1,3 +1,11 @@
+###################################################
+#                                                 #
+# Copyright (c) 2018 Qualcomm Technologies, Inc.  #
+#                                                 #
+# All rights reserved.                            #
+#                                                 #
+###################################################
+
 import json
 from app import app
 from .resources.public import BasicStatus

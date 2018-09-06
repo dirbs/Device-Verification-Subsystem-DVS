@@ -1,3 +1,11 @@
+###################################################
+#                                                 #
+# Copyright (c) 2018 Qualcomm Technologies, Inc.  #
+#                                                 #
+# All rights reserved.                            #
+#                                                 #
+###################################################
+
 import os
 
 from app import Root, report_dir, version, session, GlobalConfig

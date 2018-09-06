@@ -1,3 +1,11 @@
+###################################################
+#                                                 #
+# Copyright (c) 2018 Qualcomm Technologies, Inc.  #
+#                                                 #
+# All rights reserved.                            #
+#                                                 #
+###################################################
+
 from flask import request
 from webargs.flaskparser import parser
 

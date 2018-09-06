@@ -1,3 +1,11 @@
+###################################################
+#                                                 #
+# Copyright (c) 2018 Qualcomm Technologies, Inc.  #
+#                                                 #
+# All rights reserved.                            #
+#                                                 #
+###################################################
+
 class BaseConfig(object):  # base config class for server
     """Base configuration class"""
     SECRET_KEY = 'SecretKey'

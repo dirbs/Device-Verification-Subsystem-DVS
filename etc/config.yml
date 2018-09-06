@@ -1,3 +1,11 @@
+###################################################
+#                                                 #
+# Copyright (c) 2018 Qualcomm Technologies, Inc.  #
+#                                                 #
+# All rights reserved.                            #
+#                                                 #
+###################################################
+
 # dirbs core url
 dirbs_core:
   BaseUrl: 'http://192.168.100.12:5000/api'
@@ -27,21 +35,15 @@ global:
   MinFileContent: 0
   MaxFileContent: 1000000
 
+# allowed file extensions
 allowed_file_types:
-
-  # allowed file extensions
   AllowedExt: ['tsv', 'txt']
 
+# captcha secret keys
 secret_keys:
   iOS: '6LeiL2cUAAAAABZxGIBQoaTYjVyNceWJiSrj2Z7K'
   web: '6Ld-kmIUAAAAAIo6AMv9PkpJsShh0fOHEfSPP3Q4'
   android: '6LeBMWkUAAAAAKNK4gOgfuBDEI1KWTIQEviCmPa7'
-
-application_root:
-
-  # application root url
-  RootUrl: '/api/v1'
-  ServerIP: '192.168.100.74'
 
 # celery configurations
 celery:
