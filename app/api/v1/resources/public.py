@@ -93,10 +93,10 @@ class BasicStatus:
             return Response(message, status=responses.get('ok'), mimetype=mime_types.get('txt'))
 
         except ValueError as error:
-            return custom_response(str(error), 422, mime_types.get('json'))
+            return Response("IMEI format is incorrect. Enter 16 digit IMEI", 422, mime_types.get('txt'))
 
         except Exception as e:
             app.logger.info("Error occurred while retrieving basic status.")
             app.logger.exception(e)
-            return custom_response("Failed to retrieve basic status.", responses.get('service_unavailable'),
-                                   mime_types.get('json'))
+            return Response("Failed to retrieve basic status.", status=responses.get('service_unavailable'),
+                            mimetype=mime_types.get('txt'))
