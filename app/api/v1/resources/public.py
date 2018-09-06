@@ -81,15 +81,12 @@ class BasicStatus:
     def get_basic():
         try:
             args = parser.parse(sms_args, request)
-
-            tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
             compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
-            gsma = CommonResources.get_tac(tac, "basic")  # get gsma data from tac
-            message = "imei: "+ status.get('imei_norm') + '\n' + \
-                      ''.join(key + ": " + str(value).replace("[","").replace("]","") + "\n" for key, value in compliance['compliant'].items())
-            if gsma['gsma']:
-                message = message + ''.join(key + ": " + str(value) + "\n" for key, value in gsma['gsma'].items() if gsma['gsma'])
+            if "non compliant" in compliance['compliant']['status'].lower():
+                message = "STATUS: {status}, Block Date: {date}".format(date=compliance['compliant']['block_date'], status=compliance['compliant']['status'])
+            else:
+                message = "STATUS: {status}".format(status=compliance['compliant']['status'])
             return Response(message, status=responses.get('ok'), mimetype=mime_types.get('txt'))
 
         except ValueError as error:
