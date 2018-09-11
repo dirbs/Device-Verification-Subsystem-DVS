@@ -47,21 +47,17 @@ def index_route():
 
 @public_api.route('/', methods=['GET', 'POST'])
 def index():
-    data = {
-        'message': 'Welcome to DVS version 1.0'
-    }
-
-    response = Response(json.dumps(data), status=200, mimetype='application/json')
-    return response
+    data = BasicStatus.connection_check()
+    return data
 
 @public_api.route('/basicstatus', methods=['GET'])
 def basicstatus():
-    response = BasicStatus.get()
+    response = BasicStatus.basic_status()
     return response
 
 @public_api.route('/sms', methods=['GET'])
 def sms_verifcation():
-    response = BasicStatus.get_basic()
+    response = BasicStatus.sms_resource()
     return response
 
 

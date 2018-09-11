@@ -77,7 +77,7 @@ class BulkCheck:
                         if file and '.' in file.filename and \
                                 file.filename.rsplit('.', 1)[1].lower() in AllowedFiles:  # validate file type
                             imeis = list(set(line.decode('ascii', errors='ignore') for line in (l.strip() for l in file) if line))
-                            if imeis and int(GlobalConfig['MinFileContent']) < len(imeis) < int(GlobalConfig['MaxFileContent']):  # validate file content length
+                            if imeis and int(GlobalConfig['MinFileContent']) < len(imeis) <= int(GlobalConfig['MaxFileContent']):  # validate file content length
                                 response = BulkCheck.get_summary.apply_async((imeis, "file", 'dvs'))
                                 data = {
                                     "message": "You can track your request using this id",

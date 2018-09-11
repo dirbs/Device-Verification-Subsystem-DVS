@@ -28,8 +28,9 @@ import urllib.request
 import urllib.parse
 from flask import request
 from webargs.flaskparser import parser
+import requests
 
-from app import GlobalConfig, secret
+from app import GlobalConfig, secret, Root, version
 from .common import CommonResources
 from ..assets.error_handling import *
 from ..assets.responses import responses, mime_types
@@ -39,7 +40,7 @@ from ..requests.status_request import basic_status_args, sms_args
 class BasicStatus:
 
     @staticmethod
-    def get():
+    def basic_status():
         try:
             args = parser.parse(basic_status_args, request)
 
@@ -78,7 +79,7 @@ class BasicStatus:
                                    mime_types.get('json'))
 
     @staticmethod
-    def get_basic():
+    def sms_resource():
         try:
             args = parser.parse(sms_args, request)
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
@@ -97,3 +98,23 @@ class BasicStatus:
             app.logger.exception(e)
             return Response("Failed to retrieve basic status.", status=responses.get('service_unavailable'),
                             mimetype=mime_types.get('txt'))
+
+    @staticmethod
+    def connection_check():
+        try:
+            resp = requests.get('{base}/{version}/version'.format(base=Root, version=version))  # dirbs core imei api call
+            if resp.status_code == 200:
+                data = {
+                    "message": "CORE connected successfully."
+                }
+                return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
+            else:
+                data = {
+                    "message": "CORE connection failed."
+                }
+                return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
+        except requests.ConnectionError:
+            data = {
+                "message": "CORE connection failed."
+            }
+            return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))

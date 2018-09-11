@@ -27,6 +27,7 @@
 import os
 
 from app import Root, report_dir, version, session, GlobalConfig
+from requests import ConnectionError
 from ..resources.common import CommonResources
 from ..assets.error_handling import *
 
@@ -85,8 +86,8 @@ class BulkSummary:
     def get_records(imeis, records, unprocessed_imeis):
         try:
             for imei in range(len(imeis)):
+                imei = imeis.pop(-1)  # pop the last item from queue
                 try:
-                    imei = imeis.pop(-1)  # pop the last item from queue
                     if imei:
                         batch_req = {
                             "imeis": imei
@@ -98,9 +99,9 @@ class BulkSummary:
                             records.extend(imei_response['results'])
                     else:
                         continue
-                except ConnectionError:
+                except ConnectionError as e:
                     unprocessed_imeis.append(len(imei))  # in case of connection error append imei count to unprocessed IMEIs list
-                    pass
+                    app.logger.exception(e)
         except Exception as error:
             raise error
 
