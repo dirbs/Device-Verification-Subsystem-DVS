@@ -101,13 +101,19 @@ class BasicStatus:
 
     @staticmethod
     def connection_check():
-        resp = requests.get('{base}/{version}/version'.format(base=Root, version=version))  # dirbs core imei api call
-        if resp.status_code == 200:
-            data = {
-                "message": "CORE connected successfully."
-            }
-            return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
-        else:
+        try:
+            resp = requests.get('{base}/{version}/version'.format(base=Root, version=version))  # dirbs core imei api call
+            if resp.status_code == 200:
+                data = {
+                    "message": "CORE connected successfully."
+                }
+                return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
+            else:
+                data = {
+                    "message": "CORE connection failed."
+                }
+                return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
+        except requests.ConnectionError:
             data = {
                 "message": "CORE connection failed."
             }

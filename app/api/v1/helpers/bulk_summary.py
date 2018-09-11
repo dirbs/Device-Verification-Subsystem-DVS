@@ -97,7 +97,6 @@ class BulkSummary:
                         if imei_response.status_code == 200:
                             imei_response = imei_response.json()
                             records.extend(imei_response['results'])
-                        print(len(records))
                     else:
                         continue
                 except ConnectionError as e:
