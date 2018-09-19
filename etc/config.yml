@@ -41,7 +41,7 @@ global:
 
   # minimum and maximum imei range
   MinImeiRange: '000000'
-  MaxImeiRange: 10000  # TODO: change it to 1000000 after testing
+  MaxImeiRange: 1000000  # TODO: change it to 1000000 after testing
 
   NoOfThreads: 10
   ImeiBatchSize: 1000

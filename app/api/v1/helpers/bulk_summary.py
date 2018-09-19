@@ -85,7 +85,7 @@ class BulkSummary:
     @staticmethod
     def get_records(imeis, records, unprocessed_imeis):
         try:
-            for imei in range(len(imeis)):
+            while imeis:
                 imei = imeis.pop(-1)  # pop the last item from queue
                 try:
                     if imei:
@@ -100,7 +100,8 @@ class BulkSummary:
                     else:
                         continue
                 except ConnectionError as e:
-                    unprocessed_imeis.append(len(imei))  # in case of connection error append imei count to unprocessed IMEIs list
+                    imeis.insert(0, imei)
+                    # unprocessed_imeis.append(len(imei))  # in case of connection error append imei count to unprocessed IMEIs list
                     app.logger.exception(e)
         except Exception as error:
             raise error
@@ -170,7 +171,7 @@ class BulkSummary:
                 non_compliant, filename, report = BulkSummary.generate_compliant_report(records)
 
                 # summary for bulk verify IMEI
-                response['unprocessed_imeis'] = sum(unprocessed_imeis)
+                # response['unprocessed_imeis'] = sum(unprocessed_imeis)
                 response['invalid_imei'] = invalid_imeis
                 response['pending_registration'] = pending_reg_count
                 response['pending_stolen_verification'] = pending_stolen_count
