@@ -44,6 +44,10 @@ class BulkCheck:
         try:
             invalid_imeis = 0
             filtered_list = []
+            threads = []
+            records = []
+            unprocessed_imeis = []
+            retry_count = GlobalConfig.get('Retry')
             if input_type == "file":
                 for imei in imeis_list:
                     if re.match(r'^[a-fA-F0-9]{14,16}$', imei) is None:
@@ -55,7 +59,11 @@ class BulkCheck:
             imeis_chunks = BulkSummary.chunked_data(imeis_list)
 
             records, invalid_imeis, unprocessed_imeis = BulkSummary.start_threads(imeis_list=imeis_chunks,
-                                                                                  invalid_imeis=invalid_imeis)
+                                                                                  invalid_imeis=invalid_imeis,
+                                                                                  thread_list=threads,
+                                                                                  records=records,
+                                                                                  unprocessed_imeis=unprocessed_imeis,
+                                                                                  retry=retry_count)
             # send records for summary generation
             if system=='drs':
                 response = DrsBulkSummary.build_summary(records)
