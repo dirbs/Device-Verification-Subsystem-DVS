@@ -97,30 +97,69 @@ class BulkSummary:
                         if imei_response.status_code == 200:
                             imei_response = imei_response.json()
                             records.extend(imei_response['results'])
+                        else:
+                            app.logger.info("imei batch failed due to status other than 200")
+                            unprocessed_imeis.append(imei)  # in case of connection error append imei count to unprocessed IMEIs list
                     else:
                         continue
-                except ConnectionError as e:
-                    imeis.insert(0, imei)
-                    # unprocessed_imeis.append(len(imei))  # in case of connection error append imei count to unprocessed IMEIs list
+                except (ConnectionError, Exception) as e:
+                    unprocessed_imeis.append(imei)  # in case of connection error append imei count to unprocessed IMEIs list
                     app.logger.exception(e)
         except Exception as error:
             raise error
 
     @staticmethod
-    def start_threads(imeis_list, invalid_imeis):
+    def retry_process(imeis, records, unprocessed_imeis):
+        try:
+            while imeis:
+                imei = imeis.pop(-1)  # pop the last item from queue
+                try:
+                    if imei:
+                        batch_req = {
+                            "imeis": imei
+                        }
+                        headers = {'content-type': 'application/json', 'charset': 'utf-8'}
+                        imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core batch api call
+                        if imei_response.status_code == 200:
+                            imei_response = imei_response.json()
+                            records.extend(imei_response['results'])
+                        else:
+                            app.logger.info("imei batch failed due to status other than 200")
+                            unprocessed_imeis.append(imei)  # in case of connection error append imei count to unprocessed IMEIs list
+                    else:
+                        continue
+                except (ConnectionError, Exception) as e:
+                    unprocessed_imeis.append(imei)  # in case of connection error append imei count to unprocessed IMEIs list
+                    app.logger.exception(e)
+        except Exception as error:
+            raise error
+
+
+    @staticmethod
+    def start_threads(imeis_list, invalid_imeis, thread_list, records, unprocessed_imeis, retry):
         threads = []
-        records = []
-        unprocessed_imeis = []
         for imei in imeis_list:
-            threads.append(Thread(target=BulkSummary.get_records, args=(imei, records, unprocessed_imeis)))
+            thread_list.append(Thread(target=BulkSummary.get_records, args=(imei, records, unprocessed_imeis)))
 
         # start threads for all imei chunks
-        for x in threads:
+        for x in thread_list:
             x.start()
 
         # stop all threads on completion
-        for t in threads:
+        for t in thread_list:
             t.join()
+
+        while retry and unprocessed_imeis:
+            retry = retry-1
+            chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
+            unprocessed_imeis = list(unprocessed_imeis[i:i + chunksize] for i in range(0, len(unprocessed_imeis), chunksize))  # make 100 chunks for 1 million imeis
+            for imeis in unprocessed_imeis:
+                threads.append(Thread(target=BulkSummary.retry_process, args=(imeis, records, [])))
+            for x in threads:
+                x.start()
+
+            for x in threads:
+                x.join()
 
         return records, invalid_imeis, unprocessed_imeis
 
@@ -171,7 +210,7 @@ class BulkSummary:
                 non_compliant, filename, report = BulkSummary.generate_compliant_report(records)
 
                 # summary for bulk verify IMEI
-                # response['unprocessed_imeis'] = sum(unprocessed_imeis)
+                response['unprocessed_imeis'] = sum(len(imei) for imei in unprocessed_imeis)
                 response['invalid_imei'] = invalid_imeis
                 response['pending_registration'] = pending_reg_count
                 response['pending_stolen_verification'] = pending_stolen_count

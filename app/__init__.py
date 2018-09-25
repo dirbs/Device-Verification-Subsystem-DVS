@@ -66,7 +66,7 @@ try:
 
     # requests session
     session = requests.Session()
-    retry = Retry(total=3, backoff_factor=1, status_forcelist=[502, 503, 504])
+    retry = Retry(total=GlobalConfig.get('Retry'), backoff_factor=1, status_forcelist=[502, 503, 504])
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
     session.mount('https://', adapter)
