@@ -137,7 +137,6 @@ class BulkSummary:
 
     @staticmethod
     def start_threads(imeis_list, invalid_imeis, thread_list, records, unprocessed_imeis, retry):
-        threads = []
         for imei in imeis_list:
             thread_list.append(Thread(target=BulkSummary.get_records, args=(imei, records, unprocessed_imeis)))
 
@@ -150,6 +149,7 @@ class BulkSummary:
             t.join()
 
         while retry and unprocessed_imeis:
+            threads = []
             retry = retry-1
             chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
             unprocessed_imeis = list(unprocessed_imeis[i:i + chunksize] for i in range(0, len(unprocessed_imeis), chunksize))  # make 100 chunks for 1 million imeis
