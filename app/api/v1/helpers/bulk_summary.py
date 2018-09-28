@@ -92,7 +92,7 @@ class BulkSummary:
                         batch_req = {
                             "imeis": imei
                         }
-                        headers = {'content-type': 'application/json', 'charset': 'utf-8'}
+                        headers = {'content-type': 'application/json', 'charset': 'utf-8', 'keep_alive':'false'}
                         imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core batch api call
                         if imei_response.status_code == 200:
                             imei_response = imei_response.json()
