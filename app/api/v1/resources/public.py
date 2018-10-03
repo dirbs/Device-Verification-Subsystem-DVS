@@ -63,10 +63,13 @@ class BasicStatus:
             if success:
                 tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
                 status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
-                compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
-                gsma = CommonResources.get_tac(tac, "basic")  # get gsma data from tac
-                response = dict(compliance, **gsma, **{'imei': status.get('imei_norm')})  # merge responses
-                return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                if status:
+                    compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
+                    gsma = CommonResources.get_tac(tac, "basic")  # get gsma data from tac
+                    response = dict(compliance, **gsma, **{'imei': status.get('imei_norm')})  # merge responses
+                    return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                else:
+                    return custom_response("Failed to retrieve IMEI status from core system.", responses.get('service_unavailable'),mime_types.get('json'))
             else:
                 return custom_response("ReCaptcha Failed!", status=responses.get('ok'), mimetype=mime_types.get('json'))
         except ValueError as error:
@@ -83,13 +86,16 @@ class BasicStatus:
         try:
             args = parser.parse(sms_args, request)
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
-            compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
-            if "non compliant" in compliance['compliant']['status'].lower():
-                message = "STATUS: {status}, Block Date: {date}".format(date=compliance['compliant']['block_date'], status=compliance['compliant']['status'])
+            if status:
+                compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
+                if "non compliant" in compliance['compliant']['status'].lower():
+                    message = "STATUS: {status}, Block Date: {date}".format(date=compliance['compliant']['block_date'], status=compliance['compliant']['status'])
+                else:
+                    message = "STATUS: {status}".format(status=compliance['compliant']['status'])
+                return Response(message, status=responses.get('ok'), mimetype=mime_types.get('txt'))
             else:
-                message = "STATUS: {status}".format(status=compliance['compliant']['status'])
-            return Response(message, status=responses.get('ok'), mimetype=mime_types.get('txt'))
-
+                return Response("Failed to retrieve IMEI response from core system.", status=responses.get('service_unavailable'),
+                                mimetype=mime_types.get('txt'))
         except ValueError as error:
             return Response("IMEI format is incorrect. Enter 16 digit IMEI", 422, mime_types.get('txt'))
 
