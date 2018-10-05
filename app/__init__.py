@@ -25,6 +25,7 @@
 #######################################################################################################################
 
 import sys
+import logging
 
 import yaml
 import configparser
@@ -65,6 +66,7 @@ try:
     Port = int(config['SERVER']['Port'])  # Server Port
 
     # requests session
+    logging.basicConfig(level=logging.DEBUG)
     session = requests.Session()
     session.keep_alive = False
     retry = Retry(total=GlobalConfig.get('Retry'), backoff_factor=1, status_forcelist=[502, 503, 504])

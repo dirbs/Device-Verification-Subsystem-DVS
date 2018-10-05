@@ -47,7 +47,9 @@ class FullStatus:
             paginate_pairs = args.get('pairs')
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response from core
             if status:
-                gsma = CommonResources.get_tac(tac, "full")  # get gsma data from tac
+                gsma_data = CommonResources.get_tac(tac)  # get gsma data from tac
+                registration = CommonResources.get_reg(imei)
+                gsma = CommonResources.serialize_gsma_data(tac_resp=gsma_data, reg_resp=registration, status_type="full")
                 subscribers = CommonResources.subscribers(status.get('imei_norm'), paginate_sub.get('start', 1), paginate_sub.get('limit', 10))  # get subscribers data
                 pairings = CommonResources.pairings(status.get('imei_norm'), paginate_pairs.get('start', 1), paginate_pairs.get('limit', 10))  # get pairing data
                 response['imei'] = status.get('imei_norm')
@@ -59,11 +61,11 @@ class FullStatus:
                 return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
             else:
                 return custom_response("Failed to retrieve IMEI response from core system.", responses.get('service_unavailable'), mimetype=mime_types.get('json'))
-        except ValueError as error:
-            return custom_response(str(error), 422, mime_types.get('json'))
 
-        except Exception as e:
+        except ConnectionError or ValueError as e:
             app.logger.info("Error occurred while retrieving full status.")
             app.logger.exception(e)
-            return custom_response("Failed to retrieve full status.", responses.get('service_unavailable'),
-                                   mimetype=mime_types.get('json'))
+            if ValueError:
+                return custom_response(str(e), 422, mime_types.get('json'))
+            else:
+                return custom_response("Failed to retrieve full status.", responses.get('service_unavailable'), mimetype=mime_types.get('json'))
