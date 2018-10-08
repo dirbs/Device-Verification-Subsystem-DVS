@@ -37,6 +37,7 @@ from math import ceil
 import pandas as pd
 import uuid
 
+
 class BulkSummary:
 
     # count per condition classification state
@@ -92,11 +93,12 @@ class BulkSummary:
                         batch_req = {
                             "imeis": imei
                         }
-                        headers = {'content-type': 'application/json', 'charset': 'utf-8', 'keep_alive':'false'}
+                        headers = {'content-type': 'application/json', 'charset': 'utf-8', 'keep_alive': 'false'}
                         imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core batch api call
                         if imei_response.status_code == 200:
                             imei_response = imei_response.json()
                             records.extend(imei_response['results'])
+                            # print("records length: ", len(records))
                         else:
                             app.logger.info("imei batch failed due to status other than 200")
                             unprocessed_imeis.append(imei)  # in case of connection error append imei count to unprocessed IMEIs list
@@ -107,33 +109,6 @@ class BulkSummary:
                     app.logger.exception(e)
         except Exception as error:
             raise error
-
-    @staticmethod
-    def retry_process(imeis, records, unprocessed_imeis):
-        try:
-            while imeis:
-                imei = imeis.pop(-1)  # pop the last item from queue
-                try:
-                    if imei:
-                        batch_req = {
-                            "imeis": imei
-                        }
-                        headers = {'content-type': 'application/json', 'charset': 'utf-8'}
-                        imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req), headers=headers)  # dirbs core batch api call
-                        if imei_response.status_code == 200:
-                            imei_response = imei_response.json()
-                            records.extend(imei_response['results'])
-                        else:
-                            app.logger.info("imei batch failed due to status other than 200")
-                            unprocessed_imeis.append(imei)  # in case of connection error append imei count to unprocessed IMEIs list
-                    else:
-                        continue
-                except (ConnectionError, Exception) as e:
-                    unprocessed_imeis.append(imei)  # in case of connection error append imei count to unprocessed IMEIs list
-                    app.logger.exception(e)
-        except Exception as error:
-            raise error
-
 
     @staticmethod
     def start_threads(imeis_list, invalid_imeis, thread_list, records, unprocessed_imeis, retry):
@@ -148,18 +123,24 @@ class BulkSummary:
         for t in thread_list:
             t.join()
 
-        while retry and unprocessed_imeis:
+        # print("unprocessed imei after first process: ", len(unprocessed_imeis))
+        while retry and len(unprocessed_imeis) > 0:
             threads = []
             retry = retry-1
+            # print(len(unprocessed_imeis))
+            # print("retry count: ", retry)
+            imeis_list = unprocessed_imeis
+            unprocessed_imeis = []
             chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
-            unprocessed_imeis = list(unprocessed_imeis[i:i + chunksize] for i in range(0, len(unprocessed_imeis), chunksize))  # make 100 chunks for 1 million imeis
-            for imeis in unprocessed_imeis:
-                threads.append(Thread(target=BulkSummary.retry_process, args=(imeis, records, [])))
+            imeis_list = list(imeis_list[i:i + chunksize] for i in range(0, len(imeis_list), chunksize))  # make 100 chunks for 1 million imeis
+            # print("unprocesed thread division: ", len(imeis_list))
+            for imeis in imeis_list:
+                threads.append(Thread(target=BulkSummary.get_records, args=(imeis, records, unprocessed_imeis)))
             for x in threads:
                 x.start()
 
-            for x in threads:
-                x.join()
+            for t in threads:
+                t.join()
 
         return records, invalid_imeis, unprocessed_imeis
 
@@ -180,10 +161,10 @@ class BulkSummary:
                 result = pd.DataFrame(records)  # main dataframe for results
 
                 registration_list = pd.DataFrame(list(result['registration_status']))  # dataframe for registration status
-                pending_reg_count = len(registration_list.loc[registration_list['provisional_only']==True])
+                pending_reg_count = len(registration_list.loc[registration_list['provisional_only'] == True])
 
                 stolen_list = pd.DataFrame(list(result['stolen_status']))   # dataframe for stolen status
-                pending_stolen_count = len(stolen_list.loc[stolen_list['provisional_only']==True])
+                pending_stolen_count = len(stolen_list.loc[stolen_list['provisional_only'] == True])
 
                 count_per_condition = {}
 

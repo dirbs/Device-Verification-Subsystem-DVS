@@ -63,41 +63,49 @@ class BasicStatus:
             if success:
                 tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
                 status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
-                compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
-                gsma = CommonResources.get_tac(tac, "basic")  # get gsma data from tac
-                response = dict(compliance, **gsma, **{'imei': status.get('imei_norm')})  # merge responses
-                return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                if status:
+                    compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
+                    gsma_data = CommonResources.get_tac(tac)  # get gsma data from tac
+                    registration = CommonResources.get_reg(args.get('imei'))
+                    gsma = CommonResources.serialize_gsma_data(tac_resp=gsma_data, reg_resp=registration, status_type="basic")
+                    response = dict(compliance, **gsma, **{'imei': status.get('imei_norm')})  # merge responses
+                    return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                else:
+                    return custom_response("Failed to retrieve IMEI status from core system.", responses.get('service_unavailable'),mime_types.get('json'))
             else:
                 return custom_response("ReCaptcha Failed!", status=responses.get('ok'), mimetype=mime_types.get('json'))
-        except ValueError as error:
-            return custom_response(str(error), 422, mime_types.get('json'))
 
-        except Exception as e:
+        except Exception or ValueError as e:
             app.logger.info("Error occurred while retrieving basic status.")
             app.logger.exception(e)
-            return custom_response("Failed to retrieve basic status.", responses.get('service_unavailable'),
-                                   mime_types.get('json'))
+            if ValueError:
+                return custom_response(str(e), 422, mime_types.get('json'))
+            else:
+                return custom_response("Failed to retrieve basic status.", responses.get('service_unavailable'), mime_types.get('json'))
 
     @staticmethod
     def sms_resource():
         try:
             args = parser.parse(sms_args, request)
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
-            compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
-            if "non compliant" in compliance['compliant']['status'].lower():
-                message = "STATUS: {status}, Block Date: {date}".format(date=compliance['compliant']['block_date'], status=compliance['compliant']['status'])
+            if status:
+                compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
+                if "non compliant" in compliance['compliant']['status'].lower():
+                    message = "STATUS: {status}, Block Date: {date}".format(date=compliance['compliant']['block_date'], status=compliance['compliant']['status'])
+                else:
+                    message = "STATUS: {status}".format(status=compliance['compliant']['status'])
+                return Response(message, status=responses.get('ok'), mimetype=mime_types.get('txt'))
             else:
-                message = "STATUS: {status}".format(status=compliance['compliant']['status'])
-            return Response(message, status=responses.get('ok'), mimetype=mime_types.get('txt'))
+                return Response("Failed to retrieve IMEI response from core system.", status=responses.get('service_unavailable'),
+                                mimetype=mime_types.get('txt'))
 
-        except ValueError as error:
-            return Response("IMEI format is incorrect. Enter 16 digit IMEI", 422, mime_types.get('txt'))
-
-        except Exception as e:
-            app.logger.info("Error occurred while retrieving basic status.")
+        except ConnectionError or ValueError as e:
+            app.logger.info("Error occurred while retrieving sms status.")
             app.logger.exception(e)
-            return Response("Failed to retrieve basic status.", status=responses.get('service_unavailable'),
-                            mimetype=mime_types.get('txt'))
+            if ValueError:
+                return Response("IMEI format is incorrect. Enter 16 digit IMEI", 422, mime_types.get('txt'))
+            else:
+                return Response("Failed to retrieve sms status.", status=responses.get('service_unavailable'), mimetype=mime_types.get('txt'))
 
     @staticmethod
     def connection_check():

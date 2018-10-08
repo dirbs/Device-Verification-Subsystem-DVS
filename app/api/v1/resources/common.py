@@ -24,8 +24,7 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-import requests
-from app import GlobalConfig, Root, version, conditions
+from app import GlobalConfig, Root, version, conditions, session
 
 
 class CommonResources:
@@ -102,32 +101,52 @@ class CommonResources:
 
     @staticmethod
     def get_imei(imei):
+        imei_url = session.get('{base}/{version}/imei/{imei}'.format(base=Root, version=version, imei=imei))  # dirbs core imei api call
         try:
-            imei_url = requests.get('{base}/{version}/imei/{imei}'.format(base=Root, version=version, imei=imei))  # dirbs core imei api call
-            response = imei_url.json()
-            return response
+            if imei_url.status_code == 200:
+                response = imei_url.json()
+                return response
+            else:
+                return None
         except Exception as error:
             raise error
 
     @staticmethod
-    def get_tac(tac, status_type):
+    def get_tac(tac):
         try:
-            response = dict()
-            tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core tac api call
+            tac_response = session.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core tac api call
             if tac_response.status_code == 200:
                 resp = tac_response.json()
-                if resp['gsma'] and resp['registration']:
-                    response = CommonResources.serialize(response, resp['gsma'], resp['registration'], status_type)
-                    return response
-                elif resp['registration'] and resp['gsma'] is None:
-                    response = CommonResources.serialize_reg(response, resp['registration'], status_type)
-                    return response
-                elif resp['gsma'] and resp['registration'] is None:
-                    response = CommonResources.serialize_gsma(response, resp['gsma'], status_type)
-                    return response
+                return resp
             return {"gsma": None}
         except Exception as error:
             raise error
+
+    @staticmethod
+    def get_reg(imei):
+        try:
+            reg_response = session.get('{base}/{version}/imei/{imei}/info'.format(base=Root, version=version, imei=imei))
+            if reg_response.status_code == 200:
+                resp = reg_response.json()
+                return resp
+            return {}
+        except Exception as error:
+            raise error
+
+    @staticmethod
+    def serialize_gsma_data(tac_resp, reg_resp, status_type):
+        response = dict()
+        if tac_resp['gsma'] and reg_resp:
+            response = CommonResources.serialize(response, tac_resp['gsma'], reg_resp, status_type)
+            return response
+        elif reg_resp and not tac_resp['gsma']:
+            response = CommonResources.serialize_reg(response, reg_resp, status_type)
+            return response
+        elif tac_resp['gsma'] and not reg_resp:
+            response = CommonResources.serialize_gsma(response, tac_resp['gsma'], status_type)
+            return response
+        else:
+            return {"gsma":None}
 
     @staticmethod
     def get_status(status, status_type):
@@ -150,7 +169,7 @@ class CommonResources:
     @staticmethod
     def subscribers(imei, start, limit):
         try:
-            seen_with_url = requests.get('{base}/{version}/imei/{imei}/subscribers?limit={limit}&offset={offset}'
+            seen_with_url = session.get('{base}/{version}/imei/{imei}/subscribers?limit={limit}&offset={offset}'
                                          .format(base=Root, version=version, imei=imei, limit=limit, offset=start))  # dirbs core imei api call
             seen_with_resp = seen_with_url.json()
             response = {"count": seen_with_resp.get('_keys').get('result_size'),
@@ -164,7 +183,7 @@ class CommonResources:
     @staticmethod
     def pairings(imei, start, limit):
         try:
-            pairings_url = requests.get('{base}/{version}/imei/{imei}/pairings?limit={limit}&offset={offset}'
+            pairings_url = session.get('{base}/{version}/imei/{imei}/pairings?limit={limit}&offset={offset}'
                                          .format(base=Root, version=version, imei=imei, limit=limit,
                                                  offset=start))  # dirbs core imei api call
             pairings_resp = pairings_url.json()
@@ -186,7 +205,7 @@ class CommonResources:
                 response['brand'] = reg_resp.get('brand_name') if reg_resp.get('brand_name') else gsma_resp.get('brand_name')
                 response['model_name'] = reg_resp.get('model') if reg_resp.get('model') else gsma_resp.get('model_name')
                 response['model_number'] = reg_resp.get('model_number') if reg_resp.get('model_number') else gsma_resp.get('marketing_name')
-                response['device_type'] = reg_resp.get('device_type') if reg_resp.get('device_type') else gsma_resp.get('gsma_device_type')
+                response['device_type'] = reg_resp.get('device_type') if reg_resp.get('device_type') else gsma_resp.get('device_type')
                 response['operating_system'] = reg_resp.get('operating_system') if reg_resp.get('operating_system') else gsma_resp.get('operating_system')
                 response['radio_access_technology'] = reg_resp.get('radio_interface') if reg_resp.get('radio_interface') else gsma_resp.get('bands')
                 response['manufacturer'] = reg_resp.get('manufacturer') if reg_resp.get('manufacturer') else gsma_resp.get('manufacturer')
@@ -222,7 +241,7 @@ class CommonResources:
                 response['brand'] = gsma_resp.get('brand_name')
                 response['model_name'] = gsma_resp.get('model_name')
                 response['model_number'] = gsma_resp.get('marketing_name')
-                response['device_type'] = gsma_resp.get('gsma_device_type')
+                response['device_type'] = gsma_resp.get('device_type')
                 response['manufacturer'] = gsma_resp.get('manufacturer')
                 response['operating_system'] = gsma_resp.get('operating_system')
                 response['radio_access_technology'] = gsma_resp.get('bands')
