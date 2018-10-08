@@ -139,8 +139,8 @@ class BulkSummary:
             for x in threads:
                 x.start()
 
-            for x in threads:
-                x.join()
+            for t in threads:
+                t.join()
 
         return records, invalid_imeis, unprocessed_imeis
 
