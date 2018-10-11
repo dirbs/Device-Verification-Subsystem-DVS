@@ -85,7 +85,7 @@ class BulkCheck:
                         if file and '.' in file.filename and \
                                 file.filename.rsplit('.', 1)[1].lower() in AllowedFiles:  # validate file type
                             imeis = list(set(line.decode('ascii', errors='ignore') for line in (l.strip() for l in file) if line))
-                            if imeis and int(GlobalConfig['MinFileContent']) < len(imeis) <= int(GlobalConfig['MaxFileContent']):  # validate file content length
+                            if imeis and int(GlobalConfig['MinFileContent']) <= len(imeis) <= int(GlobalConfig['MaxFileContent']):  # validate file content length
                                 response = BulkCheck.get_summary.apply_async((imeis, "file", 'dvs'))
                                 data = {
                                     "message": "You can track your request using this id",
@@ -95,7 +95,7 @@ class BulkCheck:
                                 return Response(json.dumps(data), status=200, mimetype='application/json')
 
                             else:
-                                return custom_response("File contains incorrect/no content.", status=responses.get('bad_request'), mimetype=mime_types.get('json'))
+                                return custom_response("File must have minimum "+str(GlobalConfig['MinFileContent'])+" or maximum "+str(GlobalConfig['MaxFileContent'])+" IMEIs.", status=responses.get('bad_request'), mimetype=mime_types.get('json'))
                         else:
                             return custom_response("System only accepts tsv/txt files.", responses.get('bad_request'), mime_types.get('json'))
                 else:
