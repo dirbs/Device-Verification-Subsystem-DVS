@@ -159,15 +159,15 @@ class BulkCheck:
         with open(os.path.join(task_dir, 'task_ids.txt'), 'r') as f:
             if task_id in list(f.read().splitlines()):
                 task = BulkCheck.get_summary.AsyncResult(task_id)
-                if task.state == 'SUCCESS' and task.get():
+                if task.state == 'PENDING':
+                    # job is in progress yet
+                    response = {
+                        'state': 'PENDING'
+                    }
+                elif task.state == 'SUCCESS' and task.get():
                     response = {
                         "state": task.state,
                         "result": task.get()
-                    }
-                elif task.state == 'PENDING':
-                    # job is in progress yet
-                    response = {
-                        'state': task.state
                     }
                 else:
                     # something went wrong in the background job
