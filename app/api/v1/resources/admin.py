@@ -61,11 +61,9 @@ class FullStatus:
                 return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
             else:
                 return custom_response("Failed to retrieve IMEI response from core system.", responses.get('service_unavailable'), mimetype=mime_types.get('json'))
-
-        except ConnectionError or ValueError as e:
+        except ValueError as e:
+            return custom_response(str(e), 422, mime_types.get('json'))
+        except Exception as e:
             app.logger.info("Error occurred while retrieving full status.")
             app.logger.exception(e)
-            if ValueError:
-                return custom_response(str(e), 422, mime_types.get('json'))
-            else:
-                return custom_response("Failed to retrieve full status.", responses.get('service_unavailable'), mimetype=mime_types.get('json'))
+            return custom_response("Failed to retrieve full status.", responses.get('service_unavailable'), mimetype=mime_types.get('json'))
