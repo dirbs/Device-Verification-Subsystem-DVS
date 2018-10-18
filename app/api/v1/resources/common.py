@@ -24,8 +24,8 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-from app import GlobalConfig, Root, version, conditions, session
-
+from app import GlobalConfig, Root, version, conditions
+import requests
 
 class CommonResources:
 
@@ -101,7 +101,7 @@ class CommonResources:
 
     @staticmethod
     def get_imei(imei):
-        imei_url = session.get('{base}/{version}/imei/{imei}'.format(base=Root, version=version, imei=imei))  # dirbs core imei api call
+        imei_url = requests.get('{base}/{version}/imei/{imei}'.format(base=Root, version=version, imei=imei))  # dirbs core imei api call
         try:
             if imei_url.status_code == 200:
                 response = imei_url.json()
@@ -114,7 +114,7 @@ class CommonResources:
     @staticmethod
     def get_tac(tac):
         try:
-            tac_response = session.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core tac api call
+            tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core tac api call
             if tac_response.status_code == 200:
                 resp = tac_response.json()
                 return resp
@@ -125,7 +125,7 @@ class CommonResources:
     @staticmethod
     def get_reg(imei):
         try:
-            reg_response = session.get('{base}/{version}/imei/{imei}/info'.format(base=Root, version=version, imei=imei))
+            reg_response = requests.get('{base}/{version}/imei/{imei}/info'.format(base=Root, version=version, imei=imei))
             if reg_response.status_code == 200:
                 resp = reg_response.json()
                 return resp
@@ -169,7 +169,7 @@ class CommonResources:
     @staticmethod
     def subscribers(imei, start, limit):
         try:
-            seen_with_url = session.get('{base}/{version}/imei/{imei}/subscribers?limit={limit}&offset={offset}'
+            seen_with_url = requests.get('{base}/{version}/imei/{imei}/subscribers?limit={limit}&offset={offset}'
                                          .format(base=Root, version=version, imei=imei, limit=limit, offset=start))  # dirbs core imei api call
             seen_with_resp = seen_with_url.json()
             response = {"count": seen_with_resp.get('_keys').get('result_size'),
@@ -183,7 +183,7 @@ class CommonResources:
     @staticmethod
     def pairings(imei, start, limit):
         try:
-            pairings_url = session.get('{base}/{version}/imei/{imei}/pairings?limit={limit}&offset={offset}'
+            pairings_url = requests.get('{base}/{version}/imei/{imei}/pairings?limit={limit}&offset={offset}'
                                          .format(base=Root, version=version, imei=imei, limit=limit,
                                                  offset=start))  # dirbs core imei api call
             pairings_resp = pairings_url.json()
