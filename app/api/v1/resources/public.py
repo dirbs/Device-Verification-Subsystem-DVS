@@ -74,14 +74,11 @@ class BasicStatus:
                     return custom_response("Failed to retrieve IMEI status from core system.", responses.get('service_unavailable'),mime_types.get('json'))
             else:
                 return custom_response("ReCaptcha Failed!", status=responses.get('ok'), mimetype=mime_types.get('json'))
-
-        except Exception or ValueError as e:
+        except ValueError as e:
+            return custom_response(str(e), 422, mime_types.get('json'))
+        except Exception:
             app.logger.info("Error occurred while retrieving basic status.")
-            app.logger.exception(e)
-            if ValueError:
-                return custom_response(str(e), 422, mime_types.get('json'))
-            else:
-                return custom_response("Failed to retrieve basic status.", responses.get('service_unavailable'), mime_types.get('json'))
+            return custom_response("Failed to retrieve basic status.", responses.get('service_unavailable'), mime_types.get('json'))
 
     @staticmethod
     def sms_resource():
@@ -98,14 +95,11 @@ class BasicStatus:
             else:
                 return Response("Failed to retrieve IMEI response from core system.", status=responses.get('service_unavailable'),
                                 mimetype=mime_types.get('txt'))
-
-        except ConnectionError or ValueError as e:
+        except ValueError:
+            return Response("IMEI format is incorrect. Enter 16 digit IMEI", 422, mime_types.get('txt'))
+        except Exception:
             app.logger.info("Error occurred while retrieving sms status.")
-            app.logger.exception(e)
-            if ValueError:
-                return Response("IMEI format is incorrect. Enter 16 digit IMEI", 422, mime_types.get('txt'))
-            else:
-                return Response("Failed to retrieve sms status.", status=responses.get('service_unavailable'), mimetype=mime_types.get('txt'))
+            return Response("Failed to retrieve sms status.", status=responses.get('service_unavailable'), mimetype=mime_types.get('txt'))
 
     @staticmethod
     def connection_check():
