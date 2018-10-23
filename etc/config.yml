@@ -61,6 +61,7 @@ global:
 
 # allowed file extensions
 allowed_file_types:
+  AllowedTypes: ['text/tab-separated-values', 'text/plain']
   AllowedExt: ['tsv', 'txt']
 
 # captcha secret keys

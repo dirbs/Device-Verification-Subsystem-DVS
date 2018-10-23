@@ -25,8 +25,10 @@
 #######################################################################################################################
 
 import os, re
-
-from app import GlobalConfig, task_dir, report_dir, AllowedFiles, celery
+import magic
+from shutil import rmtree
+import tempfile
+from app import GlobalConfig, task_dir, report_dir, AllowedExt, AllowedTypes, celery
 
 from ..assets.error_handling import *
 from ..assets.responses import responses, mime_types
@@ -40,28 +42,16 @@ class BulkCheck:
 
     @staticmethod
     @celery.task
-    def get_summary(imeis_list, input_type, system):
+    def get_summary(imeis_list, invalid_imeis, system):
         try:
-            invalid_imeis = 0
-            filtered_list = []
             threads = []
             records = []
             unprocessed_imeis = []
             retry_count = GlobalConfig.get('Retry')
-            if input_type == "file":
-                for imei in imeis_list:
-                    if re.match(r'^[a-fA-F0-9]{14,16}$', imei) is None:
-                        invalid_imeis += 1
-                    else:
-                        filtered_list.append(imei)
-                imeis_list = filtered_list
-
             imeis_chunks = BulkSummary.chunked_data(imeis_list)
-
             records, invalid_imeis, unprocessed_imeis = BulkSummary.start_threads(imeis_list=imeis_chunks,
                                                                                   invalid_imeis=invalid_imeis,
-                                                                                  thread_list=threads,
-                                                                                  records=records,
+                                                                                  thread_list=threads, records=records,
                                                                                   unprocessed_imeis=unprocessed_imeis,
                                                                                   retry=retry_count)
             # send records for summary generation
@@ -71,42 +61,62 @@ class BulkCheck:
                 response = BulkSummary.build_summary(records, invalid_imeis, unprocessed_imeis)
 
             return response
-
         except Exception as e:
             raise e
 
     @staticmethod
     def summary():
         try:
+            invalid_imeis = 0
+            filtered_list = []
             task_file = open(os.path.join(task_dir, 'task_ids.txt'), 'a+')
             file = request.files.get('file')
             if file:
-                if file.filename != '':
-                        if file and '.' in file.filename and \
-                                file.filename.rsplit('.', 1)[1].lower() in AllowedFiles:  # validate file type
-                            imeis = list(set(line.decode('ascii', errors='ignore') for line in (l.strip() for l in file) if line))
+                tempdir = tempfile.mkdtemp()
+                filepath = os.path.join(tempdir, file.filename)
+                file.save(filepath)
+                try:
+                    mimetype = magic.from_file(filepath, mime=True)
+                    if file.filename != '':
+                        if mimetype in AllowedTypes and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in AllowedExt:  # validate file type
+                            file = open(filepath, 'r')
+                            imeis = list(set(line.strip() for line in file.read().split('\n') if line))
                             if imeis and int(GlobalConfig['MinFileContent']) <= len(imeis) <= int(GlobalConfig['MaxFileContent']):  # validate file content length
-                                response = BulkCheck.get_summary.apply_async((imeis, "file", 'dvs'))
-                                data = {
-                                    "message": "You can track your request using this id",
-                                    "task_id": response.id
-                                }
-                                task_file.write(response.id+'\n')
-                                return Response(json.dumps(data), status=200, mimetype='application/json')
-
+                                for imei in imeis:
+                                    if re.match(r'^[a-fA-F0-9]{14,16}$', imei) is None:
+                                        invalid_imeis += 1
+                                    else:
+                                        filtered_list.append(imei)
+                                imeis_list = filtered_list
+                                if imeis_list:
+                                    response = BulkCheck.get_summary.apply_async((imeis, invalid_imeis, 'dvs'))
+                                    data = {
+                                        "message": "You can track your request using this id",
+                                        "task_id": response.id
+                                    }
+                                    task_file.write(response.id+'\n')
+                                    return Response(json.dumps(data), status=200, mimetype='application/json')
+                                else:
+                                    return custom_response("File contains malformed content",
+                                                           status=responses.get('bad_request'),
+                                                           mimetype=mime_types.get('json'))
                             else:
                                 return custom_response("File must have minimum "+str(GlobalConfig['MinFileContent'])+" or maximum "+str(GlobalConfig['MaxFileContent'])+" IMEIs.", status=responses.get('bad_request'), mimetype=mime_types.get('json'))
                         else:
                             return custom_response("System only accepts tsv/txt files.", responses.get('bad_request'), mime_types.get('json'))
-                else:
-                    return custom_response('No file selected.', responses.get('bad_request'), mime_types.get('json'))
+                    else:
+                        return custom_response('No file selected.', responses.get('bad_request'),
+                                               mime_types.get('json'))
+                finally:
+                    rmtree(tempdir)
+
             else:  # check for tac if file not uploaded
                 tac = request.form.get('tac')
                 if tac:
                     if tac.isdigit() and len(tac) == int(GlobalConfig['TacLength']):
                         imei = tac + str(GlobalConfig['MinImeiRange'])
                         imei_list = [str(int(imei) + x) for x in range(int(GlobalConfig['MaxImeiRange']))]
-                        response = BulkCheck.get_summary.apply_async((imei_list, "tac", 'dvs'))
+                        response = BulkCheck.get_summary.apply_async((imei_list, invalid_imeis, 'dvs'))
                         data = {
                             "message": "You can track your request using this id",
                             "task_id": response.id
@@ -127,7 +137,7 @@ class BulkCheck:
         try:
             task_file = open(os.path.join(task_dir, 'task_ids.txt'), 'a+')
             file = request.files.get('file')
-            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in AllowedFiles:  # validate file type
+            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in AllowedExt:  # validate file type
                 imeis = list(set(line.decode('ascii', errors='ignore') for line in (l.strip() for l in file) if line))
                 response = BulkCheck.get_summary.apply_async((imeis, "file", 'drs'))
                 data = {

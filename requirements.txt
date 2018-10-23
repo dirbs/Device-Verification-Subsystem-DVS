@@ -31,3 +31,4 @@ flask==0.12.2
 requests==2.18.4
 webargs==3.0.1
 flask_cors>=3.0.4
+magic==0.4.15

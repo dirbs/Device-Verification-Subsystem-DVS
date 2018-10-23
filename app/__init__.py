@@ -55,7 +55,8 @@ try:
     Root = global_config['dirbs_core']['BaseUrl']  # core api url
     version = global_config['dirbs_core']['Version']  # core api version
     GlobalConfig = global_config['global']  # load global configs
-    AllowedFiles = global_config['allowed_file_types']['AllowedExt']  # allowed file type for bulk check
+    AllowedExt = global_config['allowed_file_types']['AllowedExt']  # allowed file extensions for bulk check
+    AllowedTypes = global_config['allowed_file_types']['AllowedTypes']  # allowed file type for bulk check
     task_dir = str(config['UPLOADS']['task_dir'])  # path to task_ids file upload
     report_dir = str(config['UPLOADS']['report_dir'])  # path to non compliant report upload
     BaseUrl = global_config['application_base']['BaseUrl']  # app root url
