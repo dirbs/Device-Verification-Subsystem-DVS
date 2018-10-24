@@ -146,12 +146,10 @@ class BulkSummary:
 
     @staticmethod
     def chunked_data(imeis_list):
+        imeis_list = list(imeis_list[i:i +  GlobalConfig['ImeiBatchSize']] for i in range(0, len(imeis_list),  GlobalConfig['ImeiBatchSize']))
         chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
-        imeis_list = list(imeis_list[i:i + chunksize] for i in range(0, len(imeis_list), chunksize))  # make 100 chunks for 1 million imeis
-        imeis_chunks = []
-        for imeis in imeis_list:
-            imeis_chunks.append(list(imeis[i:i + GlobalConfig['ImeiBatchSize']] for i in range(0, len(imeis), GlobalConfig['ImeiBatchSize'])))
-        return imeis_chunks
+        imeis_list = list(imeis_list[i:i + chunksize] for i in range(0, len(imeis_list), chunksize))
+        return imeis_list
 
     @staticmethod
     def build_summary(records, invalid_imeis, unprocessed_imeis):

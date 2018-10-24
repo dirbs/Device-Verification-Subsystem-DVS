@@ -89,7 +89,7 @@ class BulkCheck:
                                         filtered_list.append(imei)
                                 imeis_list = filtered_list
                                 if imeis_list:
-                                    response = BulkCheck.get_summary.apply_async((imeis, invalid_imeis, 'dvs'))
+                                    response = BulkCheck.get_summary.apply_async((imeis_list, invalid_imeis, 'dvs'))
                                     data = {
                                         "message": "You can track your request using this id",
                                         "task_id": response.id
