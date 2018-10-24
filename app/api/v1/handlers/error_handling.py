@@ -12,6 +12,7 @@
 #   following disclaimer in the documentation and/or other materials provided with the distribution.                  #
 # * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or       #
 #   promote products derived from this software without specific prior written permission.                            #
+#                                                                                                                     #
 # NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED  #
 # BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED #
 # TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT      #
@@ -22,3 +23,47 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
 #                                                                                                                     #
 #######################################################################################################################
+
+import json
+from app import app
+from flask import Response
+from .codes import RESPONSES, MESSAGES, MIME_TYPES
+
+
+@app.errorhandler(RESPONSES.get('NOT_FOUND'))
+def not_found(error=None):
+    resp = Response(json.dumps({"message": MESSAGES.get('NOT_FOUND'), "status_code": RESPONSES.get('NOT_FOUND')}),
+                    status=RESPONSES.get('NOT_FOUND'),
+                    mimetype=MIME_TYPES.get('JSON'))
+    return resp
+
+
+@app.errorhandler(RESPONSES.get('BAD_REQUEST'))
+def bad_request(error=None):
+    resp = Response(json.dumps({"message": MESSAGES.get('BAD_REQUEST'), "status_code": RESPONSES.get('BAD_REQUEST')}),
+                    status=RESPONSES.get('BAD_REQUEST'),
+                    mimetype=MIME_TYPES.get('JSON'))
+    return resp
+
+
+@app.errorhandler(RESPONSES.get('INTERNAL_SERVER_ERROR'))
+def internal_error(error=None):
+    resp = Response(json.dumps({"message":MESSAGES.get('INTERNAL_SERVER_ERROR'), "status_code": RESPONSES.get('INTERNAL_SERVER_ERROR')}),
+                    status=RESPONSES.get('INTERNAL_SERVER_ERROR'),
+                    mimetype=MIME_TYPES.get('JSON'))
+    return resp
+
+
+@app.errorhandler(RESPONSES.get('METHOD_NOT_ALLOWED'))
+def method_not_allowed(error=None):
+    resp = Response(json.dumps({"message":MESSAGES.get('METHOD_NOT_ALLOWED'), "status_code": RESPONSES.get('METHOD_NOT_ALLOWED')}),
+                    status=RESPONSES.get('METHOD_NOT_ALLOWED'),
+                    mimetype=MIME_TYPES.get('JSON'))
+    return resp
+
+
+def custom_response(message, status, mimetype):
+    resp = Response(json.dumps({"message": message, "status_code": status}),
+                    status=status,
+                    mimetype=mimetype)
+    return resp

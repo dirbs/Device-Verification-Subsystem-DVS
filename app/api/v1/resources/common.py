@@ -27,6 +27,7 @@
 from app import GlobalConfig, Root, version, conditions
 import requests
 
+
 class CommonResources:
 
     @staticmethod
@@ -66,8 +67,6 @@ class CommonResources:
                 return {"compliant": resp}
         except Exception as error:
             raise error
-
-
 
     @staticmethod
     def compliance_status(resp, status_type, imei=None):
@@ -164,7 +163,6 @@ class CommonResources:
                 return "Not registered"
             else:
                 return "Registered"
-
 
     @staticmethod
     def subscribers(imei, start, limit):

@@ -26,21 +26,21 @@
 
 import urllib.request
 import urllib.parse
-from flask import request
+from flask_restful import Resource, request
 from webargs.flaskparser import parser
 import requests
 
 from app import GlobalConfig, secret, Root, version
 from .common import CommonResources
-from ..assets.error_handling import *
-from ..assets.responses import responses, mime_types
+from app.api.v1.handlers.error_handling import *
+from app.api.v1.handlers.codes import RESPONSES, MIME_TYPES
 from ..requests.status_request import basic_status_args, sms_args
 
 
-class BasicStatus:
+class BasicStatus(Resource):
 
     @staticmethod
-    def basic_status():
+    def get():
         try:
             args = parser.parse(basic_status_args, request)
 
@@ -68,20 +68,23 @@ class BasicStatus:
                     gsma_data = CommonResources.get_tac(tac)  # get gsma data from tac
                     registration = CommonResources.get_reg(args.get('imei'))
                     gsma = CommonResources.serialize_gsma_data(tac_resp=gsma_data, reg_resp=registration, status_type="basic")
-                    response = dict(compliance, **gsma, **{'imei': status.get('imei_norm')})  # merge responses
-                    return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                    response = dict(compliance, **gsma, **{'imei': status.get('imei_norm')})  # merge RESPONSES
+                    return Response(json.dumps(response), status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))
                 else:
-                    return custom_response("Failed to retrieve IMEI status from core system.", responses.get('service_unavailable'),mime_types.get('json'))
+                    return custom_response("Failed to retrieve IMEI status from core system.", RESPONSES.get('service_unavailable'),MIME_TYPES.get('json'))
             else:
-                return custom_response("ReCaptcha Failed!", status=responses.get('ok'), mimetype=mime_types.get('json'))
+                return custom_response("ReCaptcha Failed!", status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))
         except ValueError as e:
-            return custom_response(str(e), 422, mime_types.get('json'))
+            return custom_response(str(e), 422, MIME_TYPES.get('json'))
         except Exception:
             app.logger.info("Error occurred while retrieving basic status.")
-            return custom_response("Failed to retrieve basic status.", responses.get('service_unavailable'), mime_types.get('json'))
+            return custom_response("Failed to retrieve basic status.", RESPONSES.get('service_unavailable'), MIME_TYPES.get('json'))
+
+
+class PublicSMS(Resource):
 
     @staticmethod
-    def sms_resource():
+    def get():
         try:
             args = parser.parse(sms_args, request)
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
@@ -91,32 +94,35 @@ class BasicStatus:
                     message = "STATUS: {status}, Block Date: {date}".format(date=compliance['compliant']['block_date'], status=compliance['compliant']['status'])
                 else:
                     message = "STATUS: {status}".format(status=compliance['compliant']['status'])
-                return Response(message, status=responses.get('ok'), mimetype=mime_types.get('txt'))
+                return Response(message, status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('txt'))
             else:
-                return Response("Failed to retrieve IMEI response from core system.", status=responses.get('service_unavailable'),
-                                mimetype=mime_types.get('txt'))
+                return Response("Failed to retrieve IMEI response from core system.", status=RESPONSES.get('service_unavailable'),
+                                mimetype=MIME_TYPES.get('txt'))
         except ValueError:
-            return Response("IMEI format is incorrect. Enter 16 digit IMEI", 422, mime_types.get('txt'))
+            return Response("IMEI format is incorrect. Enter 16 digit IMEI", 422, MIME_TYPES.get('txt'))
         except Exception:
             app.logger.info("Error occurred while retrieving sms status.")
-            return Response("Failed to retrieve sms status.", status=responses.get('service_unavailable'), mimetype=mime_types.get('txt'))
+            return Response("Failed to retrieve sms status.", status=RESPONSES.get('service_unavailable'), mimetype=MIME_TYPES.get('txt'))
+
+
+class BaseRoute(Resource):
 
     @staticmethod
-    def connection_check():
+    def get():
         try:
             resp = requests.get('{base}/{version}/version'.format(base=Root, version=version))  # dirbs core imei api call
             if resp.status_code == 200:
                 data = {
                     "message": "CORE connected successfully."
                 }
-                return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                return Response(json.dumps(data), status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))
             else:
                 data = {
                     "message": "CORE connection failed."
                 }
-                return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                return Response(json.dumps(data), status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))
         except requests.ConnectionError:
             data = {
                 "message": "CORE connection failed."
             }
-            return Response(json.dumps(data), status=responses.get('ok'), mimetype=mime_types.get('json'))
+            return Response(json.dumps(data), status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))

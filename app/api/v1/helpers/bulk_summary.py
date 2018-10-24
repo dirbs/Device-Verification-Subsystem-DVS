@@ -29,7 +29,7 @@ import os
 from app import Root, report_dir, version, session, GlobalConfig
 from requests import ConnectionError
 from ..resources.common import CommonResources
-from ..assets.error_handling import *
+from app.api.v1.handlers.error_handling import *
 
 from threading import Thread
 from math import ceil

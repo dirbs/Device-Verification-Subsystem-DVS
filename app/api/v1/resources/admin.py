@@ -24,20 +24,20 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-from flask import request
+from flask_restful import Resource, request
 from webargs.flaskparser import parser
 
 from app import GlobalConfig
 from .common import CommonResources
-from ..assets.error_handling import *
-from ..assets.responses import responses, mime_types
+from app.api.v1.handlers.error_handling import *
+from app.api.v1.handlers.codes import RESPONSES, MIME_TYPES
 from ..requests.status_request import full_status_args
 
 
-class FullStatus:
+class FullStatus(Resource):
 
     @staticmethod
-    def get():
+    def post():
         try:
             response = dict()
             args = parser.parse(full_status_args, request)
@@ -58,12 +58,12 @@ class FullStatus:
                 response['stolen_status'] = CommonResources.get_status(status['stolen_status'], "stolen")
                 compliance = CommonResources.compliance_status(status, "full")  # get compliance status
                 response = dict(response, **gsma, **subscribers, **pairings, **compliance)
-                return Response(json.dumps(response), status=responses.get('ok'), mimetype=mime_types.get('json'))
+                return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
             else:
-                return custom_response("Failed to retrieve IMEI response from core system.", responses.get('service_unavailable'), mimetype=mime_types.get('json'))
+                return custom_response("Failed to retrieve IMEI response from core system.", RESPONSES.get('service_unavailable'), mimetype=MIME_TYPES.get('JSON'))
         except ValueError as e:
-            return custom_response(str(e), 422, mime_types.get('json'))
+            return custom_response(str(e), 422, MIME_TYPES.get('JSON'))
         except Exception as e:
             app.logger.info("Error occurred while retrieving full status.")
             app.logger.exception(e)
-            return custom_response("Failed to retrieve full status.", responses.get('service_unavailable'), mimetype=mime_types.get('json'))
+            return custom_response("Failed to retrieve full status.", RESPONSES.get('SERVICE_UNAVAILABLE'), mimetype=MIME_TYPES.get('JSON'))
