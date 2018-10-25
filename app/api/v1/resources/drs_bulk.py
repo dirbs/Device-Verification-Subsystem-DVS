@@ -43,7 +43,6 @@ class AdminBulkDRS(Resource):
             file = request.files.get('file')
             if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in AllowedExt:  # validate file type
                 imeis = list(set(line.decode('ascii', errors='ignore') for line in (l.strip() for l in file) if line))
-                print(imeis)
                 response = BulkCommonResources.get_summary.apply_async((imeis, None, 'drs'))
                 data = {
                     "message": "You can track your request using this id",

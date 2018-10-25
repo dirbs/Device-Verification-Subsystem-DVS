@@ -23,6 +23,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
 #                                                                                                                     #
 #######################################################################################################################
+
 import os
 from app import Root, version, session, GlobalConfig, celery, report_dir
 from requests import ConnectionError
@@ -48,10 +49,11 @@ class BulkCommonResources:
             retry_count = GlobalConfig.get('Retry')
             imeis_chunks = BulkCommonResources.chunked_data(imeis_list)
             records, invalid_imeis, unprocessed_imeis = BulkCommonResources.start_threads(imeis_list=imeis_chunks,
-                                                                                  invalid_imeis=invalid_imeis,
-                                                                                  thread_list=threads, records=records,
-                                                                                  unprocessed_imeis=unprocessed_imeis,
-                                                                                  retry=retry_count)
+                                                                                          invalid_imeis=invalid_imeis,
+                                                                                          thread_list=threads,
+                                                                                          records=records,
+                                                                                          unprocessed_imeis=unprocessed_imeis,
+                                                                                          retry=retry_count)
             # send records for summary generation
             if system == 'drs':
                 response = BulkCommonResources.build_drs_summary(records)
@@ -62,60 +64,13 @@ class BulkCommonResources:
         except Exception as e:
             raise e
 
-    # count per condition classification state
     @staticmethod
-    def count_condition(conditions, count):
-        condition = []
-        transponsed = conditions.transpose()
-        for c in transponsed:
-            cond = {}
-            for i in transponsed[c]:
-                cond[i['condition_name']] = i['condition_met']  # serialize conditions in list of dictionaries
-            condition.append(cond)
-        condition = pd.DataFrame(condition)
-        for key in condition:  # iterate over list
-            count[key] = len(condition[condition[key]])  # count meeting conditions
-        return count, condition
-
-    # count IMEIs meeting no condition
-    @staticmethod
-    def no_condition_count(all_conditions):
-        no_conditions = 0
-        for key in all_conditions:
-            if (~all_conditions[key]).all():
-                no_conditions += 1
-        return no_conditions
-
-    # get records from core v2
-    @staticmethod
-    def get_records(imeis, records, unprocessed_imeis):
-        try:
-            while imeis:
-                imei = imeis.pop(-1)  # pop the last item from queue
-                try:
-                    if imei:
-                        batch_req = {
-                            "imeis": imei
-                        }
-                        headers = {'content-type': 'application/json', 'charset': 'utf-8', 'keep_alive': 'false'}
-                        imei_response = session.post('{}/{}/imei-batch'.format(Root, version), data=json.dumps(batch_req),
-                                                     headers=headers)  # dirbs core batch api call
-                        if imei_response.status_code == 200:
-                            imei_response = imei_response.json()
-                            records.extend(imei_response['results'])
-                            # print("records length: ", len(records))
-                        else:
-                            app.logger.info("imei batch failed due to status other than 200")
-                            unprocessed_imeis.append(
-                                imei)  # in case of connection error append imei count to unprocessed IMEIs list
-                    else:
-                        continue
-                except (ConnectionError, Exception) as e:
-                    unprocessed_imeis.append(
-                        imei)  # in case of connection error append imei count to unprocessed IMEIs list
-                    app.logger.exception(e)
-        except Exception as error:
-            raise error
+    def chunked_data(imeis_list):
+        imeis_list = list(imeis_list[i:i + GlobalConfig['ImeiBatchSize']] for i in
+                          range(0, len(imeis_list), GlobalConfig['ImeiBatchSize']))
+        chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
+        imeis_list = list(imeis_list[i:i + chunksize] for i in range(0, len(imeis_list), chunksize))
+        return imeis_list
 
     @staticmethod
     def start_threads(imeis_list, invalid_imeis, thread_list, records, unprocessed_imeis, retry):
@@ -152,31 +107,37 @@ class BulkCommonResources:
 
         return records, invalid_imeis, unprocessed_imeis
 
+    # get records from core system
     @staticmethod
-    def chunked_data(imeis_list):
-        imeis_list = list(imeis_list[i:i + GlobalConfig['ImeiBatchSize']] for i in
-                          range(0, len(imeis_list), GlobalConfig['ImeiBatchSize']))
-        chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
-        imeis_list = list(imeis_list[i:i + chunksize] for i in range(0, len(imeis_list), chunksize))
-        return imeis_list
-
-    # generate compliant report and count non compliant IMEIs
-    @staticmethod
-    def generate_compliant_report(records):
-        non_complaint = 0
-        complaint_report = []
-        for key in records:
-            status = CommonResources.compliance_status(resp=key, status_type="bulk", imei=key['imei_norm'])
-            if "Compliant" not in status['status']:
-                complaint_report.append(status)
-                non_complaint += 1
-        complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
-        report_name = "report not generated."
-        if non_complaint != 0:
-            report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
-            complaint_report.to_csv(os.path.join(report_dir, report_name),
-                                    sep='\t')  # writing non compliant statuses to .tsv file
-        return non_complaint, report_name, complaint_report
+    def get_records(imeis, records, unprocessed_imeis):
+        try:
+            while imeis:
+                imei = imeis.pop(-1)  # pop the last item from queue
+                try:
+                    if imei:
+                        batch_req = {
+                            "imeis": imei
+                        }
+                        headers = {'content-type': 'application/json', 'charset': 'utf-8', 'keep_alive': 'false'}
+                        imei_response = session.post('{}/{}/imei-batch'.format(Root, version),
+                                                     data=json.dumps(batch_req),
+                                                     headers=headers)  # dirbs core batch api call
+                        if imei_response.status_code == 200:
+                            imei_response = imei_response.json()
+                            records.extend(imei_response['results'])
+                            # print("records length: ", len(records))
+                        else:
+                            app.logger.info("imei batch failed due to status other than 200")
+                            unprocessed_imeis.append(
+                                imei)  # in case of connection error append imei count to unprocessed IMEIs list
+                    else:
+                        continue
+                except (ConnectionError, Exception) as e:
+                    unprocessed_imeis.append(
+                        imei)  # in case of connection error append imei count to unprocessed IMEIs list
+                    app.logger.exception(e)
+        except Exception as error:
+            raise error
 
     @staticmethod
     def build_summary(records, invalid_imeis, unprocessed_imeis):
@@ -237,39 +198,23 @@ class BulkCommonResources:
         except Exception as e:
             raise e
 
-# generate compliant report and count non compliant IMEIs
+    # generate compliant report and count non compliant IMEIs
     @staticmethod
-    def generate_drs_compliant_report(records):
-        non_compliant = 0
-        compliant = 0
-        provisionally_compliant = 0
-        provisionally_non_compliant = 0
+    def generate_compliant_report(records):
+        non_complaint = 0
         complaint_report = []
         for key in records:
             status = CommonResources.compliance_status(resp=key, status_type="bulk", imei=key['imei_norm'])
-            status['stolen_status'] = "Pending Stolen Verification" if key['stolen_status']['provisional_only'] else "Not Stolen" if key['stolen_status']['provisional_only'] is None else "Stolen"
-            status['seen_on_network'] = key['realtime_checks']['ever_observed_on_network']
-            complaint_report.append(status)
-            if "Provisionally Compliant" in status['status']:
-                provisionally_compliant += 1
-            elif "Provisionally non compliant" in status['status']:
-                provisionally_non_compliant += 1
-            elif status['status']=="Compliant (Active)" or status['status']=="Compliant (Inactive)":
-                compliant += 1
-            elif status['status']=="Non compliant":
-                non_compliant += 1
-
+            if "Compliant" not in status['status']:
+                complaint_report.append(status)
+                non_complaint += 1
         complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
-        report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
-        complaint_report.to_csv(os.path.join(report_dir, report_name), sep='\t')  # writing non compliant statuses to .tsv file
-        data = {
-            "non_compliant": non_compliant,
-            "compliant": compliant,
-            "provisionally_non_compliant": provisionally_non_compliant,
-            "provisionally_compliant": provisionally_compliant,
-            "filename": report_name
-        }
-        return data
+        report_name = "report not generated."
+        if non_complaint != 0:
+            report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
+            complaint_report.to_csv(os.path.join(report_dir, report_name),
+                                    sep='\t')  # writing non compliant statuses to .tsv file
+        return non_complaint, report_name, complaint_report
 
     @staticmethod
     def build_drs_summary(records):
@@ -312,7 +257,67 @@ class BulkCommonResources:
                 response['seen_on_network'] = seen_on_network
                 response['stolen'] = stolen
                 response['compliant_report_name'] = data['filename']
-
             return response
         except Exception as e:
             raise e
+
+    # generate compliant report and count non compliant IMEIs
+    @staticmethod
+    def generate_drs_compliant_report(records):
+        non_compliant = 0
+        compliant = 0
+        provisionally_compliant = 0
+        provisionally_non_compliant = 0
+        complaint_report = []
+        for key in records:
+            status = CommonResources.compliance_status(resp=key, status_type="bulk", imei=key['imei_norm'])
+            status['stolen_status'] = "Pending Stolen Verification" if key['stolen_status'][
+                'provisional_only'] else "Not Stolen" if key['stolen_status']['provisional_only'] is None else "Stolen"
+            status['seen_on_network'] = key['realtime_checks']['ever_observed_on_network']
+            complaint_report.append(status)
+            if "Provisionally Compliant" in status['status']:
+                provisionally_compliant += 1
+            elif "Provisionally non compliant" in status['status']:
+                provisionally_non_compliant += 1
+            elif status['status'] == "Compliant (Active)" or status['status'] == "Compliant (Inactive)":
+                compliant += 1
+            elif status['status'] == "Non compliant":
+                non_compliant += 1
+
+        complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
+        report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
+        complaint_report.to_csv(os.path.join(report_dir, report_name),
+                                sep='\t')  # writing non compliant statuses to .tsv file
+        data = {
+            "non_compliant": non_compliant,
+            "compliant": compliant,
+            "provisionally_non_compliant": provisionally_non_compliant,
+            "provisionally_compliant": provisionally_compliant,
+            "filename": report_name
+        }
+        return data
+
+    # count per condition classification state
+    @staticmethod
+    def count_condition(conditions, count):
+        condition = []
+        transponsed = conditions.transpose()
+        for c in transponsed:
+            cond = {}
+            for i in transponsed[c]:
+                cond[i['condition_name']] = i['condition_met']  # serialize conditions in list of dictionaries
+            condition.append(cond)
+        condition = pd.DataFrame(condition)
+        for key in condition:  # iterate over list
+            count[key] = len(condition[condition[key]])  # count meeting conditions
+        return count, condition
+
+    # count IMEIs meeting no condition
+    @staticmethod
+    def no_condition_count(all_conditions):
+        no_conditions = 0
+        for key in all_conditions:
+            if (~all_conditions[key]).all():
+                no_conditions += 1
+        return no_conditions
+
