@@ -24,46 +24,38 @@
 #                                                                                                                     #
 #######################################################################################################################
 
+import os
+from app import task_dir, AllowedExt
+
+from ..handlers.error_handling import *
+from ..handlers.codes import RESPONSES, MIME_TYPES
+from ..helpers.bulk_common import BulkCommonResources
+
 from flask_restful import Resource, request
-from webargs.flaskparser import parser
-
-from app import GlobalConfig
-from app.api.v1.helpers.common import CommonResources
-from app.api.v1.handlers.error_handling import *
-from app.api.v1.handlers.codes import RESPONSES, MIME_TYPES
-from ..requests.status_request import full_status_args
 
 
-class FullStatus(Resource):
+class AdminBulkDRS(Resource):
 
     @staticmethod
     def post():
         try:
-            response = dict()
-            args = parser.parse(full_status_args, request)
-            imei = args.get('imei')
-            tac = imei[:GlobalConfig['TacLength']]  # slice TAC from IMEI
-            paginate_sub = args.get('subscribers')
-            paginate_pairs = args.get('pairs')
-            status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response from core
-            if status:
-                gsma_data = CommonResources.get_tac(tac)  # get gsma data from tac
-                registration = CommonResources.get_reg(imei)
-                gsma = CommonResources.serialize_gsma_data(tac_resp=gsma_data, reg_resp=registration, status_type="full")
-                subscribers = CommonResources.subscribers(status.get('imei_norm'), paginate_sub.get('start', 1), paginate_sub.get('limit', 10))  # get subscribers data
-                pairings = CommonResources.pairings(status.get('imei_norm'), paginate_pairs.get('start', 1), paginate_pairs.get('limit', 10))  # get pairing data
-                response['imei'] = status.get('imei_norm')
-                response['classification_state'] = status['classification_state']
-                response['registration_status'] = CommonResources.get_status(status['registration_status'], "registration")
-                response['stolen_status'] = CommonResources.get_status(status['stolen_status'], "stolen")
-                compliance = CommonResources.compliance_status(status, "full")  # get compliance status
-                response = dict(response, **gsma, **subscribers, **pairings, **compliance)
-                return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+            task_file = open(os.path.join(task_dir, 'task_ids.txt'), 'a+')
+            file = request.files.get('file')
+            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in AllowedExt:  # validate file type
+                imeis = list(set(line.decode('ascii', errors='ignore') for line in (l.strip() for l in file) if line))
+                print(imeis)
+                response = BulkCommonResources.get_summary.apply_async((imeis, None, 'drs'))
+                data = {
+                    "message": "You can track your request using this id",
+                    "task_id": response.id
+                }
+                task_file.write(response.id + '\n')
+                return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
             else:
-                return custom_response("Failed to retrieve IMEI response from core system.", RESPONSES.get('service_unavailable'), mimetype=MIME_TYPES.get('JSON'))
-        except ValueError as e:
-            return custom_response(str(e), 422, MIME_TYPES.get('JSON'))
+                return custom_response("System only accepts tsv/txt files.", RESPONSES.get('BAD_REQUEST'),
+                                       MIME_TYPES.get('JSON'))
         except Exception as e:
-            app.logger.info("Error occurred while retrieving full status.")
+            app.logger.info("Error occurred while retrieving summary.")
             app.logger.exception(e)
-            return custom_response("Failed to retrieve full status.", RESPONSES.get('SERVICE_UNAVAILABLE'), mimetype=MIME_TYPES.get('JSON'))
+            return custom_response("Failed to verify bulk imeis.", RESPONSES.get('SERVICE_UNAVAILABLE'),
+                                   MIME_TYPES.get('JSON'))

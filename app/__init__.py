@@ -99,9 +99,6 @@ try:
 
     # application blueprints registration
     from app.api.v1 import *
-    app.register_blueprint(public_api, url_prefix=BaseUrl)
-    app.register_blueprint(admin_api, url_prefix=BaseUrl)
-    app.register_blueprint(bulk_api, url_prefix=BaseUrl)
 
 except Exception as e:
     app.logger.info("Error occurred while parsing configurations and blueprint registration.")

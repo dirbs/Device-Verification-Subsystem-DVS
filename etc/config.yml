@@ -54,7 +54,7 @@ global:
   MaxFileContent: 1000000
 
   # delete older files time
-  Time: 86400  # time set to 24 hours
+  Time: 24  # time set to 24 hours
 
   # retry count for bulk process
   Retry: 10
@@ -86,4 +86,4 @@ celery:
   RpcUrl: 'rpc://'
   RpcBackend: 'rpc://'
 
-  CeleryTasks: ['app.api.v1.helpers.scheduled', 'app.api.v1.helpers.bulk_summary']
+  CeleryTasks: ['app.api.v1.helpers.scheduled', 'app.api.v1.helpers.bulk_common']

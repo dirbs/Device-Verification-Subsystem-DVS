@@ -24,17 +24,14 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-import json
 from app import app
-from .resources.public import BasicStatus, PublicSMS, BaseRoute
-from .resources.admin import FullStatus
-from .resources.bulk_check import AdminBulk, AdminBulkDRS, AdminCheckBulkStatus, AdminDownloadFile
-from flask import Response, Blueprint
 from flask_restful import Api
 
-public_api = Blueprint('public', __name__)
-admin_api = Blueprint('admin', __name__)
-bulk_api = Blueprint('bulk', __name__)
+from .resources.public import BasicStatus, PublicSMS, BaseRoute
+from .resources.admin import FullStatus
+from .resources.dvs_bulk import AdminBulk
+from .resources.drs_bulk import AdminBulkDRS
+from .resources.common import AdminCheckBulkStatus, AdminDownloadFile
 
 api = Api(app, prefix='/api/v1')
 
@@ -46,13 +43,3 @@ api.add_resource(AdminBulk, '/bulk')
 api.add_resource(AdminBulkDRS, '/drs_bulk')
 api.add_resource(AdminDownloadFile, '/download/<filename>')
 api.add_resource(AdminCheckBulkStatus, '/bulkstatus/<task_id>')
-
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    data = {
-        'message': 'Welcome to DVS'
-    }
-
-    response = Response(json.dumps(data), status=200, mimetype='application/json')
-    return response

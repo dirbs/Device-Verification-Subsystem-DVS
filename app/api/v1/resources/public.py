@@ -31,7 +31,7 @@ from webargs.flaskparser import parser
 import requests
 
 from app import GlobalConfig, secret, Root, version
-from .common import CommonResources
+from app.api.v1.helpers.common import CommonResources
 from app.api.v1.handlers.error_handling import *
 from app.api.v1.handlers.codes import RESPONSES, MIME_TYPES
 from ..requests.status_request import basic_status_args, sms_args
