@@ -31,9 +31,11 @@ from .resources.public import BasicStatus, PublicSMS, BaseRoute
 from .resources.admin import FullStatus
 from .resources.dvs_bulk import AdminBulk
 from .resources.drs_bulk import AdminBulkDRS
-from .resources.common import AdminCheckBulkStatus, AdminDownloadFile
+from .resources.common import AdminCheckBulkStatus, AdminDownloadFile, index
+from app.common.apidoc import ApiDocs
 
 api = Api(app, prefix='/api/v1')
+apidocs = ApiDocs(app, 'v1')
 
 api.add_resource(BasicStatus, '/basicstatus')
 api.add_resource(PublicSMS, '/sms')
@@ -43,3 +45,14 @@ api.add_resource(AdminBulk, '/bulk')
 api.add_resource(AdminBulkDRS, '/drs_bulk')
 api.add_resource(AdminDownloadFile, '/download/<filename>')
 api.add_resource(AdminCheckBulkStatus, '/bulkstatus/<task_id>')
+
+docs = apidocs.init_doc()
+
+
+def register():
+    """ Method to register routes. """
+    for route in [BaseRoute, BasicStatus, FullStatus, AdminBulk, AdminBulkDRS, AdminDownloadFile, AdminCheckBulkStatus, PublicSMS, index]:
+        docs.register(route)
+
+
+register()

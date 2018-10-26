@@ -26,24 +26,22 @@
 
 import urllib.request
 import urllib.parse
-from flask_restful import Resource, request
-from webargs.flaskparser import parser
 import requests
+from flask_apispec import use_kwargs, MethodResource, doc
 
 from app import GlobalConfig, secret, Root, version
-from app.api.v1.helpers.common import CommonResources
-from app.api.v1.handlers.error_handling import *
-from app.api.v1.handlers.codes import RESPONSES, MIME_TYPES
-from ..requests.status_request import basic_status_args, sms_args
+from ..helpers.common import CommonResources
+from ..handlers.error_handling import *
+from ..handlers.codes import RESPONSES, MIME_TYPES
+from ..schema.system_schemas import BasicStatucSchema, SMSSchema
 
 
-class BasicStatus(Resource):
+class BasicStatus(MethodResource):
 
-    @staticmethod
-    def get():
+    @doc(description="Get Basic details of IMEI", tags=['basicstatus'])
+    @use_kwargs(BasicStatucSchema().fields_dict, locations=['query'])
+    def get(self, **args):
         try:
-            args = parser.parse(basic_status_args, request)
-
             captcha_uri = 'https://www.google.com/recaptcha/api/siteverify'
 
             recaptcha_response = args.get('token')
@@ -74,19 +72,18 @@ class BasicStatus(Resource):
                     return custom_response("Failed to retrieve IMEI status from core system.", RESPONSES.get('service_unavailable'),MIME_TYPES.get('json'))
             else:
                 return custom_response("ReCaptcha Failed!", status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))
-        except ValueError as e:
-            return custom_response(str(e), 422, MIME_TYPES.get('json'))
-        except Exception:
+        except Exception as e:
             app.logger.info("Error occurred while retrieving basic status.")
+            app.log_exception(e)
             return custom_response("Failed to retrieve basic status.", RESPONSES.get('service_unavailable'), MIME_TYPES.get('json'))
 
 
-class PublicSMS(Resource):
+class PublicSMS(MethodResource):
 
-    @staticmethod
-    def get():
+    @doc(description="SMS API", tags=['sms'])
+    @use_kwargs(SMSSchema().fields_dict, locations=['query'])
+    def get(self, **args):
         try:
-            args = parser.parse(sms_args, request)
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
             if status:
                 compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
@@ -98,17 +95,15 @@ class PublicSMS(Resource):
             else:
                 return Response("Failed to retrieve IMEI response from core system.", status=RESPONSES.get('service_unavailable'),
                                 mimetype=MIME_TYPES.get('txt'))
-        except ValueError:
-            return Response("IMEI format is incorrect. Enter 16 digit IMEI", 422, MIME_TYPES.get('txt'))
         except Exception:
             app.logger.info("Error occurred while retrieving sms status.")
             return Response("Failed to retrieve sms status.", status=RESPONSES.get('service_unavailable'), mimetype=MIME_TYPES.get('txt'))
 
 
-class BaseRoute(Resource):
+class BaseRoute(MethodResource):
 
-    @staticmethod
-    def get():
+    @doc(description="Base Route to check connection with core", tags=['base'])
+    def get(self):
         try:
             resp = requests.get('{base}/{version}/version'.format(base=Root, version=version))  # dirbs core imei api call
             if resp.status_code == 200:

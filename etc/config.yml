@@ -73,6 +73,7 @@ secret_keys:
 # application base url
 application_base:
   BaseUrl: '/api/v1'
+  version: 'v1'
 
 # celery configurations
 celery:

@@ -29,18 +29,21 @@ import re
 import magic
 import tempfile
 from shutil import rmtree
-from flask_restful import Resource, request
+from flask_restful import request
+from flask_apispec import MethodResource, doc, use_kwargs
 
 from app import GlobalConfig, task_dir, AllowedExt, AllowedTypes
 from app.api.v1.handlers.error_handling import *
 from app.api.v1.handlers.codes import RESPONSES, MIME_TYPES
 from ..helpers.bulk_common import BulkCommonResources
+from ..schema.system_schemas import BulkSchema
 
 
-class AdminBulk(Resource):
+class AdminBulk(MethodResource):
 
-    @staticmethod
-    def post():
+    @doc(description="Verify Bulk IMEIs via file/tac request", tags=['bulk'])
+    @use_kwargs(BulkSchema().fields_dict, locations=['query'])
+    def post(self):
         try:
             invalid_imeis = 0
             filtered_list = []

@@ -32,13 +32,13 @@ from ..handlers.codes import RESPONSES, MIME_TYPES
 from ..helpers.bulk_common import BulkCommonResources
 
 from flask import send_from_directory
-from flask_restful import Resource
+from flask_apispec import MethodResource, doc
 
 
-class AdminDownloadFile(Resource):
+class AdminDownloadFile(MethodResource):
 
-    @staticmethod
-    def post(filename):
+    @doc(description="Download IMEIs report", tags=['bulk'])
+    def post(self, filename):
         try:
             return send_from_directory(directory=report_dir, filename=filename)  # returns file when user wnats to download non compliance report
         except Exception as e:
@@ -47,10 +47,10 @@ class AdminDownloadFile(Resource):
             return custom_response("Compliant report not found.", RESPONSES.get('OK'), MIME_TYPES.get('JSON'))
 
 
-class AdminCheckBulkStatus(Resource):
+class AdminCheckBulkStatus(MethodResource):
 
-    @staticmethod
-    def post(task_id):
+    @doc(description="Check bulk request status", tags=['bulk'])
+    def post(self, task_id):
         with open(os.path.join(task_dir, 'task_ids.txt'), 'r') as f:
             if task_id in list(f.read().splitlines()):
                 task = BulkCommonResources.get_summary.AsyncResult(task_id)
@@ -77,7 +77,8 @@ class AdminCheckBulkStatus(Resource):
         return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
 
 
-@app.route('/', methods=['GET', 'POST'])
+@doc(description="Base Route", tags=['base'])
+@app.route('/', methods=['GET'])
 def index():
     data = {
         'message': 'Welcome to DVS'
@@ -85,3 +86,4 @@ def index():
 
     response = Response(json.dumps(data), status=200, mimetype='application/json')
     return response
+

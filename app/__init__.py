@@ -70,7 +70,7 @@ try:
     logging.basicConfig(level=logging.DEBUG)
     session = requests.Session()
     session.keep_alive = False
-    retry = Retry(total=GlobalConfig.get('Retry'), backoff_factor=1, status_forcelist=[502, 503, 504])
+    retry = Retry(total=GlobalConfig.get('Retry'), backoff_factor=0.2, status_forcelist=[502, 503, 504])
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
     session.mount('https://', adapter)

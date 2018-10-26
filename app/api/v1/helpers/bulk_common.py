@@ -43,17 +43,9 @@ class BulkCommonResources:
     @celery.task
     def get_summary(imeis_list, invalid_imeis, system):
         try:
-            threads = []
-            records = []
-            unprocessed_imeis = []
-            retry_count = GlobalConfig.get('Retry')
             imeis_chunks = BulkCommonResources.chunked_data(imeis_list)
             records, invalid_imeis, unprocessed_imeis = BulkCommonResources.start_threads(imeis_list=imeis_chunks,
-                                                                                          invalid_imeis=invalid_imeis,
-                                                                                          thread_list=threads,
-                                                                                          records=records,
-                                                                                          unprocessed_imeis=unprocessed_imeis,
-                                                                                          retry=retry_count)
+                                                                                          invalid_imeis=invalid_imeis)
             # send records for summary generation
             if system == 'drs':
                 response = BulkCommonResources.build_drs_summary(records)
@@ -73,7 +65,10 @@ class BulkCommonResources:
         return imeis_list
 
     @staticmethod
-    def start_threads(imeis_list, invalid_imeis, thread_list, records, unprocessed_imeis, retry):
+    def start_threads(imeis_list, invalid_imeis):
+        thread_list = []
+        records = []
+        unprocessed_imeis = []
         for imei in imeis_list:
             thread_list.append(Thread(target=BulkCommonResources.get_records, args=(imei, records, unprocessed_imeis)))
 
@@ -85,25 +80,8 @@ class BulkCommonResources:
         for t in thread_list:
             t.join()
 
-        # print("unprocessed imei after first process: ", len(unprocessed_imeis))
-        while retry and len(unprocessed_imeis) > 0:
-            threads = []
-            retry = retry - 1
-            # print(len(unprocessed_imeis))
-            # print("retry count: ", retry)
-            imeis_list = unprocessed_imeis
-            unprocessed_imeis = []
-            chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
-            imeis_list = list(imeis_list[i:i + chunksize] for i in
-                              range(0, len(imeis_list), chunksize))  # make 100 chunks for 1 million imeis
-            # print("unprocesed thread division: ", len(imeis_list))
-            for imeis in imeis_list:
-                threads.append(Thread(target=BulkCommonResources.get_records, args=(imeis, records, unprocessed_imeis)))
-            for x in threads:
-                x.start()
-
-            for t in threads:
-                t.join()
+        if len(unprocessed_imeis)>0:
+            records, unprocessed_imeis = BulkCommonResources.retry(records, unprocessed_imeis)
 
         return records, invalid_imeis, unprocessed_imeis
 
@@ -125,19 +103,38 @@ class BulkCommonResources:
                         if imei_response.status_code == 200:
                             imei_response = imei_response.json()
                             records.extend(imei_response['results'])
-                            # print("records length: ", len(records))
                         else:
                             app.logger.info("imei batch failed due to status other than 200")
-                            unprocessed_imeis.append(
-                                imei)  # in case of connection error append imei count to unprocessed IMEIs list
+                            unprocessed_imeis.append(imei)  # in case of connection error append imei count to unprocessed IMEIs list
                     else:
                         continue
                 except (ConnectionError, Exception) as e:
-                    unprocessed_imeis.append(
-                        imei)  # in case of connection error append imei count to unprocessed IMEIs list
+                    unprocessed_imeis.append(imei)  # in case of connection error append imei count to unprocessed IMEIs list
                     app.logger.exception(e)
         except Exception as error:
             raise error
+
+    @staticmethod
+    def retry(records, unprocessed_imeis):
+        retry = GlobalConfig.get('retry')
+
+        while retry and len(unprocessed_imeis) > 0:
+            threads = []
+            retry = retry - 1
+            imeis_list = unprocessed_imeis
+            unprocessed_imeis = []
+            chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
+            imeis_list = list(imeis_list[i:i + chunksize] for i in
+                              range(0, len(imeis_list), chunksize))  # make 100 chunks for 1 million imeis
+            for imeis in imeis_list:
+                threads.append(Thread(target=BulkCommonResources.get_records, args=(imeis, records, unprocessed_imeis)))
+            for x in threads:
+                x.start()
+
+            for t in threads:
+                t.join()
+
+        return records, unprocessed_imeis
 
     @staticmethod
     def build_summary(records, invalid_imeis, unprocessed_imeis):

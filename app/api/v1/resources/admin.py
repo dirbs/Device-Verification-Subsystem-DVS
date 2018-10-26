@@ -31,16 +31,17 @@ from app import GlobalConfig
 from app.api.v1.helpers.common import CommonResources
 from app.api.v1.handlers.error_handling import *
 from app.api.v1.handlers.codes import RESPONSES, MIME_TYPES
-from ..requests.status_request import full_status_args
+from ..schema.system_schemas import FullStatusSchema
+from flask_apispec import use_kwargs, MethodResource, doc
 
 
-class FullStatus(Resource):
+class FullStatus(MethodResource):
 
-    @staticmethod
-    def post():
+    @doc(description="Get complete information related to an IMEI", tags=['fullstatus'])
+    @use_kwargs(FullStatusSchema().fields_dict, locations=['json'])
+    def post(self, **args):
         try:
             response = dict()
-            args = parser.parse(full_status_args, request)
             imei = args.get('imei')
             tac = imei[:GlobalConfig['TacLength']]  # slice TAC from IMEI
             paginate_sub = args.get('subscribers')
@@ -61,8 +62,6 @@ class FullStatus(Resource):
                 return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
             else:
                 return custom_response("Failed to retrieve IMEI response from core system.", RESPONSES.get('service_unavailable'), mimetype=MIME_TYPES.get('JSON'))
-        except ValueError as e:
-            return custom_response(str(e), 422, MIME_TYPES.get('JSON'))
         except Exception as e:
             app.logger.info("Error occurred while retrieving full status.")
             app.logger.exception(e)

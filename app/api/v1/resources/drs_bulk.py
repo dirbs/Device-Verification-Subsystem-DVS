@@ -30,14 +30,17 @@ from app import task_dir, AllowedExt
 from ..handlers.error_handling import *
 from ..handlers.codes import RESPONSES, MIME_TYPES
 from ..helpers.bulk_common import BulkCommonResources
+from ..schema.system_schemas import BulkSchema
 
-from flask_restful import Resource, request
+from flask_restful import request
+from flask_apispec import MethodResource, doc, use_kwargs
 
 
-class AdminBulkDRS(Resource):
+class AdminBulkDRS(MethodResource):
 
-    @staticmethod
-    def post():
+    @doc(description="Bulk request for Device registration subsystem", tags=['bulk'])
+    @use_kwargs(BulkSchema().fields_dict, locations=['query'])
+    def post(self):
         try:
             task_file = open(os.path.join(task_dir, 'task_ids.txt'), 'a+')
             file = request.files.get('file')
