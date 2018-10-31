@@ -70,7 +70,7 @@ try:
     logging.basicConfig(level=logging.DEBUG)
     session = requests.Session()
     session.keep_alive = False
-    retry = Retry(total=GlobalConfig.get('Retry'), backoff_factor=1, status_forcelist=[502, 503, 504])
+    retry = Retry(total=GlobalConfig.get('Retry'), backoff_factor=0.2, status_forcelist=[502, 503, 504])
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
     session.mount('https://', adapter)
@@ -99,9 +99,6 @@ try:
 
     # application blueprints registration
     from app.api.v1 import *
-    app.register_blueprint(public_api, url_prefix=BaseUrl)
-    app.register_blueprint(admin_api, url_prefix=BaseUrl)
-    app.register_blueprint(bulk_api, url_prefix=BaseUrl)
 
 except Exception as e:
     app.logger.info("Error occurred while parsing configurations and blueprint registration.")

@@ -12,6 +12,7 @@
 #   following disclaimer in the documentation and/or other materials provided with the distribution.                  #
 # * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or       #
 #   promote products derived from this software without specific prior written permission.                            #
+#                                                                                                                     #
 # NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED  #
 # BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED #
 # TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT      #
@@ -22,3 +23,41 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
 #                                                                                                                     #
 #######################################################################################################################
+
+import os
+from app import task_dir, AllowedExt
+
+from ..handlers.error_handling import *
+from ..handlers.codes import RESPONSES, MIME_TYPES
+from ..helpers.bulk_common import BulkCommonResources
+from ..schema.system_schemas import BulkSchema
+
+from flask_restful import request
+from flask_apispec import MethodResource, doc, use_kwargs
+
+
+class AdminBulkDRS(MethodResource):
+
+    @doc(description="Bulk request for Device registration subsystem", tags=['bulk'])
+    @use_kwargs(BulkSchema().fields_dict, locations=['query'])
+    def post(self):
+        try:
+            task_file = open(os.path.join(task_dir, 'task_ids.txt'), 'a+')
+            file = request.files.get('file')
+            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in AllowedExt:  # validate file type
+                imeis = list(set(line.decode('ascii', errors='ignore') for line in (l.strip() for l in file) if line))
+                response = BulkCommonResources.get_summary.apply_async((imeis, None, 'drs'))
+                data = {
+                    "message": "You can track your request using this id",
+                    "task_id": response.id
+                }
+                task_file.write(response.id + '\n')
+                return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+            else:
+                return custom_response("System only accepts tsv/txt files.", RESPONSES.get('BAD_REQUEST'),
+                                       MIME_TYPES.get('JSON'))
+        except Exception as e:
+            app.logger.info("Error occurred while retrieving summary.")
+            app.logger.exception(e)
+            return custom_response("Failed to verify bulk imeis.", RESPONSES.get('SERVICE_UNAVAILABLE'),
+                                   MIME_TYPES.get('JSON'))

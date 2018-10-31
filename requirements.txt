@@ -32,3 +32,6 @@ requests==2.18.4
 webargs==3.0.1
 flask_cors>=3.0.4
 python-magic==0.4.15
+apispec
+marshmallow
+flask-apispec
