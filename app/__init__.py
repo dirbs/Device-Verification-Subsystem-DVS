@@ -55,7 +55,8 @@ try:
     Root = global_config['dirbs_core']['BaseUrl']  # core api url
     version = global_config['dirbs_core']['Version']  # core api version
     GlobalConfig = global_config['global']  # load global configs
-    AllowedFiles = global_config['allowed_file_types']['AllowedExt']  # allowed file type for bulk check
+    AllowedExt = global_config['allowed_file_types']['AllowedExt']  # allowed file extensions for bulk check
+    AllowedTypes = global_config['allowed_file_types']['AllowedTypes']  # allowed file type for bulk check
     task_dir = str(config['UPLOADS']['task_dir'])  # path to task_ids file upload
     report_dir = str(config['UPLOADS']['report_dir'])  # path to non compliant report upload
     BaseUrl = global_config['application_base']['BaseUrl']  # app root url
@@ -69,7 +70,7 @@ try:
     logging.basicConfig(level=logging.DEBUG)
     session = requests.Session()
     session.keep_alive = False
-    retry = Retry(total=GlobalConfig.get('Retry'), backoff_factor=1, status_forcelist=[502, 503, 504])
+    retry = Retry(total=GlobalConfig.get('Retry'), backoff_factor=0.2, status_forcelist=[502, 503, 504])
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
     session.mount('https://', adapter)
@@ -98,9 +99,6 @@ try:
 
     # application blueprints registration
     from app.api.v1 import *
-    app.register_blueprint(public_api, url_prefix=BaseUrl)
-    app.register_blueprint(admin_api, url_prefix=BaseUrl)
-    app.register_blueprint(bulk_api, url_prefix=BaseUrl)
 
 except Exception as e:
     app.logger.info("Error occurred while parsing configurations and blueprint registration.")

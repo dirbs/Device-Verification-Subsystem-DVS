@@ -24,63 +24,35 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-import json
 from app import app
-from .resources.public import BasicStatus
+from flask_restful import Api
+
+from .resources.public import BasicStatus, PublicSMS, BaseRoute
 from .resources.admin import FullStatus
-from .resources.bulk_check import BulkCheck
-from flask import Response, Blueprint
+from .resources.dvs_bulk import AdminBulk
+from .resources.drs_bulk import AdminBulkDRS
+from .resources.common import AdminCheckBulkStatus, AdminDownloadFile, index
+from app.common.apidoc import ApiDocs
 
-public_api = Blueprint('public', __name__)
-admin_api = Blueprint('admin', __name__)
-bulk_api = Blueprint('bulk', __name__)
+api = Api(app, prefix='/api/v1')
+apidocs = ApiDocs(app, 'v1')
 
+api.add_resource(BasicStatus, '/basicstatus')
+api.add_resource(PublicSMS, '/sms')
+api.add_resource(BaseRoute, '/')
+api.add_resource(FullStatus, '/fullstatus')
+api.add_resource(AdminBulk, '/bulk')
+api.add_resource(AdminBulkDRS, '/drs_bulk')
+api.add_resource(AdminDownloadFile, '/download/<filename>')
+api.add_resource(AdminCheckBulkStatus, '/bulkstatus/<task_id>')
 
-@app.route('/', methods=['GET', 'POST'])
-def index_route():
-    data = {
-        'message': 'Welcome to DVS'
-    }
-
-    response = Response(json.dumps(data), status=200, mimetype='application/json')
-    return response
-
-@public_api.route('/', methods=['GET', 'POST'])
-def index():
-    data = BasicStatus.connection_check()
-    return data
-
-@public_api.route('/basicstatus', methods=['GET'])
-def basicstatus():
-    response = BasicStatus.basic_status()
-    return response
-
-@public_api.route('/sms', methods=['GET'])
-def sms_verifcation():
-    response = BasicStatus.sms_resource()
-    return response
+docs = apidocs.init_doc()
 
 
-@admin_api.route('/fullstatus', methods=['POST'])
-def fullstatus():
-    response = FullStatus.get()
-    return response
+def register():
+    """ Method to register routes. """
+    for route in [BaseRoute, BasicStatus, FullStatus, AdminBulk, AdminBulkDRS, AdminDownloadFile, AdminCheckBulkStatus, PublicSMS, index]:
+        docs.register(route)
 
 
-@bulk_api.route('/bulk', methods=['POST'])
-def bulk():
-    return BulkCheck.summary()
-
-@bulk_api.route('/drs_bulk', methods=['POST'])
-def drs_bulk():
-    return BulkCheck.drs_summary()
-
-
-@bulk_api.route('/download/<filename>', methods=['POST'])
-def download(filename):
-    return BulkCheck.send_file(filename)
-
-
-@bulk_api.route('/bulkstatus/<tracking_id>', methods=['POST'])
-def status(tracking_id):
-    return BulkCheck.check_status(tracking_id)
+register()
