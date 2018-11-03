@@ -24,6 +24,8 @@
 #                                                                                                                     #
 #######################################################################################################################
 
+"""This module handles flask app errors"""
+
 import json
 from app import app
 from flask import Response
@@ -32,6 +34,7 @@ from .codes import RESPONSES, MESSAGES, MIME_TYPES
 
 @app.errorhandler(RESPONSES.get('NOT_FOUND'))
 def not_found(error=None):
+    """handle app's 404 error."""
     resp = Response(json.dumps({"message": MESSAGES.get('NOT_FOUND'), "status_code": RESPONSES.get('NOT_FOUND')}),
                     status=RESPONSES.get('NOT_FOUND'),
                     mimetype=MIME_TYPES.get('JSON'))
@@ -40,6 +43,7 @@ def not_found(error=None):
 
 @app.errorhandler(RESPONSES.get('BAD_REQUEST'))
 def bad_request(error=None):
+    """handle app's 400 error"""
     resp = Response(json.dumps({"message": MESSAGES.get('BAD_REQUEST'), "status_code": RESPONSES.get('BAD_REQUEST')}),
                     status=RESPONSES.get('BAD_REQUEST'),
                     mimetype=MIME_TYPES.get('JSON'))
@@ -48,6 +52,7 @@ def bad_request(error=None):
 
 @app.errorhandler(RESPONSES.get('INTERNAL_SERVER_ERROR'))
 def internal_error(error=None):
+    """handle app's 500 error"""
     resp = Response(json.dumps({"message":MESSAGES.get('INTERNAL_SERVER_ERROR'), "status_code": RESPONSES.get('INTERNAL_SERVER_ERROR')}),
                     status=RESPONSES.get('INTERNAL_SERVER_ERROR'),
                     mimetype=MIME_TYPES.get('JSON'))
@@ -56,6 +61,7 @@ def internal_error(error=None):
 
 @app.errorhandler(RESPONSES.get('METHOD_NOT_ALLOWED'))
 def method_not_allowed(error=None):
+    """handle app's 405 error"""
     resp = Response(json.dumps({"message":MESSAGES.get('METHOD_NOT_ALLOWED'), "status_code": RESPONSES.get('METHOD_NOT_ALLOWED')}),
                     status=RESPONSES.get('METHOD_NOT_ALLOWED'),
                     mimetype=MIME_TYPES.get('JSON'))
@@ -63,6 +69,7 @@ def method_not_allowed(error=None):
 
 
 def custom_response(message, status, mimetype):
+    """handle custom errors"""
     resp = Response(json.dumps({"message": message, "status_code": status}),
                     status=status,
                     mimetype=mimetype)

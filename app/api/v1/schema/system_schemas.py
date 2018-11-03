@@ -3,6 +3,7 @@ from app.api.v1.schema.validations import Validations
 
 
 class BasicStatucSchema(Schema):
+    """Marshmallow schema for basic status request."""
     imei = fields.Str(required=True, validate=Validations.validate_imei, description="14-16 digit IMEI")
     token = fields.Str(required=True, description="token generated from reCaptcha validation")
     source = fields.Str(required=True, description="source of request i.e. Android, Web, iOS")
@@ -14,6 +15,7 @@ class BasicStatucSchema(Schema):
 
 
 class SMSSchema(Schema):
+    """Marshmallow schema for SMS API."""
     imei = fields.Str(required=True, validate=Validations.validate_imei, description="14-16 digit IMEI")
 
     @property
@@ -23,11 +25,14 @@ class SMSSchema(Schema):
 
 
 class PaginationSchema(Schema):
+    """Marshmallow schema for pagination."""
     start = fields.Int(validate=lambda p: p >= 1)
     limit = fields.Int(validate=lambda p: p >= 1)
 
 
 class FullStatusSchema(Schema):
+    """Marshmallow schema for full status request."""
+
     imei = fields.Str(required=True, validate=Validations.validate_imei, description="14-16 digit IMEI")
     subscribers = fields.Nested(PaginationSchema)
     pairs = fields.Nested(PaginationSchema)
@@ -39,6 +44,8 @@ class FullStatusSchema(Schema):
 
 
 class BulkSchema(Schema):
+    """Marshmallow schema for bulk request."""
+
     file = fields.Str(description="Submit tsv/txt file path containing bulk IMEIs")
     tac = fields.Int(description="Enter 8 digit TAC")
 

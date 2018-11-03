@@ -37,10 +37,12 @@ from flask_apispec import MethodResource, doc, use_kwargs
 
 
 class AdminBulkDRS(MethodResource):
+    """Flask resource for DRS bulk request."""
 
     @doc(description="Bulk request for Device registration subsystem", tags=['bulk'])
     @use_kwargs(BulkSchema().fields_dict, locations=['query'])
     def post(self):
+        """Start processing DRS bulk request in background (calls celery task)."""
         try:
             task_file = open(os.path.join(task_dir, 'task_ids.txt'), 'a+')
             file = request.files.get('file')

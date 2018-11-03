@@ -37,10 +37,13 @@ from ..schema.system_schemas import BasicStatucSchema, SMSSchema
 
 
 class BasicStatus(MethodResource):
+    """Flask resource for IMEI basic status"""
 
     @doc(description="Get Basic details of IMEI", tags=['basicstatus'])
     @use_kwargs(BasicStatucSchema().fields_dict, locations=['query'])
     def get(self, **args):
+        """Return IMEI basic status."""
+
         try:
             captcha_uri = 'https://www.google.com/recaptcha/api/siteverify'
 
@@ -79,10 +82,12 @@ class BasicStatus(MethodResource):
 
 
 class PublicSMS(MethodResource):
+    """Flask resource for SMS."""
 
     @doc(description="SMS API", tags=['sms'])
     @use_kwargs(SMSSchema().fields_dict, locations=['query'])
     def get(self, **args):
+        """Return IMEI compliant status."""
         try:
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
             if status:
@@ -101,9 +106,12 @@ class PublicSMS(MethodResource):
 
 
 class BaseRoute(MethodResource):
+    """Flask resource to check system's connection with DIRBS core."""
 
     @doc(description="Base Route to check connection with core", tags=['base'])
     def get(self):
+        """Checks system's connection with DIRBS core."""
+
         try:
             resp = requests.get('{base}/{version}/version'.format(base=Root, version=version))  # dirbs core imei api call
             if resp.status_code == 200:

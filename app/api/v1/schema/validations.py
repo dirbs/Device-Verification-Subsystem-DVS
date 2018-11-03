@@ -29,9 +29,11 @@ from marshmallow import ValidationError
 
 
 class Validations:
+    """Class for input validations."""
 
     @staticmethod
     def validate_imei(val):
+        """Validates IMEI input format."""
         match = re.match(r'^[a-fA-F0-9]{14,16}$', val)
         if len(val) == 0:
             raise ValidationError("Enter IMEI.")

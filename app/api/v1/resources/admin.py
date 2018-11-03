@@ -36,10 +36,12 @@ from flask_apispec import use_kwargs, MethodResource, doc
 
 
 class FullStatus(MethodResource):
+    """Flask resource for IMEI full status"""
 
     @doc(description="Get complete information related to an IMEI", tags=['fullstatus'])
     @use_kwargs(FullStatusSchema().fields_dict, locations=['json'])
     def post(self, **args):
+        """Return full status of IMEI."""
         try:
             response = dict()
             imei = args.get('imei')

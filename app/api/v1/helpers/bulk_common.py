@@ -38,10 +38,12 @@ import uuid
 
 
 class BulkCommonResources:
+    """Common resources for bulk request."""
 
     @staticmethod
     @celery.task
     def get_summary(imeis_list, invalid_imeis, system):
+        """Celery task for bulk request processing."""
         try:
             imeis_chunks = BulkCommonResources.chunked_data(imeis_list)
             records, invalid_imeis, unprocessed_imeis = BulkCommonResources.start_threads(imeis_list=imeis_chunks,
@@ -58,6 +60,7 @@ class BulkCommonResources:
 
     @staticmethod
     def chunked_data(imeis_list):
+        """Divide IMEIs into batches of 1000 and chunks for multi threading."""
         imeis_list = list(imeis_list[i:i + GlobalConfig['ImeiBatchSize']] for i in
                           range(0, len(imeis_list), GlobalConfig['ImeiBatchSize']))
         chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
@@ -66,6 +69,7 @@ class BulkCommonResources:
 
     @staticmethod
     def start_threads(imeis_list, invalid_imeis):
+        """Process IMEIs simultaneously by starting multiple threads at a time."""
         thread_list = []
         records = []
         unprocessed_imeis = []
@@ -88,6 +92,7 @@ class BulkCommonResources:
     # get records from core system
     @staticmethod
     def get_records(imeis, records, unprocessed_imeis):
+        """Compile IMEIs batch responses from DIRBS core system."""
         try:
             while imeis:
                 imei = imeis.pop(-1)  # pop the last item from queue
@@ -116,6 +121,7 @@ class BulkCommonResources:
 
     @staticmethod
     def retry(records, unprocessed_imeis):
+        """Retry failed IMEI batches."""
         retry = GlobalConfig.get('retry')
 
         while retry and len(unprocessed_imeis) > 0:
@@ -138,6 +144,7 @@ class BulkCommonResources:
 
     @staticmethod
     def build_summary(records, invalid_imeis, unprocessed_imeis):
+        """Generate summary for DVS bulk records."""
         try:
             response = {}
             if records:
@@ -198,6 +205,7 @@ class BulkCommonResources:
     # generate compliant report and count non compliant IMEIs
     @staticmethod
     def generate_compliant_report(records):
+        """Return non compliant report for DVS bulk request."""
         non_complaint = 0
         complaint_report = []
         for key in records:
@@ -215,6 +223,7 @@ class BulkCommonResources:
 
     @staticmethod
     def build_drs_summary(records):
+        """Generate summary for DRS bulk records."""
         try:
             response = {}
             if records:
@@ -261,6 +270,7 @@ class BulkCommonResources:
     # generate compliant report and count non compliant IMEIs
     @staticmethod
     def generate_drs_compliant_report(records):
+        """Return non compliant report for DRS bulk request."""
         non_compliant = 0
         compliant = 0
         provisionally_compliant = 0
@@ -297,6 +307,7 @@ class BulkCommonResources:
     # count per condition classification state
     @staticmethod
     def count_condition(conditions, count):
+        """Helper functions to generate summary, returns IMEI count per condition."""
         condition = []
         transponsed = conditions.transpose()
         for c in transponsed:
@@ -312,6 +323,7 @@ class BulkCommonResources:
     # count IMEIs meeting no condition
     @staticmethod
     def no_condition_count(all_conditions):
+        """Helper functions to generate summary, returns count of IMEI satisfying no conditions."""
         no_conditions = 0
         for key in all_conditions:
             if (~all_conditions[key]).all():
