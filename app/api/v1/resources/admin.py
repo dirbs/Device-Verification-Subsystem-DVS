@@ -63,7 +63,7 @@ class FullStatus(MethodResource):
                 response = dict(response, **gsma, **subscribers, **pairings, **compliance)
                 return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
             else:
-                return custom_response("Failed to retrieve IMEI response from core system.", RESPONSES.get('service_unavailable'), mimetype=MIME_TYPES.get('JSON'))
+                return custom_response("Failed to retrieve IMEI response from core system.", RESPONSES.get('SERVICE_UNAVAILABLE'), mimetype=MIME_TYPES.get('JSON'))
         except Exception as e:
             app.logger.info("Error occurred while retrieving full status.")
             app.logger.exception(e)

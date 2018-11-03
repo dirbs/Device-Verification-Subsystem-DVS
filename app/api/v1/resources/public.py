@@ -70,15 +70,15 @@ class BasicStatus(MethodResource):
                     registration = CommonResources.get_reg(args.get('imei'))
                     gsma = CommonResources.serialize_gsma_data(tac_resp=gsma_data, reg_resp=registration, status_type="basic")
                     response = dict(compliance, **gsma, **{'imei': status.get('imei_norm')})  # merge RESPONSES
-                    return Response(json.dumps(response), status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))
+                    return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
                 else:
-                    return custom_response("Failed to retrieve IMEI status from core system.", RESPONSES.get('service_unavailable'),MIME_TYPES.get('json'))
+                    return custom_response("Failed to retrieve IMEI status from core system.", RESPONSES.get('SERVICE_UNAVAILABLE'),MIME_TYPES.get('JSON'))
             else:
-                return custom_response("ReCaptcha Failed!", status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))
+                return custom_response("ReCaptcha Failed!", status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
         except Exception as e:
             app.logger.info("Error occurred while retrieving basic status.")
             app.log_exception(e)
-            return custom_response("Failed to retrieve basic status.", RESPONSES.get('service_unavailable'), MIME_TYPES.get('json'))
+            return custom_response("Failed to retrieve basic status.", RESPONSES.get('SERVICE_UNAVAILABLE'), MIME_TYPES.get('JSON'))
 
 
 class PublicSMS(MethodResource):
@@ -96,13 +96,13 @@ class PublicSMS(MethodResource):
                     message = "STATUS: {status}, Block Date: {date}".format(date=compliance['compliant']['block_date'], status=compliance['compliant']['status'])
                 else:
                     message = "STATUS: {status}".format(status=compliance['compliant']['status'])
-                return Response(message, status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('txt'))
+                return Response(message, status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('TEXT'))
             else:
-                return Response("Failed to retrieve IMEI response from core system.", status=RESPONSES.get('service_unavailable'),
-                                mimetype=MIME_TYPES.get('txt'))
+                return Response("Failed to retrieve IMEI response from core system.", status=RESPONSES.get('SERVICE_UNAVAILABLE'),
+                                mimetype=MIME_TYPES.get('TEXT'))
         except Exception:
             app.logger.info("Error occurred while retrieving sms status.")
-            return Response("Failed to retrieve sms status.", status=RESPONSES.get('service_unavailable'), mimetype=MIME_TYPES.get('txt'))
+            return Response("Failed to retrieve sms status.", status=RESPONSES.get('SERVICE_UNAVAILABLE'), mimetype=MIME_TYPES.get('TEXT'))
 
 
 class BaseRoute(MethodResource):
@@ -118,14 +118,14 @@ class BaseRoute(MethodResource):
                 data = {
                     "message": "CORE connected successfully."
                 }
-                return Response(json.dumps(data), status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))
+                return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
             else:
                 data = {
                     "message": "CORE connection failed."
                 }
-                return Response(json.dumps(data), status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))
+                return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
         except requests.ConnectionError:
             data = {
                 "message": "CORE connection failed."
             }
-            return Response(json.dumps(data), status=RESPONSES.get('ok'), mimetype=MIME_TYPES.get('json'))
+            return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
