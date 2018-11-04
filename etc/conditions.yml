@@ -26,17 +26,8 @@
 
 conditions:
 
-  - name: 'duplicate'
-    reason: 'IMEI is duplicate'
+  - name: 'condition name'
+    reason: 'reason to be non compliant w.r.t condition'
 
-  - name: 'gsma_not_found'
-    reason: 'GSMA not found'
-
-  - name: 'malformed'
-    reason: 'IMEI is malformed'
-
-  - name: 'local_stolen'
-    reason: 'Device is stolen'
-
-  - name: 'duplicate_large'
-    reason: 'IMEI met duplicate large criteria'
+  - name: 'condition name'
+    reason: 'reason to be non compliant w.r.t condition'

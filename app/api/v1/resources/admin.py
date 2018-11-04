@@ -36,10 +36,12 @@ from flask_apispec import use_kwargs, MethodResource, doc
 
 
 class FullStatus(MethodResource):
+    """Flask resource for IMEI full status"""
 
     @doc(description="Get complete information related to an IMEI", tags=['fullstatus'])
     @use_kwargs(FullStatusSchema().fields_dict, locations=['json'])
     def post(self, **args):
+        """Return full status of IMEI."""
         try:
             response = dict()
             imei = args.get('imei')
@@ -61,7 +63,7 @@ class FullStatus(MethodResource):
                 response = dict(response, **gsma, **subscribers, **pairings, **compliance)
                 return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
             else:
-                return custom_response("Failed to retrieve IMEI response from core system.", RESPONSES.get('service_unavailable'), mimetype=MIME_TYPES.get('JSON'))
+                return custom_response("Failed to retrieve IMEI response from core system.", RESPONSES.get('SERVICE_UNAVAILABLE'), mimetype=MIME_TYPES.get('JSON'))
         except Exception as e:
             app.logger.info("Error occurred while retrieving full status.")
             app.logger.exception(e)

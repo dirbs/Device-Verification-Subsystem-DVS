@@ -36,9 +36,11 @@ from flask_apispec import MethodResource, doc
 
 
 class AdminDownloadFile(MethodResource):
+    """Flask resource for downloading report."""
 
     @doc(description="Download IMEIs report", tags=['bulk'])
     def post(self, filename):
+        """Sends downloadable report."""
         try:
             return send_from_directory(directory=report_dir, filename=filename)  # returns file when user wnats to download non compliance report
         except Exception as e:
@@ -48,9 +50,12 @@ class AdminDownloadFile(MethodResource):
 
 
 class AdminCheckBulkStatus(MethodResource):
+    """Flask resource to check bulk processing status."""
 
     @doc(description="Check bulk request status", tags=['bulk'])
     def post(self, task_id):
+        """Returns bulk processing status and summary if processing is completed."""
+
         with open(os.path.join(task_dir, 'task_ids.txt'), 'r') as f:
             if task_id in list(f.read().splitlines()):
                 task = BulkCommonResources.get_summary.AsyncResult(task_id)
@@ -80,6 +85,7 @@ class AdminCheckBulkStatus(MethodResource):
 @doc(description="Base Route", tags=['base'])
 @app.route('/', methods=['GET'])
 def index():
+    """Flask base route."""
     data = {
         'message': 'Welcome to DVS'
     }

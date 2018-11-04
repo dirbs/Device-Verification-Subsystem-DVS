@@ -30,6 +30,7 @@ from app import celery, report_dir, GlobalConfig
 
 @celery.task
 def delete_files():
+    """Deletes reports from system after a specific time."""
     current_time = time.time()  # get current time
     for f in os.listdir(report_dir):  # list files in specific directory
         creation_time = os.path.getctime(os.path.join(report_dir, f))  # get creation time of each file

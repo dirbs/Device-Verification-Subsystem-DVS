@@ -29,9 +29,12 @@ import requests
 
 
 class CommonResources:
+    """Common resources used by APIs in DVS."""
 
     @staticmethod
     def populate_reasons(blocking, reasons_list):
+        """Return reasons for IMEI to be non compliant."""
+
         try:
             voilating_conditions = [key['condition_name'] for key in blocking if key['condition_met']]
             for condition in conditions['conditions']:
@@ -43,6 +46,8 @@ class CommonResources:
 
     @staticmethod
     def populate_status(resp, status, status_type, blocking_condition=None, reason_list=None, imei=None, block_date=None, seen_with=None):
+        """Return compliant status of an IMEI."""
+
         try:
             if status == 'Compliant' or status == 'Provisionally Compliant':
                 if seen_with:
@@ -70,6 +75,8 @@ class CommonResources:
 
     @staticmethod
     def compliance_status(resp, status_type, imei=None):
+        """Evaluate IMEIs to be compliant/non complaint."""
+
         try:
             status = {}
             seen_with = resp['realtime_checks']['ever_observed_on_network']
@@ -100,6 +107,8 @@ class CommonResources:
 
     @staticmethod
     def get_imei(imei):
+        """Return IMEI response obtained from DIRBS core."""
+
         imei_url = requests.get('{base}/{version}/imei/{imei}'.format(base=Root, version=version, imei=imei))  # dirbs core imei api call
         try:
             if imei_url.status_code == 200:
@@ -112,6 +121,8 @@ class CommonResources:
 
     @staticmethod
     def get_tac(tac):
+        """Return TAC response obtained from DIRBS core."""
+
         try:
             tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core tac api call
             if tac_response.status_code == 200:
@@ -123,6 +134,8 @@ class CommonResources:
 
     @staticmethod
     def get_reg(imei):
+        """Return registration information obtained from DIRBS core."""
+
         try:
             reg_response = requests.get('{base}/{version}/imei/{imei}/info'.format(base=Root, version=version, imei=imei))
             if reg_response.status_code == 200:
@@ -134,6 +147,8 @@ class CommonResources:
 
     @staticmethod
     def serialize_gsma_data(tac_resp, reg_resp, status_type):
+        """Return serialized device details"""
+
         response = dict()
         if tac_resp['gsma'] and reg_resp:
             response = CommonResources.serialize(response, tac_resp['gsma'], reg_resp, status_type)
@@ -149,6 +164,8 @@ class CommonResources:
 
     @staticmethod
     def get_status(status, status_type):
+        """Serialize stolen/registration status"""
+
         if status_type == "stolen":
             if status['provisional_only']:
                 return "Pending report verification"
@@ -166,6 +183,7 @@ class CommonResources:
 
     @staticmethod
     def subscribers(imei, start, limit):
+        """Return subscriber's details."""
         try:
             seen_with_url = requests.get('{base}/{version}/imei/{imei}/subscribers?limit={limit}&offset={offset}'
                                          .format(base=Root, version=version, imei=imei, limit=limit, offset=start))  # dirbs core imei api call
@@ -180,6 +198,7 @@ class CommonResources:
 
     @staticmethod
     def pairings(imei, start, limit):
+        """Return pairings information."""
         try:
             pairings_url = requests.get('{base}/{version}/imei/{imei}/pairings?limit={limit}&offset={offset}'
                                          .format(base=Root, version=version, imei=imei, limit=limit,
@@ -195,6 +214,7 @@ class CommonResources:
 
     @staticmethod
     def serialize(response, gsma_resp, reg_resp, status_type):
+        """Serialize device details from GSMA/registration data."""
         try:
             if status_type == "basic":
                 response['brand'] = reg_resp.get('brand_name') if reg_resp.get('brand_name') else gsma_resp.get('brand_name')
@@ -213,6 +233,7 @@ class CommonResources:
 
     @staticmethod
     def serialize_reg(response, reg_resp, status_type):
+        """Serialize device details from registration data."""
         try:
             if status_type == "basic":
                 response['brand'] = reg_resp.get('brand_name')
@@ -231,6 +252,8 @@ class CommonResources:
 
     @staticmethod
     def serialize_gsma(response, gsma_resp, status_type):
+        """Serialize device details from GSMA data."""
+
         try:
             if status_type == "basic":
                 response['brand'] = gsma_resp.get('brand_name')
