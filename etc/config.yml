@@ -64,12 +64,6 @@ allowed_file_types:
   AllowedTypes: ['text/tab-separated-values', 'text/plain']
   AllowedExt: ['tsv', 'txt']
 
-# captcha secret keys
-secret_keys:
-  iOS: '6LeiL2cUAAAAABZxGIBQoaTYjVyNceWJiSrj2Z7K'
-  web: '6Ld-kmIUAAAAAIo6AMv9PkpJsShh0fOHEfSPP3Q4'
-  android: '6LeBMWkUAAAAAKNK4gOgfuBDEI1KWTIQEviCmPa7'
-
 # application base url
 application_base:
   BaseUrl: '/api/v1'
