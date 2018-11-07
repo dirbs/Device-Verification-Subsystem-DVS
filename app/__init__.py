@@ -61,7 +61,7 @@ try:
     report_dir = str(config['UPLOADS']['report_dir'])  # path to non compliant report upload
     BaseUrl = global_config['application_base']['BaseUrl']  # app root url
     CeleryConf = global_config['celery']
-    secret = global_config['secret_keys']  # secret keys for recaptcha validation
+    secret = config['secret_keys']  # secret keys for recaptcha validation
 
     Host = str(config['SERVER']['Host'])  # Server Host
     Port = int(config['SERVER']['Port'])  # Server Port

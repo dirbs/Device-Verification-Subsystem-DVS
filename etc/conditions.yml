@@ -26,8 +26,8 @@
 
 conditions:
 
-  - name: 'condition name'
-    reason: 'reason to be non compliant w.r.t condition'
+  - name: 'condition_name'
+    reason: 'reason_to_be_non_compliant_w.r.t_condition'
 
-  - name: 'condition name'
-    reason: 'reason to be non compliant w.r.t condition'
+  - name: 'condition_name'
+    reason: 'reason_to_be_non_compliant_w.r.t_condition'
