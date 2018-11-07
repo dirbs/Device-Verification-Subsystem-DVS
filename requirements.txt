@@ -27,11 +27,11 @@
 celery==4.2.0
 pandas==0.23.0
 PyYAML==3.12
-flask==0.12.2
-requests==2.18.4
+flask==0.12.4
+requests==2.20.0
 webargs==3.0.1
 flask_cors>=3.0.4
 python-magic==0.4.15
-apispec
-marshmallow
-flask-apispec
+apispec==0.39.0
+marshmallow==2.15.4
+flask-apispec==0.7.0
