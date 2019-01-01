@@ -25,7 +25,6 @@
 #######################################################################################################################
 
 import os
-from app import task_dir, AllowedExt
 
 from ..handlers.error_handling import *
 from ..handlers.codes import RESPONSES, MIME_TYPES
@@ -44,9 +43,9 @@ class AdminBulkDRS(MethodResource):
     def post(self):
         """Start processing DRS bulk request in background (calls celery task)."""
         try:
-            task_file = open(os.path.join(task_dir, 'task_ids.txt'), 'a+')
+            task_file = open(os.path.join(app.config['dev_config']['UPLOADS']['task_dir'], 'task_ids.txt'), 'a+')
             file = request.files.get('file')
-            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in AllowedExt:  # validate file type
+            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in app.config['system_config']['allowed_file_types']['AllowedExt']:  # validate file type
                 imeis = list(set(line.decode('ascii', errors='ignore') for line in (l.strip() for l in file) if line))
                 response = BulkCommonResources.get_summary.apply_async((imeis, None, 'drs'))
                 data = {
@@ -54,6 +53,7 @@ class AdminBulkDRS(MethodResource):
                     "task_id": response.id
                 }
                 task_file.write(response.id + '\n')
+                task_file.close()
                 return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
             else:
                 return custom_response("System only accepts tsv/txt files.", RESPONSES.get('BAD_REQUEST'),

@@ -29,18 +29,17 @@ import urllib.parse
 import requests
 from flask_apispec import use_kwargs, MethodResource, doc
 
-from app import GlobalConfig, secret, Root, version
 from ..helpers.common import CommonResources
 from ..handlers.error_handling import *
 from ..handlers.codes import RESPONSES, MIME_TYPES
-from ..schema.system_schemas import BasicStatucSchema, SMSSchema
+from ..schema.system_schemas import BasicStatusSchema, SMSSchema
 
 
 class BasicStatus(MethodResource):
     """Flask resource for IMEI basic status"""
 
     @doc(description="Get Basic details of IMEI", tags=['basicstatus'])
-    @use_kwargs(BasicStatucSchema().fields_dict, locations=['query'])
+    @use_kwargs(BasicStatusSchema().fields_dict, locations=['query'])
     def get(self, **args):
         """Return IMEI basic status."""
 
@@ -49,7 +48,7 @@ class BasicStatus(MethodResource):
 
             recaptcha_response = args.get('token')
 
-            private_recaptcha = secret['web'] if args.get('source')=="web" else secret['iOS'] if args.get('source')=="ios" else secret['android']
+            private_recaptcha = app.config['dev_config']['secret_keys']['web'] if args.get('source')=="web" else app.config['dev_config']['secret_keys']['iOS'] if args.get('source')=="ios" else app.config['dev_config']['secret_keys']['android']
 
             params = urllib.parse.urlencode({
                         'secret': private_recaptcha,
@@ -62,7 +61,7 @@ class BasicStatus(MethodResource):
             success = result.get('success', None)
 
             if success:
-                tac = args['imei'][:GlobalConfig['TacLength']]  # slice TAC from IMEI
+                tac = args['imei'][:app.config['system_config']['global']['TacLength']]  # slice TAC from IMEI
                 status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response
                 if status:
                     compliance = CommonResources.compliance_status(status, "basic")  # get compliance status
@@ -113,7 +112,7 @@ class BaseRoute(MethodResource):
         """Checks system's connection with DIRBS core."""
 
         try:
-            resp = requests.get('{base}/{version}/version'.format(base=Root, version=version))  # dirbs core imei api call
+            resp = requests.get('{base}/{version}/version'.format(base=app.config['system_config']['dirbs_core']['BaseUrl'], version=app.config['system_config']['dirbs_core']['Version']))  # dirbs core imei api call
             if resp.status_code == 200:
                 data = {
                     "message": "CORE connected successfully."
@@ -123,9 +122,9 @@ class BaseRoute(MethodResource):
                 data = {
                     "message": "CORE connection failed."
                 }
-                return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+                return Response(json.dumps(data), status=RESPONSES.get('SERVICE_UNAVAILABLE'), mimetype=MIME_TYPES.get('JSON'))
         except requests.ConnectionError:
             data = {
                 "message": "CORE connection failed."
             }
-            return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+            return Response(json.dumps(data), status=RESPONSES.get('INTERNAL_SERVER_ERROR'), mimetype=MIME_TYPES.get('JSON'))

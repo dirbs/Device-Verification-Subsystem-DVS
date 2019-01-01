@@ -24,71 +24,63 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-import sys
+import json
 
-import yaml
-import configparser
+basic_status_api = '/api/v1/basicstatus?'
 
-from urllib3.util.retry import Retry
-import requests
-from requests.adapters import HTTPAdapter
 
-from flask import Flask
-from flask_cors import CORS
+def test_basic_status_mimetype(dirbs_core_mock, mocked_captcha_call, flask_app):
+    """Tests mime type and success response of API"""
+    response = flask_app.get(basic_status_api+'imei=12345678901234&token=12345token&source=web')
+    assert response.status_code == 200
+    assert response.mimetype == 'application/json'
 
-from celery import Celery
-from celery.schedules import crontab
 
-app = Flask(__name__)
-CORS(app)
+def test_basic_status_request_method(flask_app):
+    """Tests allowed request  methods"""
+    response = flask_app.post(basic_status_api+'imei=123456789012345&token=12345token&source=web')
+    assert response.status_code == 405
+    response = flask_app.put(basic_status_api+'imei=123456789012345&token=12345token&source=web')
+    assert response.status_code == 405
+    response = flask_app.patch(basic_status_api + 'imei=123456789012345&token=12345token&source=web')
+    assert response.status_code == 405
+    response = flask_app.delete(basic_status_api + 'imei=123456789012345&token=12345token&source=web')
+    assert response.status_code == 405
 
-try:
-    global_config = yaml.load(open("etc/config.yml"))
-    app.config['system_config'] = global_config
 
-    conditions = yaml.load(open("etc/conditions.yml"))
-    app.config['conditions'] = conditions
+def test_basic_input_format(flask_app):
+    """Test input format validation"""
+    # test with no imei input
+    response = flask_app.get(basic_status_api + 'imei=&token=237822372&source=web')
+    assert json.loads(response.get_data(as_text=True))['messages']['imei'][0] == "Enter IMEI."
 
-    config = configparser.ConfigParser()
-    config.read("config.ini")
-    app.config['dev_config'] = config
+    # test with invalid source input
+    response = flask_app.get(basic_status_api + 'imei=123456789012345&token=237822372&source=')
+    assert json.loads(response.get_data(as_text=True))['messages']['source'][0] == "Invalid value."
 
-    CeleryConf = app.config['system_config']['celery']
+    # test with invalid imei input
+    response = flask_app.get(basic_status_api + 'imei=12345ds8901234&token=237822372&source=web')
+    assert json.loads(response.get_data(as_text=True))['messages']['imei'][0] == "IMEI is invalid. Enter 16 digit IMEI."
 
-    # requests session
-    session = requests.Session()
-    session.keep_alive = False
-    retry = Retry(total=app.config['system_config']['global'].get('Retry'), backoff_factor=0.2, status_forcelist=[502, 503, 504])
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
 
-    # celery configurations
-    app.config['CELERY_BROKER_URL'] = CeleryConf['RabbitmqUrl']
-    app.config['result_backend'] = CeleryConf['RabbitmqBackend']
-    app.config['broker_pool_limit'] = None
+def test_basic_captcha_failure(mocked_captcha_failed_call, flask_app):
+    """Test captcha failure scenario"""
+    response = flask_app.get(basic_status_api+'imei=123456789012345&token=tokenforfailedcaptcha&source=web')
+    assert json.loads(response.get_data(as_text=True))['message'] == "ReCaptcha Failed!"
 
-    # register tasks
-    app.config['imports'] = CeleryConf['CeleryTasks']
 
-    # initialize celery
-    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+def test_core_response_failure(dirbs_core_mock, flask_app):
+    """Test failed response from core system"""
+    response = flask_app.get(basic_status_api+'imei=12345678909999&token=12345token&source=web')
+    assert response.status_code == 503
 
-    # schedule task
-    celery.conf.beat_schedule = {
-        'delete-every-hour': {
-            'task': 'app.api.v1.helpers.scheduled.delete_files',
-            'schedule': crontab(minute=0, hour='*/1')
-        },
-    }
 
-    # update configurations
-    celery.conf.update(app.config)
-
-    # application blueprints registration
-    from app.api.v1 import *
-
-except Exception as e:
-    app.logger.info("Error occurred while parsing configurations and blueprint registration.")
-    app.logger.exception(e)
-    sys.exit(1)
+def test_basic_status_response(dirbs_core_mock, mocked_captcha_call, flask_app):
+    """Test basic status JSON response"""
+    response = flask_app.get(basic_status_api + 'imei=12345678901234&token=12345token&source=web')
+    response = json.loads(response.get_data(as_text=True))
+    assert response['gsma'] == {"model_name": "model", "brand": "brandsname"}
+    assert response['compliant'] is not None
+    assert response['compliant']['status'] == "Non compliant"
+    assert response['compliant']['block_date'] == "2018-10-19"
+    assert response['compliant']['inactivity_reasons'] == ["Your device is not registered", "IMEI is duplicate", "GSMA not found"]

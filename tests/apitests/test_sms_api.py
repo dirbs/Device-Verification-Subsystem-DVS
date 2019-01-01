@@ -24,70 +24,60 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-import os
+import json
 
-from ..handlers.error_handling import *
-from ..handlers.codes import RESPONSES, MIME_TYPES
-from ..helpers.bulk_common import BulkCommonResources
-
-from flask import send_from_directory
-from flask_apispec import MethodResource, doc
+sms_api = '/api/v1/sms?'
 
 
-class AdminDownloadFile(MethodResource):
-    """Flask resource for downloading report."""
-
-    @doc(description="Download IMEIs report", tags=['bulk'])
-    def post(self, filename):
-        """Sends downloadable report."""
-        try:
-            return send_from_directory(directory=app.config['dev_config']['UPLOADS']['report_dir'], filename=filename)  # returns file when user wnats to download non compliance report
-        except Exception as e:
-            app.logger.info("Error occurred while downloading non compliant report.")
-            app.logger.exception(e)
-            return custom_response("Compliant report not found.", RESPONSES.get('OK'), MIME_TYPES.get('JSON'))
+def test_index_route(flask_app):
+    """Tests DVS index route."""
+    response = flask_app.get('/')
+    assert response.status_code == 200
+    assert response.data == b'{"message": "Welcome to DVS"}'
 
 
-class AdminCheckBulkStatus(MethodResource):
-    """Flask resource to check bulk processing status."""
-
-    @doc(description="Check bulk request status", tags=['bulk'])
-    def post(self, task_id):
-        """Returns bulk processing status and summary if processing is completed."""
-
-        with open(os.path.join(app.config['dev_config']['UPLOADS']['task_dir'], 'task_ids.txt'), 'r') as f:
-            if task_id in list(f.read().splitlines()):
-                task = BulkCommonResources.get_summary.AsyncResult(task_id)
-                if task.state == 'PENDING':
-                    # job is in progress yet
-                    response = {
-                        'state': 'PENDING'
-                    }
-                elif task.state == 'SUCCESS' and task.get():
-                    response = {
-                        "state": task.state,
-                        "result": task.get()
-                    }
-                else:
-                    # something went wrong in the background job
-                    response = {
-                        'state': 'Processing Failed.'
-                    }
-            else:
-                response = {
-                    "state": "task not found."
-                }
-
-        return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+def test_sms_mimetype(dirbs_core_mock, flask_app):
+    """Test sms success status and mime type."""
+    response = flask_app.get(sms_api+'imei=12345678901111')
+    assert response.status_code == 200
+    assert response.mimetype == 'text/plain'
 
 
-@doc(description="Base Route", tags=['base'])
-@app.route('/', methods=['GET'])
-def index():
-    """Flask base route."""
-    data = {
-        'message': 'Welcome to DVS'
-    }
+def test_sms_request_method(flask_app):
+    """Tests sms allowed request methods"""
+    response = flask_app.post(sms_api+'imei=123456789012345')
+    assert response.status_code == 405
+    response = flask_app.put(sms_api+'imei=123456789012345')
+    assert response.status_code == 405
+    response = flask_app.patch(sms_api+'imei=123456789012345')
+    assert response.status_code == 405
+    response = flask_app.delete(sms_api+'imei=123456789012345')
+    assert response.status_code == 405
 
-    response = Response(json.dumps(data), status=200, mimetype='application/json')
-    return response
+
+def test_sms_input_format(flask_app):
+    """Test sms input format validation."""
+    response = flask_app.get(sms_api+'imei=357380062x353789')
+    assert response.status_code == 422
+    response = flask_app.get(sms_api+'imei=')
+    assert response.status_code == 422
+    assert json.loads(response.get_data(as_text=True))['messages']['imei'][0] == "Enter IMEI."
+
+
+def test_core_response_failure(dirbs_core_mock, flask_app):
+    """Tests SMS response in case for IMEI call failure."""
+    response = flask_app.get(sms_api+'imei=12345678909999')
+    assert response.status_code == 503
+
+
+def test_sms_response(dirbs_core_mock, flask_app):
+    """Test sms response in case of non compliant IMEI"""
+    response = flask_app.get(sms_api + 'imei=12345678901111')
+    assert 'STATUS:' in response.get_data(as_text=True)
+    assert 'Block Date' in response.get_data(as_text=True)
+
+
+def test_sms_compliant_response(dirbs_core_mock, flask_app):
+    """Test sms response in case of compliant IMEI"""
+    response = flask_app.get(sms_api + 'imei=12345678908888')
+    assert 'STATUS:' in response.get_data(as_text=True)

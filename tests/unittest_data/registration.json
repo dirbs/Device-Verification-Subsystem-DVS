@@ -1,0 +1,12 @@
+{ "registration_info":
+  {
+  "brand_name": "brandsname",
+  "device_type": "devicetype",
+  "imei_norm": "123456789012345",
+  "make": "make",
+  "model": "model",
+  "model_number": "modelnumber",
+  "radio_interface": "radio_interface",
+  "status": "status"
+  }
+}
