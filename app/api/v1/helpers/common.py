@@ -24,7 +24,7 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-from app import GlobalConfig, Root, version, conditions
+from app import app
 import requests
 
 
@@ -37,7 +37,7 @@ class CommonResources:
 
         try:
             voilating_conditions = [key['condition_name'] for key in blocking if key['condition_met']]
-            for condition in conditions['conditions']:
+            for condition in app.config['conditions']['conditions']:
                 if condition['name'] in voilating_conditions:
                     reasons_list.append(condition['reason'])
             return reasons_list
@@ -64,7 +64,7 @@ class CommonResources:
                 resp['block_date'] = block_date
                 if status_type == "basic":
                     resp['inactivity_reasons'] = CommonResources.populate_reasons(blocking_condition, reason_list)
-                    resp['link_to_help'] = GlobalConfig['HelpUrl']
+                    resp['link_to_help'] = app.config['system_config']['global']['HelpUrl']
                 elif status_type == "bulk":
                     resp['imei'] = imei
                     resp['inactivity_reasons'] = CommonResources.populate_reasons(blocking_condition, reason_list)
@@ -109,7 +109,7 @@ class CommonResources:
     def get_imei(imei):
         """Return IMEI response obtained from DIRBS core."""
 
-        imei_url = requests.get('{base}/{version}/imei/{imei}'.format(base=Root, version=version, imei=imei))  # dirbs core imei api call
+        imei_url = requests.get('{base}/{version}/imei/{imei}'.format(base=app.config['dev_config']['dirbs_core']['BaseUrl'], version=app.config['dev_config']['dirbs_core']['Version'], imei=imei))  # dirbs core imei api call
         try:
             if imei_url.status_code == 200:
                 response = imei_url.json()
@@ -124,7 +124,7 @@ class CommonResources:
         """Return TAC response obtained from DIRBS core."""
 
         try:
-            tac_response = requests.get('{}/{}/tac/{}'.format(Root, version, tac))  # dirbs core tac api call
+            tac_response = requests.get('{}/{}/tac/{}'.format(app.config['dev_config']['dirbs_core']['BaseUrl'], app.config['dev_config']['dirbs_core']['Version'], tac))  # dirbs core tac api call
             if tac_response.status_code == 200:
                 resp = tac_response.json()
                 return resp
@@ -137,7 +137,7 @@ class CommonResources:
         """Return registration information obtained from DIRBS core."""
 
         try:
-            reg_response = requests.get('{base}/{version}/imei/{imei}/info'.format(base=Root, version=version, imei=imei))
+            reg_response = requests.get('{base}/{version}/imei/{imei}/info'.format(base=app.config['dev_config']['dirbs_core']['BaseUrl'], version=app.config['dev_config']['dirbs_core']['Version'], imei=imei))
             if reg_response.status_code == 200:
                 resp = reg_response.json()
                 return resp
@@ -186,7 +186,7 @@ class CommonResources:
         """Return subscriber's details."""
         try:
             seen_with_url = requests.get('{base}/{version}/imei/{imei}/subscribers?limit={limit}&offset={offset}'
-                                         .format(base=Root, version=version, imei=imei, limit=limit, offset=start))  # dirbs core imei api call
+                                         .format(base=app.config['dev_config']['dirbs_core']['BaseUrl'], version=app.config['dev_config']['dirbs_core']['Version'], imei=imei, limit=limit, offset=start))  # dirbs core imei api call
             seen_with_resp = seen_with_url.json()
             response = {"count": seen_with_resp.get('_keys').get('result_size'),
                         "start": start,
@@ -201,7 +201,7 @@ class CommonResources:
         """Return pairings information."""
         try:
             pairings_url = requests.get('{base}/{version}/imei/{imei}/pairings?limit={limit}&offset={offset}'
-                                         .format(base=Root, version=version, imei=imei, limit=limit,
+                                         .format(base=app.config['dev_config']['dirbs_core']['BaseUrl'], version=app.config['dev_config']['dirbs_core']['Version'], imei=imei, limit=limit,
                                                  offset=start))  # dirbs core imei api call
             pairings_resp = pairings_url.json()
             response = {"count": pairings_resp.get('_keys').get('result_size'),

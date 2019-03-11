@@ -1,0 +1,19 @@
+{ "single_tac_resp":
+  {
+    "gsma": {
+      "allocation_date": "sample-allocation-date",
+      "bands": "sample-bands-data",
+      "bluetooth": "sample-bluetooth",
+      "brand_name": "sample-brand-name",
+      "device_type": "sample-device-type",
+      "internal_model_name": "sample-internal-model-name",
+      "manufacturer": "sample-manufacturer",
+      "marketing_name": "sample-marketing-name",
+      "model_name": "sample-model-name",
+      "nfc": "sample-nfc",
+      "radio_interface": "sample-radio-interface",
+      "wlan": "sample-wlan"
+    },
+    "tac": 12345678
+  }
+}

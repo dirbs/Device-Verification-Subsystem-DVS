@@ -32,9 +32,8 @@ from shutil import rmtree
 from flask_restful import request
 from flask_apispec import MethodResource, doc, use_kwargs
 
-from app import GlobalConfig, task_dir, AllowedExt, AllowedTypes
-from app.api.v1.handlers.error_handling import *
-from app.api.v1.handlers.codes import RESPONSES, MIME_TYPES
+from ..handlers.error_handling import *
+from ..handlers.codes import RESPONSES, MIME_TYPES
 from ..helpers.bulk_common import BulkCommonResources
 from ..schema.system_schemas import BulkSchema
 
@@ -50,7 +49,7 @@ class AdminBulk(MethodResource):
         try:
             invalid_imeis = 0
             filtered_list = []
-            task_file = open(os.path.join(task_dir, 'task_ids.txt'), 'a+')
+            task_file = open(os.path.join(app.config['dev_config']['UPLOADS']['task_dir'], 'task_ids.txt'), 'a+')
             file = request.files.get('file')
             if file:
                 tempdir = tempfile.mkdtemp()
@@ -59,10 +58,10 @@ class AdminBulk(MethodResource):
                 try:
                     mimetype = magic.from_file(filepath, mime=True)
                     if file.filename != '':
-                        if mimetype in AllowedTypes and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in AllowedExt:  # validate file type
+                        if mimetype in app.config['system_config']['allowed_file_types']['AllowedTypes'] and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in app.config['system_config']['allowed_file_types']['AllowedExt']:  # validate file type
                             file = open(filepath, 'r')
                             imeis = list(set(line.strip() for line in file.read().split('\n') if line))
-                            if imeis and int(GlobalConfig['MinFileContent']) <= len(imeis) <= int(GlobalConfig['MaxFileContent']):  # validate file content length
+                            if imeis and int(app.config['system_config']['global']['MinFileContent']) <= len(imeis) <= int(app.config['system_config']['global']['MaxFileContent']):  # validate file content length
                                 for imei in imeis:
                                     if re.match(r'^[a-fA-F0-9]{14,16}$', imei) is None:
                                         invalid_imeis += 1
@@ -76,13 +75,14 @@ class AdminBulk(MethodResource):
                                         "task_id": response.id
                                     }
                                     task_file.write(response.id+'\n')
+                                    task_file.close()
                                     return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
                                 else:
                                     return custom_response("File contains malformed content",
                                                            status=RESPONSES.get('BAD_REQUEST'),
                                                            mimetype=MIME_TYPES.get('JSON'))
                             else:
-                                return custom_response("File must have minimum "+str(GlobalConfig['MinFileContent'])+" or maximum "+str(GlobalConfig['MaxFileContent'])+" IMEIs.", status=RESPONSES.get('bad_request'), mimetype=MIME_TYPES.get('json'))
+                                return custom_response("File must have minimum "+str(app.config['system_config']['global']['MinFileContent'])+" or maximum "+str(app.config['system_config']['global']['MaxFileContent'])+" IMEIs.", status=RESPONSES.get('bad_request'), mimetype=MIME_TYPES.get('json'))
                         else:
                             return custom_response("System only accepts tsv/txt files.", RESPONSES.get('BAD_REQUEST'), MIME_TYPES.get('JSON'))
                     else:
@@ -94,9 +94,9 @@ class AdminBulk(MethodResource):
             else:  # check for tac if file not uploaded
                 tac = request.form.get('tac')
                 if tac:
-                    if tac.isdigit() and len(tac) == int(GlobalConfig['TacLength']):
-                        imei = tac + str(GlobalConfig['MinImeiRange'])
-                        imei_list = [str(int(imei) + x) for x in range(int(GlobalConfig['MaxImeiRange']))]
+                    if tac.isdigit() and len(tac) == int(app.config['system_config']['global']['TacLength']):
+                        imei = tac + str(app.config['system_config']['global']['MinImeiRange'])
+                        imei_list = [str(int(imei) + x) for x in range(int(app.config['system_config']['global']['MaxImeiRange']))]
                         response = BulkCommonResources.get_summary.apply_async((imei_list, invalid_imeis, 'dvs'))
                         data = {
                             "message": "You can track your request using this id",

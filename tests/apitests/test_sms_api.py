@@ -24,26 +24,60 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-import unittest
-from .apitests.basic import BasicTestCase
+import json
+
+sms_api = '/api/v1/sms?'
 
 
-def api_test_suite():
-    api_suite = unittest.TestSuite()
-    api_suite.addTest(BasicTestCase('test_index_route'))
-    api_suite.addTest(BasicTestCase('test_public_route'))
-    api_suite.addTest(BasicTestCase('test_admin_route'))
-    api_suite.addTest(BasicTestCase('test_admin_post_route'))
-    api_suite.addTest(BasicTestCase('test_tac_count'))
-    api_suite.addTest(BasicTestCase('test_bulk_route'))
-    api_suite.addTest(BasicTestCase('test_bulk_post_route'))
-    api_suite.addTest(BasicTestCase('test_bulk_file_route'))
-    api_suite.addTest(BasicTestCase('test_bulk_file_post_route'))
-    api_suite.addTest(BasicTestCase('test_bulk_file_type'))
-
-    return api_suite
+def test_index_route(flask_app):
+    """Tests DVS index route."""
+    response = flask_app.get('/')
+    assert response.status_code == 200
+    assert response.data == b'{"message": "Welcome to DVS"}'
 
 
-if __name__ == '__main__':
-    runner = unittest.TextTestRunner()
-    runner.run(api_test_suite())
+def test_sms_mimetype(dirbs_core_mock, flask_app):
+    """Test sms success status and mime type."""
+    response = flask_app.get(sms_api+'imei=12345678901111')
+    assert response.status_code == 200
+    assert response.mimetype == 'text/plain'
+
+
+def test_sms_request_method(flask_app):
+    """Tests sms allowed request methods"""
+    response = flask_app.post(sms_api+'imei=123456789012345')
+    assert response.status_code == 405
+    response = flask_app.put(sms_api+'imei=123456789012345')
+    assert response.status_code == 405
+    response = flask_app.patch(sms_api+'imei=123456789012345')
+    assert response.status_code == 405
+    response = flask_app.delete(sms_api+'imei=123456789012345')
+    assert response.status_code == 405
+
+
+def test_sms_input_format(flask_app):
+    """Test sms input format validation."""
+    response = flask_app.get(sms_api+'imei=357380062x353789')
+    assert response.status_code == 422
+    response = flask_app.get(sms_api+'imei=')
+    assert response.status_code == 422
+    assert json.loads(response.get_data(as_text=True))['messages']['imei'][0] == "Enter IMEI."
+
+
+def test_core_response_failure(dirbs_core_mock, flask_app):
+    """Tests SMS response in case for IMEI call failure."""
+    response = flask_app.get(sms_api+'imei=12345678909999')
+    assert response.status_code == 503
+
+
+def test_sms_response(dirbs_core_mock, flask_app):
+    """Test sms response in case of non compliant IMEI"""
+    response = flask_app.get(sms_api + 'imei=12345678901111')
+    assert 'STATUS:' in response.get_data(as_text=True)
+    assert 'Block Date' in response.get_data(as_text=True)
+
+
+def test_sms_compliant_response(dirbs_core_mock, flask_app):
+    """Test sms response in case of compliant IMEI"""
+    response = flask_app.get(sms_api + 'imei=12345678908888')
+    assert 'STATUS:' in response.get_data(as_text=True)

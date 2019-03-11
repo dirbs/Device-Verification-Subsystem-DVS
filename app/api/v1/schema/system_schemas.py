@@ -2,11 +2,11 @@ from marshmallow import Schema, fields
 from app.api.v1.schema.validations import Validations
 
 
-class BasicStatucSchema(Schema):
+class BasicStatusSchema(Schema):
     """Marshmallow schema for basic status request."""
     imei = fields.Str(required=True, validate=Validations.validate_imei, description="14-16 digit IMEI")
-    token = fields.Str(required=True, description="token generated from reCaptcha validation")
-    source = fields.Str(required=True, description="source of request i.e. Android, Web, iOS")
+    token = fields.Str(required=True, validate=lambda p: p != '', description="token generated from reCaptcha validation")
+    source = fields.Str(required=True, validate=lambda p: p != '', description="source of request i.e. Android, Web, iOS")
 
     @property
     def fields_dict(self):

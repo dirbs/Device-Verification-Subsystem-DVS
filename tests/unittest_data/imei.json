@@ -1,0 +1,1154 @@
+{
+  "gsma_not_found_imei": {
+    "block_date": "2018-10-19",
+    "classification_state": {
+      "blocking_conditions": [
+        {
+          "condition_met": true,
+          "condition_name": "gsma_not_found"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "local_stolen"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "not_on_registration_list"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "duplicate"
+        }
+      ],
+      "informative_conditions": [
+
+      ]
+    },
+    "imei_norm": "12345678901111",
+    "realtime_checks": {
+      "ever_observed_on_network": true,
+      "invalid_imei": false,
+      "is_exempted_device": false,
+      "is_paired": false
+    },
+    "registration_status": {
+      "provisional_only": null,
+      "status": null
+    },
+    "stolen_status": {
+      "provisional_only": null,
+      "status": "null"
+    }
+  },
+  "local_stolen_imei": {
+    "block_date": null,
+    "classification_state": {
+      "blocking_conditions": [
+        {
+          "condition_met": false,
+          "condition_name": "gsma_not_found"
+        },
+        {
+          "condition_met": true,
+          "condition_name": "local_stolen"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "not_on_registration_list"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "duplicate"
+        }
+      ],
+      "informative_conditions": [
+
+      ]
+    },
+    "imei_norm": "12345678902222",
+    "realtime_checks": {
+      "ever_observed_on_network": true,
+      "invalid_imei": false,
+      "is_exempted_device": false,
+      "is_paired": false
+    },
+    "registration_status": {
+      "provisional_only": true,
+      "status": null
+    },
+    "stolen_status": {
+      "provisional_only": false,
+      "status": "null"
+    }
+  },
+  "not_on_registration_list": {
+    "block_date": null,
+    "classification_state": {
+      "blocking_conditions": [
+        {
+          "condition_met": false,
+          "condition_name": "gsma_not_found"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "local_stolen"
+        },
+        {
+          "condition_met": true,
+          "condition_name": "not_on_registration_list"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "duplicate"
+        }
+      ],
+      "informative_conditions": [
+
+      ]
+    },
+    "imei_norm": "12345678903333",
+    "realtime_checks": {
+      "ever_observed_on_network": true,
+      "invalid_imei": false,
+      "is_exempted_device": false,
+      "is_paired": false
+    },
+    "registration_status": {
+      "provisional_only": false,
+      "status": null
+    },
+    "stolen_status": {
+      "provisional_only": true,
+      "status": "null"
+    }
+  },
+  "duplicate_imei": {
+    "block_date": null,
+    "classification_state": {
+      "blocking_conditions": [
+        {
+          "condition_met": false,
+          "condition_name": "gsma_not_found"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "local_stolen"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "not_on_registration_list"
+        },
+        {
+          "condition_met": true,
+          "condition_name": "duplicate"
+        }
+      ],
+      "informative_conditions": [
+
+      ]
+    },
+    "imei_norm": "12345678904444",
+    "realtime_checks": {
+      "ever_observed_on_network": true,
+      "invalid_imei": false,
+      "is_exempted_device": false,
+      "is_paired": false
+    },
+    "registration_status": {
+      "provisional_only": null,
+      "status": null
+    },
+    "stolen_status": {
+      "provisional_only": null,
+      "status": "null"
+    }
+  },
+  "non_compliant_imei": {
+    "block_date": "2018-10-19",
+    "classification_state": {
+      "blocking_conditions": [
+        {
+          "condition_met": true,
+          "condition_name": "gsma_not_found"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "local_stolen"
+        },
+        {
+          "condition_met": true,
+          "condition_name": "not_on_registration_list"
+        },
+        {
+          "condition_met": true,
+          "condition_name": "duplicate"
+        }
+      ],
+      "informative_conditions": [
+
+      ]
+    },
+    "imei_norm": "12345678905555",
+    "realtime_checks": {
+      "ever_observed_on_network": true,
+      "invalid_imei": false,
+      "is_exempted_device": false,
+      "is_paired": false
+    },
+    "registration_status": {
+      "provisional_only": null,
+      "status": null
+    },
+    "stolen_status": {
+      "provisional_only": true,
+      "status": "null"
+    }
+  },
+  "provisionally_non_compliant": {
+    "block_date": "2019-12-22",
+    "classification_state": {
+      "blocking_conditions": [
+        {
+          "condition_met": true,
+          "condition_name": "gsma_not_found"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "local_stolen"
+        },
+        {
+          "condition_met": true,
+          "condition_name": "not_on_registration_list"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "duplicate"
+        }
+      ],
+      "informative_conditions": [
+
+      ]
+    },
+    "imei_norm": "12345678906666",
+    "realtime_checks": {
+      "ever_observed_on_network": true,
+      "invalid_imei": false,
+      "is_exempted_device": false,
+      "is_paired": false
+    },
+    "registration_status": {
+      "provisional_only": true,
+      "status": null
+    },
+    "stolen_status": {
+      "provisional_only": true,
+      "status": "null"
+    }
+  },
+  "provisionally_compliant": {
+    "block_date": "2019-12-22",
+    "classification_state": {
+      "blocking_conditions": [
+        {
+          "condition_met": false,
+          "condition_name": "gsma_not_found"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "local_stolen"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "not_on_registration_list"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "duplicate"
+        }
+      ],
+      "informative_conditions": [
+
+      ]
+    },
+    "imei_norm": "12345678907777",
+    "realtime_checks": {
+      "ever_observed_on_network": false,
+      "invalid_imei": false,
+      "is_exempted_device": false,
+      "is_paired": false
+    },
+    "registration_status": {
+      "provisional_only": true,
+      "status": null
+    },
+    "stolen_status": {
+      "provisional_only": null,
+      "status": "null"
+    }
+  },
+  "reg_stolen_pending": {
+    "block_date": "2019-12-22",
+    "classification_state": {
+      "blocking_conditions": [
+        {
+          "condition_met": true,
+          "condition_name": "gsma_not_found"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "local_stolen"
+        },
+        {
+          "condition_met": true,
+          "condition_name": "not_on_registration_list"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "duplicate"
+        }
+      ],
+      "informative_conditions": [
+
+      ]
+    },
+    "imei_norm": "12345678908888",
+    "realtime_checks": {
+      "ever_observed_on_network": true,
+      "invalid_imei": false,
+      "is_exempted_device": false,
+      "is_paired": false
+    },
+    "registration_status": {
+      "provisional_only": true,
+      "status": null
+    },
+    "stolen_status": {
+      "provisional_only": true,
+      "status": "null"
+    }
+  },
+  "reg_stolen_true": {
+    "block_date": "2019-12-22",
+    "classification_state": {
+      "blocking_conditions": [
+        {
+          "condition_met": false,
+          "condition_name": "gsma_not_found"
+        },
+        {
+          "condition_met": true,
+          "condition_name": "local_stolen"
+        },
+        {
+          "condition_met": true,
+          "condition_name": "not_on_registration_list"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "duplicate"
+        }
+      ],
+      "informative_conditions": [
+
+      ]
+    },
+    "imei_norm": "12345678908888",
+    "realtime_checks": {
+      "ever_observed_on_network": true,
+      "invalid_imei": false,
+      "is_exempted_device": false,
+      "is_paired": false
+    },
+    "registration_status": {
+      "provisional_only": false,
+      "status": null
+    },
+    "stolen_status": {
+      "provisional_only": false,
+      "status": "null"
+    }
+  },
+  "compliant": {
+    "block_date": "2019-12-22",
+    "classification_state": {
+      "blocking_conditions": [
+        {
+          "condition_met": false,
+          "condition_name": "gsma_not_found"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "local_stolen"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "not_on_registration_list"
+        },
+        {
+          "condition_met": false,
+          "condition_name": "duplicate"
+        }
+      ],
+      "informative_conditions": [
+
+      ]
+    },
+    "imei_norm": "12345678908888",
+    "realtime_checks": {
+      "ever_observed_on_network": true,
+      "invalid_imei": false,
+      "is_exempted_device": false,
+      "is_paired": false
+    },
+    "registration_status": {
+      "provisional_only": false,
+      "status": null
+    },
+    "stolen_status": {
+      "provisional_only": null,
+      "status": "null"
+    }
+  },
+  "bulk": {
+    "results": [
+          {
+      "block_date": null,
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": true,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678901111",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": true,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": true,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": null,
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": true,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678902222",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": true,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": false,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": null,
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": true,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678903333",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": false,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": true,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": null,
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": true,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678904444",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": false,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": false,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2018-10-19",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678905555",
+      "realtime_checks": {
+        "ever_observed_on_network": true,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": true,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": null,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678906666",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": false,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": null,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678907777",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": null,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": true,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": null,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": false,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": true,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": true,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": true,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": false,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": true,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": false,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": true,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": false,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": false,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": true,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": null,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": true,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": true,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": null,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": false,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": true,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": true,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": true,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": true,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": true,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": true,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": false,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": false,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": true,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": null,
+        "status": "null"
+      }
+    },
+    {
+      "block_date": "2019-12-22",
+      "classification_state": {
+        "blocking_conditions": [
+          {
+            "condition_met": false,
+            "condition_name": "gsma_not_found"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "local_stolen"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "not_on_registration_list"
+          },
+          {
+            "condition_met": false,
+            "condition_name": "duplicate"
+          }
+        ],
+        "informative_conditions": [
+
+        ]
+      },
+      "imei_norm": "12345678908888",
+      "realtime_checks": {
+        "ever_observed_on_network": true,
+        "invalid_imei": false,
+        "is_exempted_device": false,
+        "is_paired": false
+      },
+      "registration_status": {
+        "provisional_only": false,
+        "status": null
+      },
+      "stolen_status": {
+        "provisional_only": null,
+        "status": "null"
+      }
+    }
+    ]
+  }
+}

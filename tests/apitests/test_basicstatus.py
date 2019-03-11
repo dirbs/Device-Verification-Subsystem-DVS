@@ -24,56 +24,63 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-# dvs global configurations
-global:
+import json
 
-  # tac length
-  TacLength: 8
+basic_status_api = '/api/v1/basicstatus?'
 
-  # minimum and maximum global imei lengths
-  MinImeiLength: 14
-  MaxImeiLength: 16
 
-  # minimum and maximum imei range
-  MinImeiRange: '000000'
-  MaxImeiRange: 1000000
+def test_basic_status_mimetype(dirbs_core_mock, mocked_captcha_call, flask_app):
+    """Tests mime type and success response of API"""
+    response = flask_app.get(basic_status_api+'imei=12345678901234&token=12345token&source=web')
+    assert response.status_code == 200
+    assert response.mimetype == 'application/json'
 
-  NoOfThreads: 10
-  ImeiBatchSize: 1000
 
-  # variables to be configured
-  HelpUrl: 'dirbs.net.pk/help'
+def test_basic_status_request_method(flask_app):
+    """Tests allowed request  methods"""
+    response = flask_app.post(basic_status_api+'imei=123456789012345&token=12345token&source=web')
+    assert response.status_code == 405
+    response = flask_app.put(basic_status_api+'imei=123456789012345&token=12345token&source=web')
+    assert response.status_code == 405
+    response = flask_app.patch(basic_status_api + 'imei=123456789012345&token=12345token&source=web')
+    assert response.status_code == 405
+    response = flask_app.delete(basic_status_api + 'imei=123456789012345&token=12345token&source=web')
+    assert response.status_code == 405
 
-  # minimum and maximum file content length
-  MinFileContent: 1
-  MaxFileContent: 1000000
 
-  # delete older files time
-  Time: 24  # time set to 24 hours
+def test_basic_input_format(flask_app):
+    """Test input format validation"""
+    # test with no imei input
+    response = flask_app.get(basic_status_api + 'imei=&token=237822372&source=web')
+    assert json.loads(response.get_data(as_text=True))['messages']['imei'][0] == "Enter IMEI."
 
-  # retry count for bulk process
-  Retry: 10
+    # test with invalid source input
+    response = flask_app.get(basic_status_api + 'imei=123456789012345&token=237822372&source=')
+    assert json.loads(response.get_data(as_text=True))['messages']['source'][0] == "Invalid value."
 
-# allowed file extensions
-allowed_file_types:
-  AllowedTypes: ['text/tab-separated-values', 'text/plain']
-  AllowedExt: ['tsv', 'txt']
+    # test with invalid imei input
+    response = flask_app.get(basic_status_api + 'imei=12345ds8901234&token=237822372&source=web')
+    assert json.loads(response.get_data(as_text=True))['messages']['imei'][0] == "IMEI is invalid. Enter 16 digit IMEI."
 
-# application base url
-application_base:
-  BaseUrl: '/api/v1'
-  version: 'v1'
 
-# celery configurations
-celery:
+def test_basic_captcha_failure(mocked_captcha_failed_call, flask_app):
+    """Test captcha failure scenario"""
+    response = flask_app.get(basic_status_api+'imei=123456789012345&token=tokenforfailedcaptcha&source=web')
+    assert json.loads(response.get_data(as_text=True))['message'] == "ReCaptcha Failed!"
 
-  RabbitmqUrl: 'pyamqp://'
-  RabbitmqBackend: 'amqp://'
 
-  RedisUrl: 'redis://'
-  RedisBackend: 'redis://'
+def test_core_response_failure(dirbs_core_mock, flask_app):
+    """Test failed response from core system"""
+    response = flask_app.get(basic_status_api+'imei=12345678909999&token=12345token&source=web')
+    assert response.status_code == 503
 
-  RpcUrl: 'rpc://'
-  RpcBackend: 'rpc://'
 
-  CeleryTasks: ['app.api.v1.helpers.scheduled', 'app.api.v1.helpers.bulk_common']
+def test_basic_status_response(dirbs_core_mock, mocked_captcha_call, flask_app):
+    """Test basic status JSON response"""
+    response = flask_app.get(basic_status_api + 'imei=12345678901234&token=12345token&source=web')
+    response = json.loads(response.get_data(as_text=True))
+    assert response['gsma'] == {"model_name": "model", "brand": "brandsname"}
+    assert response['compliant'] is not None
+    assert response['compliant']['status'] == "Non compliant"
+    assert response['compliant']['block_date'] == "2018-10-19"
+    assert response['compliant']['inactivity_reasons'] == ["Your device is not registered", "IMEI is duplicate", "GSMA not found"]

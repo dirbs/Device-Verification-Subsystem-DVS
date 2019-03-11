@@ -1,34 +1,31 @@
-#######################################################################################################################
-#                                                                                                                     #
-# Copyright (c) 2018 Qualcomm Technologies, Inc.                                                                      #
-#                                                                                                                     #
-# All rights reserved.                                                                                                #
-#                                                                                                                     #
-# Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the      #
-# limitations in the disclaimer below) provided that the following conditions are met:                                #
-# * Redistributions of source code must retain the above copyright notice, this list of conditions and the following  #
-#   disclaimer.                                                                                                       #
-# * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the         #
-#   following disclaimer in the documentation and/or other materials provided with the distribution.                  #
-# * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or       #
-#   promote products derived from this software without specific prior written permission.                            #
-#                                                                                                                     #
-# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED  #
-# BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED #
-# TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT      #
-# SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR   #
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES LOSS OF USE,      #
-# DATA, OR PROFITS OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,      #
-# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,   #
-# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
-#                                                                                                                     #
-#######################################################################################################################
+"""
+ Copyright (c) 2018 Qualcomm Technologies, Inc.                                                                      #
+                                                                                                                     #
+ All rights reserved.                                                                                                #
+                                                                                                                     #
+ Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the      #
+ limitations in the disclaimer below) provided that the following conditions are met:                                #
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and the following  #
+   disclaimer.                                                                                                       #
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the         #
+   following disclaimer in the documentation and/or other materials provided with the distribution.                  #
+ * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or       #
+   promote products derived from this software without specific prior written permission.                            #
+                                                                                                                     #
+ NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED  #
+ BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED #
+ TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT      #
+ SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR   #
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES LOSS OF USE,      #
+ DATA, OR PROFITS OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,      #
+ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,   #
+ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
+"""
 
 import sys
-import logging
 
-import yaml
 import configparser
+import yaml
 
 from urllib3.util.retry import Retry
 import requests
@@ -44,33 +41,23 @@ app = Flask(__name__)
 CORS(app)
 
 try:
-    global_config = yaml.load(open("etc/config.yml"))
+    global_config = yaml.safe_load(open("etc/config.yml"))
+    app.config['system_config'] = global_config
 
-    conditions = yaml.load(open("etc/conditions.yml"))
+    conditions = yaml.safe_load(open("etc/conditions.yml"))
+    app.config['conditions'] = conditions
 
     config = configparser.ConfigParser()
     config.read("config.ini")
+    app.config['dev_config'] = config
 
-    # importing configurable variables
-    Root = global_config['dirbs_core']['BaseUrl']  # core api url
-    version = global_config['dirbs_core']['Version']  # core api version
-    GlobalConfig = global_config['global']  # load global configs
-    AllowedExt = global_config['allowed_file_types']['AllowedExt']  # allowed file extensions for bulk check
-    AllowedTypes = global_config['allowed_file_types']['AllowedTypes']  # allowed file type for bulk check
-    task_dir = str(config['UPLOADS']['task_dir'])  # path to task_ids file upload
-    report_dir = str(config['UPLOADS']['report_dir'])  # path to non compliant report upload
-    BaseUrl = global_config['application_base']['BaseUrl']  # app root url
-    CeleryConf = global_config['celery']
-    secret = config['secret_keys']  # secret keys for recaptcha validation
-
-    Host = str(config['SERVER']['Host'])  # Server Host
-    Port = int(config['SERVER']['Port'])  # Server Port
+    CeleryConf = app.config['system_config']['celery']
 
     # requests session
-    logging.basicConfig(level=logging.DEBUG)
     session = requests.Session()
     session.keep_alive = False
-    retry = Retry(total=GlobalConfig.get('Retry'), backoff_factor=0.2, status_forcelist=[502, 503, 504])
+    retry = Retry(total=app.config['system_config']['global'].get('Retry'),
+                  backoff_factor=0.2, status_forcelist=[502, 503, 504])
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
     session.mount('https://', adapter)
@@ -101,6 +88,6 @@ try:
     from app.api.v1 import *
 
 except Exception as e:
-    app.logger.info("Error occurred while parsing configurations and blueprint registration.")
+    app.logger.info("Error occurred while parsing configurations.")
     app.logger.exception(e)
     sys.exit(1)
