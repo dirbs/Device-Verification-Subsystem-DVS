@@ -23,6 +23,7 @@
 """
 
 from flask_apispec import use_kwargs, MethodResource, doc
+from flask_babel import _
 
 from ..helpers.common import CommonResources
 from ..handlers.error_handling import *
@@ -62,10 +63,10 @@ class FullStatus(MethodResource):
                 response = dict(response, **gsma, **subscribers, **pairings, **compliance)
                 return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
             else:
-                return custom_response("Failed to retrieve IMEI response from core system.",
+                return custom_response(_("Failed to retrieve IMEI response from core system."),
                                        RESPONSES.get('SERVICE_UNAVAILABLE'), mimetype=MIME_TYPES.get('JSON'))
         except Exception as e:
             app.logger.info("Error occurred while retrieving full status.")
             app.logger.exception(e)
-            return custom_response("Failed to retrieve full status.", RESPONSES.get('SERVICE_UNAVAILABLE'),
+            return custom_response(_("Failed to retrieve full status."), RESPONSES.get('SERVICE_UNAVAILABLE'),
                                    mimetype=MIME_TYPES.get('JSON'))

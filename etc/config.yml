@@ -1,4 +1,3 @@
-#######################################################################################################################
 #                                                                                                                     #
 # Copyright (c) 2018 Qualcomm Technologies, Inc.                                                                      #
 #                                                                                                                     #
@@ -21,8 +20,6 @@
 # DATA, OR PROFITS OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,      #
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,   #
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
-#                                                                                                                     #
-#######################################################################################################################
 
 # dvs global configurations
 global:
@@ -77,3 +74,7 @@ celery:
   RpcBackend: 'rpc://'
 
   CeleryTasks: ['app.api.v1.helpers.scheduled', 'app.api.v1.helpers.bulk_common']
+
+language_support:
+  languages: ['en', 'id', 'ur']
+  default: 'en'

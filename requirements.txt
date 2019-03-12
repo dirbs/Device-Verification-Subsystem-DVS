@@ -33,3 +33,4 @@ apispec==0.39.0
 marshmallow==2.15.4
 flask-apispec==0.7.0
 flask-restful
+flask_babel

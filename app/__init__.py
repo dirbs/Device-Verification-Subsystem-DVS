@@ -31,8 +31,9 @@ from urllib3.util.retry import Retry
 import requests
 from requests.adapters import HTTPAdapter
 
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
+from flask_babel import Babel
 
 from celery import Celery
 from celery.schedules import crontab
@@ -83,6 +84,15 @@ try:
 
     # update configurations
     celery.conf.update(app.config)
+
+    app.config['BABEL_DEFAULT_LOCALE'] = global_config['language_support']['default']
+    app.config['LANGUAGES'] = global_config['language_support']['languages']
+    babel = Babel(app)
+
+
+    @babel.localeselector
+    def get_locale():
+        return request.accept_languages.best_match(app.config['LANGUAGES'])
 
     # application blueprints registration
     from app.api.v1 import *
