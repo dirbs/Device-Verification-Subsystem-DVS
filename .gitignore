@@ -110,3 +110,6 @@ venv.bak/
 # db
 migrations/
 /.project
+
+# configurations
+config.ini

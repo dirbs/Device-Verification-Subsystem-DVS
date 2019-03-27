@@ -38,6 +38,8 @@ from flask_babel import Babel
 from celery import Celery
 from celery.schedules import crontab
 
+from flask_sqlalchemy import SQLAlchemy
+
 app = Flask(__name__)
 CORS(app)
 
@@ -84,6 +86,28 @@ try:
 
     # update configurations
     celery.conf.update(app.config)
+
+    db_params = {
+        'Host': app.config['dev_config']['Database']['Host'],
+        'Port': app.config['dev_config']['Database']['Port'],
+        'Database': app.config['dev_config']['Database']['Database'],
+        'User': app.config['dev_config']['Database']['UserName'],
+        'Password': app.config['dev_config']['Database']['Password']
+    }
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://%s:%s@%s:%s/%s' % \
+                                            (db_params['User'], db_params['Password'], db_params['Host'],
+                                             db_params['Port'], db_params['Database'])
+
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    app.config['SQLALCHEMY_POOL_SIZE'] = int(app.config['dev_config']['Database']['pool_size'])
+    app.config['SQLALCHEMY_POOL_RECYCLE'] = int(app.config['dev_config']['Database']['pool_recycle'])
+    app.config['SQLALCHEMY_MAX_OVERFLOW'] = int(app.config['dev_config']['Database']['overflow_size'])
+    app.config['SQLALCHEMY_POOL_TIMEOUT'] = int(app.config['dev_config']['Database']['pool_timeout'])
+
+    db = SQLAlchemy()
+    db.init_app(app)
 
     app.config['BABEL_DEFAULT_LOCALE'] = global_config['language_support']['default']
     app.config['LANGUAGES'] = global_config['language_support']['languages']

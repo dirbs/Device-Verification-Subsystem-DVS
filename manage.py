@@ -1,3 +1,5 @@
+#######################################################################################################################
+#                                                                                                                     #
 # Copyright (c) 2018 Qualcomm Technologies, Inc.                                                                      #
 #                                                                                                                     #
 # All rights reserved.                                                                                                #
@@ -10,7 +12,6 @@
 #   following disclaimer in the documentation and/or other materials provided with the distribution.                  #
 # * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or       #
 #   promote products derived from this software without specific prior written permission.                            #
-#                                                                                                                     #
 # NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED  #
 # BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED #
 # TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT      #
@@ -19,11 +20,20 @@
 # DATA, OR PROFITS OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,      #
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,   #
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
+#                                                                                                                     #
+#######################################################################################################################
+"""This modules manages database migration commands."""
 
-conditions:
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 
-  - name: 'condition_name'
-    reason: 'reason_to_be_non_compliant_w.r.t_condition'
+# noinspection PyUnresolvedReferences
+from app.api.v1.models import *
+from app import app, db
 
-  - name: 'condition_name'
-    reason: 'reason_to_be_non_compliant_w.r.t_condition'
+migrate = Migrate(app, db)
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
+if __name__ == '__main__':
+    manager.run()
