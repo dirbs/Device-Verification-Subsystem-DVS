@@ -33,8 +33,8 @@ This repository contains code for **DVS** part of the **DIRBS**. It contains
 * ``tests/`` -- Unit test scripts and Data
 
 ##### Prerequisites
-In order to run a development environment, [Python 3.0+](https://www.python.org/download/releases/3.0/) 
-we assume is installed.
+In order to run a development environment, [Python 3.0+](https://www.python.org/download/releases/3.0/) and 
+[Postgresql10](https://www.postgresql.org/about/news/1786/) we assume that these are installed.
 
 We also assume that this repo is cloned from Github onto the local computer, it is assumed that 
 all commands mentioned in this guide are run from root directory of the project and inside
@@ -48,6 +48,7 @@ The easiest and quickest way to get started is to use local-only environment (i.
 ##### Setting up local dev environment
 For setting up a local dev environment we assume that the ```prerequisites``` are met already. To setup a local 
 environment:
+* Create database using Postgresql (Name and credentials should be same as in [config](tests/unittest_data/config.ini))
 * Create virtual environment using **virtualenv** and activate it:
 ```bash
 pip3 install virtualenv 
@@ -62,7 +63,13 @@ Make sure the virtual environment is made using python3
 
 * Create /reports folder in root directory
 
-* Create /tasks folder in root directory
+* Run Database migrations using:
+
+```bash
+make install-db
+```
+
+This will automatically create and migrate database schemas and requirements.
 
 * Start DVS development server using:
 ```bash
@@ -83,4 +90,17 @@ $ make test
 
 ```bash
 make lint
+```
+###Other useful commands
+
+* To install a fresh database:
+
+```bash
+make install-db
+```
+
+* To Upgrade already installed database:
+
+```bash
+make upgrade-db
 ```

@@ -21,10 +21,23 @@
 # Device Verification Subsystem Makefile
 #
 
-.PHONY: start-dev, test, lint, start-celery
+.PHONY: clean-pyc dist start-dev, test, lint, start-celery, install-db, upgrade-db
+.EXPORT_ALL_VARIABLES:
+FLASK_ENV = development
+FLASK_DEBUG = True
+
+clean: clean-pyc
+	rm	-rf dist .cache migrations
+
+clean-pyc:
+	find . -name '*.pyc' -exec rm -f {} +
+	find . -name '*.pyo' -exec rm -f {} +
+	find . -name '*~' -exec rm -f {} +
+	find . -name *pyc | grep __pycache__ | xargs rm -rf
 
 start-celery:
 	sudo apt-get install rabbitmq-server
+	rabbitmq-server start
 	celery -A app.celery worker --loglevel=info -B
 
 start-dev:
@@ -38,3 +51,12 @@ lint:
 test:
 	-pip3 install -r test_requirements.txt
 	-pytest -v
+
+install-db:
+	-python3 manage.py db init
+	-python3 manage.py db migrate
+	-python3 manage.py db upgrade
+
+upgrade-db:
+	-python3 manage.py db migrate
+	-python3 manage.py db upgrade
