@@ -23,7 +23,7 @@
 """
 
 import json
-from app.api.v1.helpers.bulk_common import BulkCommonResources
+from app.api.v1.helpers.tasks import CeleryTasks
 
 
 def test_file_download(flask_app):
@@ -37,9 +37,9 @@ def test_file_download(flask_app):
 
 def test_compliant_report_download(flask_app):
     """Test if report not found"""
-    task = BulkCommonResources.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
+    task = CeleryTasks.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
                                             '35236005000001', '01368900000001'], 0, 'dvs')
 
-    response = flask_app.post('/api/v1/download/'+task['compliant_report_name'])
+    response = flask_app.post('/api/v1/download/'+task['response']['compliant_report_name'])
     assert response.status_code == 200
     assert response.mimetype == 'text/tab-separated-values'

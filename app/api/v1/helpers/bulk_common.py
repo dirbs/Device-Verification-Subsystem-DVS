@@ -23,7 +23,7 @@
 """
 
 import os
-from app import session, celery
+from app import session
 from requests import ConnectionError
 from app.api.v1.handlers.error_handling import *
 from ..helpers.common import CommonResources
@@ -37,24 +37,6 @@ import uuid
 
 class BulkCommonResources:
     """Common resources for bulk request."""
-
-    @staticmethod
-    @celery.task
-    def get_summary(imeis_list, invalid_imeis, system):
-        """Celery task for bulk request processing."""
-        try:
-            imeis_chunks = BulkCommonResources.chunked_data(imeis_list)
-            records, invalid_imeis, unprocessed_imeis = BulkCommonResources.start_threads(imeis_list=imeis_chunks,
-                                                                                          invalid_imeis=invalid_imeis)
-            # send records for summary generation
-            if system == 'drs':
-                response = BulkCommonResources.build_drs_summary(records)
-            else:
-                response = BulkCommonResources.build_summary(records, invalid_imeis, unprocessed_imeis)
-
-            return response
-        except Exception as e:
-            raise e
 
     @staticmethod
     def chunked_data(imeis_list):
@@ -191,15 +173,15 @@ class BulkCommonResources:
                 non_compliant, filename, report = BulkCommonResources.generate_compliant_report(records)
 
                 # summary for bulk verify IMEI
-                response['unprocessed_imeis'] = sum(len(imei) for imei in unprocessed_imeis)
-                response['invalid_imei'] = invalid_imeis
-                response['pending_registration'] = pending_reg_count
-                response['pending_stolen_verification'] = pending_stolen_count
-                response['verified_imei'] = len(records)
-                response['count_per_condition'] = count_per_condition
-                response['no_condition'] = no_condition
-                response['non_complaint'] = non_compliant
-                response['compliant_report_name'] = filename
+                response["unprocessed_imeis"] = sum(len(imei) for imei in unprocessed_imeis)
+                response["invalid_imei"] = invalid_imeis
+                response["pending_registration"] = pending_reg_count
+                response["pending_stolen_verification"] = pending_stolen_count
+                response["verified_imei"] = len(records)
+                response["count_per_condition"] = count_per_condition
+                response["no_condition"] = no_condition
+                response["non_complaint"] = non_compliant
+                response["compliant_report_name"] = filename
 
             return response
         except Exception as e:
@@ -316,7 +298,7 @@ class BulkCommonResources:
         for c in transponsed:
             cond = {}
             for i in transponsed[c]:
-                cond[i['condition_name']] = i['condition_met']  # serialize conditions in list of dictionaries
+                cond[i["condition_name"]] = i["condition_met"]  # serialize conditions in list of dictionaries
             condition.append(cond)
         condition = pd.DataFrame(condition)
         for key in condition:  # iterate over list
@@ -332,4 +314,3 @@ class BulkCommonResources:
             if (~all_conditions[key]).all():
                 no_conditions += 1
         return no_conditions
-

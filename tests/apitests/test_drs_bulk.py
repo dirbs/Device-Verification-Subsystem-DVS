@@ -24,7 +24,6 @@
 
 import io
 import json
-import os.path
 
 drs_api = '/api/v1/drs_bulk'
 
@@ -66,18 +65,3 @@ def test_drs_bulk_input_format(flask_app):
 
     response = flask_app.post('/api/v1/bulk', data=data, content_type='multipart/form-data')
     assert json.loads(response.get_data(as_text=True))['message'] == 'System only accepts tsv/txt files.'
-
-
-def test_drs_task_id_file(app, flask_app):
-    """Tests bulk process tracking ID is correctly written in task file"""
-    data = dict(file=(
-        io.BytesIO(b'01206400000001\n35332206000303\n12344321000020\n35499405000401\n35236005000001\n01368900000001'),
-        "imeis.tsv"))
-
-    response = flask_app.post('/api/v1/drs_bulk', data=data, content_type='multipart/form-data')
-    assert response.status_code == 200
-
-    task_dir = os.path.join(app.config['dev_config']['UPLOADS']['task_dir'], 'task_ids.txt')
-    task_file = open(task_dir, 'r').read().split()
-    task_id = json.loads(response.get_data(as_text=True))['task_id']
-    assert task_id in task_file

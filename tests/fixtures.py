@@ -27,6 +27,8 @@ import shutil
 import copy
 import pytest
 import httpretty
+from testing.postgresql import Postgresql
+
 from os import path
 import yaml
 import configparser
@@ -70,6 +72,10 @@ def app(tmpdir_factory):
     # update upload directories path
     app_.config['dev_config']['UPLOADS']['task_dir'] = str(temp_tasks) # path to task_ids file upload
     app_.config['dev_config']['UPLOADS']['report_dir'] = str(temp_reports)  # path to non compliant report upload
+
+    # initialize temp database and yield app
+    postgresql = Postgresql()
+    app_.config['SQLALCHEMY_DATABASE_URI'] = postgresql.url()
     yield app_
 
     # restore old configs after successful session
@@ -78,13 +84,46 @@ def app(tmpdir_factory):
     app_.config = old_config
     shutil.rmtree(path=str(temp_tasks))
     shutil.rmtree(path=str(temp_reports))
+    postgresql.stop()
 
 
 @pytest.fixture(scope='session')
-def flask_app(app):
+def flask_app(db, app):
     """fixture for injecting flask test client into every test."""
 
     yield app.test_client()
+
+
+@pytest.yield_fixture(scope='session')
+def db(app):
+    """fixture to inject temp db instance into tests."""
+    # need to import this late it might cause problems
+    from app import db
+
+    # create and configure database
+    db.app = app
+    db.create_all()
+    yield db
+
+    # teardown database
+    db.drop_all()
+
+
+@pytest.yield_fixture(scope='session')
+def session(db):
+    """Fixture for injecting database connection session into the tests."""
+    connection = db.engine.connect()
+    transaction = connection.begin()
+
+    options = dict(bind=connection, binds={})
+    session_ = db.create_scoped_session(options=options)
+    db.session = session_
+
+    yield session_
+
+    transaction.rollback()
+    connection.close()
+    session_.remove()
 
 
 @pytest.fixture(scope='session')

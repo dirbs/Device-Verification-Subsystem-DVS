@@ -23,15 +23,15 @@
 """
 
 import os
-from app.api.v1.helpers.bulk_common import BulkCommonResources
-from app.api.v1.helpers.scheduled import delete_files
+from app.api.v1.helpers.tasks import CeleryTasks
 import pandas as pd
 
 
-def test_dvs_bulk_result():
+def test_dvs_bulk_summary():
     """Tests DVS bulk summary JSON response and counts."""
-    task = BulkCommonResources.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
+    task = CeleryTasks.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
                                             '35236005000001', '01368900000001'], 0, 'dvs')
+    task = task['response']
     assert task['pending_registration'] == 8 and task['invalid_imei'] == 0 and task['no_condition'] == 2 and \
            task['pending_stolen_verification'] == 7 and task['unprocessed_imeis'] == 0 and \
            task['count_per_condition']['gsma_not_found'] == 7 and task['count_per_condition']['local_stolen'] == 7 and \
@@ -39,16 +39,17 @@ def test_dvs_bulk_result():
            and task['non_complaint'] == 14 and task['verified_imei'] == 18
 
 
-def test_dvs_bulk_result_empty():
+def test_dvs_bulk_empty_summary():
     """Tests DVS bulk summary with empty list."""
-    summary = BulkCommonResources.get_summary([], 0, 'dvs')
-    assert len(summary) is 0
+    summary = CeleryTasks.get_summary([], 0, 'dvs')
+    assert len(summary['response']) is 0
 
 
-def test_drs_bulk_result():
+def test_drs_bulk_summary():
     """Tests DRS bulk summary JSON response and counts."""
-    task = BulkCommonResources.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
+    task = CeleryTasks.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
                                             '35236005000001', '01368900000001'], None, 'drs')
+    task = task['response']
     assert task['provisional_stolen'] == 7 and task['verified_imei'] == 18 and \
            task['count_per_condition']['gsma_not_found'] == 7 and task['count_per_condition']['local_stolen'] == 7 and \
            task['count_per_condition']['duplicate'] == 6 and task['count_per_condition']['not_on_registration_list'] == 7\
@@ -56,18 +57,18 @@ def test_drs_bulk_result():
            task['stolen'] == 7 and task['provisional_compliant'] == 2 and task['provisional_non_compliant'] == 5
 
 
-def test_drs_bulk_result_empty():
+def test_drs_bulk_empty_summary():
     """Tests DRS bulk summary with empty list."""
-    summary = BulkCommonResources.get_summary([], None, 'drs')
-    assert len(summary) is 0
+    summary = CeleryTasks.get_summary([], None, 'drs')
+    assert len(summary['response']) is 0
 
 
 def test_compliant_report(app):
     """Tests DVS compliant report contents"""
-    task = BulkCommonResources.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
+    task = CeleryTasks.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
                                             '35236005000001', '01368900000001'], 0, 'dvs')
 
-    report = os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], task['compliant_report_name'])
+    report = os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], task['response']['compliant_report_name'])
     task_file = pd.read_csv(report, sep='\t', index_col=0)
     task_list = task_file.to_dict(orient='records')
     assert len(task_list) == 14
@@ -75,10 +76,10 @@ def test_compliant_report(app):
 
 def test_drs_compliant_report(app):
     """Tests DRS compliant report contents"""
-    task = BulkCommonResources.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
-                                            '35236005000001', '01368900000001'], None, 'drs')
+    task = CeleryTasks.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
+                                    '35236005000001', '01368900000001'], None, 'drs')
 
-    report = os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], task['compliant_report_name'])
+    report = os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], task['response']['compliant_report_name'])
     task_file = pd.read_csv(report, sep='\t', index_col=0)
     task_list = task_file.to_dict(orient='records')
     assert len(task_list) == 18
@@ -86,4 +87,4 @@ def test_drs_compliant_report(app):
 
 def test_report_deletion():
     """Tests report deletion process"""
-    delete_files()
+    CeleryTasks.delete_files()

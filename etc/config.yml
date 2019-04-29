@@ -73,7 +73,7 @@ celery:
   RpcUrl: 'rpc://'
   RpcBackend: 'rpc://'
 
-  CeleryTasks: ['app.api.v1.helpers.scheduled', 'app.api.v1.helpers.bulk_common']
+  CeleryTasks: ['app.api.v1.helpers.tasks']
 
 language_support:
   languages: ['en', 'id', 'ur']

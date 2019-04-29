@@ -53,5 +53,4 @@ def register():
                   PublicSMS, index]:
         docs.register(route)
 
-
 register()

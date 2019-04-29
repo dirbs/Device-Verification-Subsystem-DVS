@@ -21,7 +21,6 @@
  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,   #
  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
 """
-
 import sys
 
 import configparser
@@ -60,32 +59,10 @@ try:
     session = requests.Session()
     session.keep_alive = False
     retry = Retry(total=app.config['system_config']['global'].get('Retry'),
-                  backoff_factor=0.2, status_forcelist=[502, 503, 504])
+                  backoff_factor=0.01, status_forcelist=[502, 503, 504])
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
     session.mount('https://', adapter)
-
-    # celery configurations
-    app.config['CELERY_BROKER_URL'] = CeleryConf['RabbitmqUrl']
-    app.config['result_backend'] = CeleryConf['RabbitmqBackend']
-    app.config['broker_pool_limit'] = None
-
-    # register tasks
-    app.config['imports'] = CeleryConf['CeleryTasks']
-
-    # initialize celery
-    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-
-    # schedule task
-    celery.conf.beat_schedule = {
-        'delete-every-hour': {
-            'task': 'app.api.v1.helpers.scheduled.delete_files',
-            'schedule': crontab(minute=0, hour='*/1')
-        },
-    }
-
-    # update configurations
-    celery.conf.update(app.config)
 
     db_params = {
         'Host': app.config['dev_config']['Database']['Host'],
@@ -108,6 +85,40 @@ try:
 
     db = SQLAlchemy()
     db.init_app(app)
+
+    # celery configurations
+    app.config['CELERY_BROKER_URL'] = CeleryConf['RabbitmqUrl']
+    app.config['result_backend'] = 'db+'+app.config['SQLALCHEMY_DATABASE_URI']  # CeleryConf['RabbitmqBackend']
+    app.config['broker_pool_limit'] = None
+
+    # register tasks
+    app.config['imports'] = CeleryConf['CeleryTasks']
+
+    # initialize celery
+    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+
+    # schedule task
+    celery.conf.beat_schedule = {
+        'delete-every-hour': {
+            'task': 'app.api.v1.helpers.tasks.CeleryTasks.delete_files',
+            'schedule': crontab(minute=0, hour='*/1')
+        },
+    }
+
+    # update configurations
+    celery.conf.update(app.config)
+    TaskBase = celery.Task
+
+
+    class ContextTask(TaskBase):
+        abstract = True
+
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return TaskBase.__call__(self, *args, **kwargs)
+
+
+    celery.Task = ContextTask
 
     app.config['BABEL_DEFAULT_LOCALE'] = global_config['language_support']['default']
     app.config['LANGUAGES'] = global_config['language_support']['languages']

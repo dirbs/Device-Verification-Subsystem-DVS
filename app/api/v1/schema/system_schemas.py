@@ -72,6 +72,8 @@ class BulkSchema(Schema):
 
     file = fields.Str(description="Submit tsv/txt file path containing bulk IMEIs")
     tac = fields.Int(description="Enter 8 digit TAC")
+    username = fields.Str(description="User name")
+    user_id = fields.Str(description="User id")
 
     @property
     def fields_dict(self):

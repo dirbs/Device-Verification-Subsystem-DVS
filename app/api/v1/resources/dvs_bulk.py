@@ -32,8 +32,10 @@ from flask_apispec import MethodResource, doc, use_kwargs
 
 from ..handlers.error_handling import *
 from ..handlers.codes import RESPONSES, MIME_TYPES
-from ..helpers.bulk_common import BulkCommonResources
+from ..helpers.tasks import CeleryTasks
 from ..schema.system_schemas import BulkSchema
+from ..models.request import *
+from ..models.summary import *
 
 
 class AdminBulk(MethodResource):
@@ -47,16 +49,16 @@ class AdminBulk(MethodResource):
         try:
             invalid_imeis = 0
             filtered_list = []
-            task_file = open(os.path.join(app.config['dev_config']['UPLOADS']['task_dir'], 'task_ids.txt'), 'a+')
             file = request.files.get('file')
             if file:
                 tempdir = tempfile.mkdtemp()
+                filename = file.filename
                 filepath = os.path.join(tempdir, file.filename)
                 file.save(filepath)
                 try:
                     mimetype = magic.from_file(filepath, mime=True)
-                    if file.filename != '':
-                        if mimetype in app.config['system_config']['allowed_file_types']['AllowedTypes'] and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in app.config['system_config']['allowed_file_types']['AllowedExt']:  # validate file type
+                    if filename != '':
+                        if mimetype in app.config['system_config']['allowed_file_types']['AllowedTypes'] and '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['system_config']['allowed_file_types']['AllowedExt']:  # validate file type
                             file = open(filepath, 'r')
                             imeis = list(set(line.strip() for line in file.read().split('\n') if line))
                             if imeis and int(app.config['system_config']['global']['MinFileContent']) <= len(imeis) <= int(app.config['system_config']['global']['MaxFileContent']):  # validate file content length
@@ -67,13 +69,25 @@ class AdminBulk(MethodResource):
                                         filtered_list.append(imei)
                                 imeis_list = filtered_list
                                 if imeis_list:
-                                    response = BulkCommonResources.get_summary.apply_async((imeis_list, invalid_imeis, 'dvs'))
+                                    response = (CeleryTasks.get_summary.s(imeis_list, invalid_imeis, 'dvs') |
+                                                CeleryTasks.log_results.s(input=str(filename))).apply_async()
+                                    summary_data = {
+                                        "tracking_id": response.parent.id,
+                                        "input": filename,
+                                        "input_type": "file",
+                                        "status": response.state
+                                    }
+                                    summary_record = Summary.create(summary_data)
+                                    request_data = {
+                                        "username": request.form.get('username'),
+                                        "user_id": request.form.get('user_id'),
+                                        "summary_id": summary_record
+                                    }
+                                    Request.create(request_data)
                                     data = {
                                         "message": "You can track your request using this id",
-                                        "task_id": response.id
+                                        "task_id": response.parent.id
                                     }
-                                    task_file.write(response.id+'\n')
-                                    task_file.close()
                                     return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
                                 else:
                                     return custom_response("File contains malformed content",
@@ -93,15 +107,72 @@ class AdminBulk(MethodResource):
                 tac = request.form.get('tac')
                 if tac:
                     if tac.isdigit() and len(tac) == int(app.config['system_config']['global']['TacLength']):
-                        imei = tac + str(app.config['system_config']['global']['MinImeiRange'])
-                        imei_list = [str(int(imei) + x) for x in range(int(app.config['system_config']['global']['MaxImeiRange']))]
-                        response = BulkCommonResources.get_summary.apply_async((imei_list, invalid_imeis, 'dvs'))
-                        data = {
-                            "message": "You can track your request using this id",
-                            "task_id": response.id
-                        }
-                        task_file.write(response.id+'\n')
-                        return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+                        result = Summary.find_by_input(tac)
+                        if result is not None:
+                            tracking_id = result['tracking_id']
+                            request_data = {
+                                "username": request.form.get('username'),
+                                "user_id": request.form.get('user_id'),
+                                "summary_id": result['id']
+                            }
+                            Request.create(request_data)
+                            if result['status']=="PENDING":
+                                data = {
+                                    "message": "You're request is already in process cannot process another request "
+                                               "with same data. Track using this id,",
+                                    "task_id": tracking_id
+                                }
+                                return Response(json.dumps(data), status=RESPONSES.get('OK'),
+                                                mimetype=MIME_TYPES.get('JSON'))
+                            elif result['status']=="SUCCESS":
+                                data = {
+                                    "message": "You're request is completed. Track using this id,",
+                                    "task_id": tracking_id
+                                }
+                                return Response(json.dumps(data), status=RESPONSES.get('OK'),
+                                                mimetype=MIME_TYPES.get('JSON'))
+                            else:
+                                imei = tac + str(app.config['system_config']['global']['MinImeiRange'])
+                                imei_list = [str(int(imei) + x) for x in
+                                             range(int(app.config['system_config']['global']['MaxImeiRange']))]
+                                response = (CeleryTasks.get_summary.subtask(args=(imei_list, invalid_imeis, 'dvs'), task_id=tracking_id) |
+                                            CeleryTasks.log_results.s(input=tac)).apply_async()
+                                summary_data = {
+                                    "tracking_id": tracking_id,
+                                    "input": tac,
+                                    "status": response.state
+                                }
+                                Request.create(request_data)
+                                Summary.update_failed_task_to_pending(summary_data)
+                                data = {
+                                    "message": "You can track your request using this id",
+                                    "task_id": tracking_id
+                                }
+                                return Response(json.dumps(data), status=RESPONSES.get('OK'),
+                                                mimetype=MIME_TYPES.get('JSON'))
+                        else:
+                            imei = tac + str(app.config['system_config']['global']['MinImeiRange'])
+                            imei_list = [str(int(imei) + x) for x in range(int(app.config['system_config']['global']['MaxImeiRange']))]
+                            response = (CeleryTasks.get_summary.s(imei_list, invalid_imeis, 'dvs') |
+                                        CeleryTasks.log_results.s(input=tac)).apply_async()
+                            summary_data = {
+                                "tracking_id": response.parent.id,
+                                "input": tac,
+                                "input_type": "tac",
+                                "status": response.state
+                            }
+                            summary_record = Summary.create(summary_data)
+                            request_data = {
+                                "username": request.form.get('username'),
+                                "user_id": request.form.get('user_id'),
+                                "summary_id": summary_record
+                            }
+                            Request.create(request_data)
+                            data = {
+                                "message": "You can track your request using this id",
+                                "task_id": response.parent.id
+                            }
+                            return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
                     else:
                         return custom_response("Invalid TAC, Enter 8 digit TAC.", RESPONSES.get('BAD_REQUEST'), MIME_TYPES.get('JSON'))
                 else:
