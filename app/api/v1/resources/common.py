@@ -24,7 +24,7 @@
 
 from ..handlers.error_handling import *
 from ..handlers.codes import RESPONSES, MIME_TYPES
-from ..models.request import *
+from ..models.summary import *
 
 from flask import send_from_directory
 from flask_apispec import MethodResource, doc

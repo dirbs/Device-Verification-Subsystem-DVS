@@ -38,7 +38,7 @@ def test_file_download(flask_app):
 def test_compliant_report_download(flask_app):
     """Test if report not found"""
     task = CeleryTasks.get_summary(['01206400000001', '35332206000303', '12344321000020', '35499405000401',
-                                            '35236005000001', '01368900000001'], 0, 'dvs')
+                                            '35236005000001', '01368900000001'], 0)
 
     response = flask_app.post('/api/v1/download/'+task['response']['compliant_report_name'])
     assert response.status_code == 200

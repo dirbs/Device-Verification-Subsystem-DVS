@@ -69,7 +69,7 @@ class AdminBulk(MethodResource):
                                         filtered_list.append(imei)
                                 imeis_list = filtered_list
                                 if imeis_list:
-                                    response = (CeleryTasks.get_summary.s(imeis_list, invalid_imeis, 'dvs') |
+                                    response = (CeleryTasks.get_summary.s(imeis_list, invalid_imeis) |
                                                 CeleryTasks.log_results.s(input=str(filename))).apply_async()
                                     summary_data = {
                                         "tracking_id": response.parent.id,
@@ -135,7 +135,7 @@ class AdminBulk(MethodResource):
                                 imei = tac + str(app.config['system_config']['global']['MinImeiRange'])
                                 imei_list = [str(int(imei) + x) for x in
                                              range(int(app.config['system_config']['global']['MaxImeiRange']))]
-                                response = (CeleryTasks.get_summary.subtask(args=(imei_list, invalid_imeis, 'dvs'), task_id=tracking_id) |
+                                response = (CeleryTasks.get_summary.subtask(args=(imei_list, invalid_imeis), task_id=tracking_id) |
                                             CeleryTasks.log_results.s(input=tac)).apply_async()
                                 summary_data = {
                                     "tracking_id": tracking_id,
@@ -153,7 +153,7 @@ class AdminBulk(MethodResource):
                         else:
                             imei = tac + str(app.config['system_config']['global']['MinImeiRange'])
                             imei_list = [str(int(imei) + x) for x in range(int(app.config['system_config']['global']['MaxImeiRange']))]
-                            response = (CeleryTasks.get_summary.s(imei_list, invalid_imeis, 'dvs') |
+                            response = (CeleryTasks.get_summary.s(imei_list, invalid_imeis) |
                                         CeleryTasks.log_results.s(input=tac)).apply_async()
                             summary_data = {
                                 "tracking_id": response.parent.id,

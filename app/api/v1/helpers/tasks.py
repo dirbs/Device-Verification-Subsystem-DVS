@@ -12,17 +12,14 @@ class CeleryTasks:
 
     @staticmethod
     @celery.task
-    def get_summary(imeis_list, invalid_imeis, system):
+    def get_summary(imeis_list, invalid_imeis):
         """Celery task for bulk request processing."""
         try:
             imeis_chunks = BulkCommonResources.chunked_data(imeis_list)
             records, invalid_imeis, unprocessed_imeis = BulkCommonResources.start_threads(imeis_list=imeis_chunks,
                                                                                           invalid_imeis=invalid_imeis)
             # send records for summary generation
-            if system == 'drs':
-                response = BulkCommonResources.build_drs_summary(records)
-            else:
-                response = BulkCommonResources.build_summary(records, invalid_imeis, unprocessed_imeis)
+            response = BulkCommonResources.build_summary(records, invalid_imeis, unprocessed_imeis)
 
             return {"response": response, "task_id": celery.current_task.request.id}
         except Exception as e:
