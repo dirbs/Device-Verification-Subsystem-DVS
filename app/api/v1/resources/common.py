@@ -28,6 +28,7 @@ from ..models.summary import *
 
 from flask import send_from_directory
 from flask_apispec import MethodResource, doc
+from flask_babel import _
 
 
 class AdminDownloadFile(MethodResource):
@@ -42,7 +43,7 @@ class AdminDownloadFile(MethodResource):
         except Exception as e:
             app.logger.info("Error occurred while downloading non compliant report.")
             app.logger.exception(e)
-            return custom_response("Compliant report not found.", RESPONSES.get('OK'), MIME_TYPES.get('JSON'))
+            return custom_response(_("Compliant report not found."), RESPONSES.get('OK'), MIME_TYPES.get('JSON'))
 
 
 class AdminCheckBulkStatus(MethodResource):
@@ -54,13 +55,13 @@ class AdminCheckBulkStatus(MethodResource):
         result = Summary.find_by_trackingid(task_id)
         if result is None:
             response = {
-                "state": "task not found."
+                "state": _("task not found.")
             }
         else:
             if result['status'] == 'PENDING':
                 # job is in progress yet
                 response = {
-                    'state': 'PENDING'
+                    'state': _('PENDING')
                 }
             elif result['status'] == 'SUCCESS':
                 response = {
@@ -70,7 +71,7 @@ class AdminCheckBulkStatus(MethodResource):
             else:
                 # something went wrong in the background job
                 response = {
-                    'state': 'Processing Failed.'
+                    'state': _('Processing Failed.')
                 }
         return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
 
@@ -80,7 +81,7 @@ class AdminCheckBulkStatus(MethodResource):
 def index():
     """Flask base route."""
     data = {
-        'message': 'Welcome to DVS'
+        'message': _('Welcome to DVS')
     }
 
     response = Response(json.dumps(data), status=200, mimetype='application/json')

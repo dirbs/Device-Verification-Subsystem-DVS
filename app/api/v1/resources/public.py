@@ -26,11 +26,13 @@ import urllib.request
 import urllib.parse
 import requests
 from flask_apispec import use_kwargs, MethodResource, doc
+from flask_babel import _
 
 from ..helpers.common import CommonResources
 from ..handlers.error_handling import *
 from ..handlers.codes import RESPONSES, MIME_TYPES
 from ..schema.system_schemas import BasicStatusSchema, SMSSchema
+from ..models.request import *
 
 
 class BasicStatus(MethodResource):
@@ -72,14 +74,14 @@ class BasicStatus(MethodResource):
                     response = dict(compliance, **gsma, **{'imei': status.get('imei_norm')})  # merge RESPONSES
                     return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
                 else:
-                    return custom_response("Failed to retrieve IMEI status from core system.",
+                    return custom_response(_("Failed to retrieve IMEI status from core system."),
                                            RESPONSES.get('SERVICE_UNAVAILABLE'), MIME_TYPES.get('JSON'))
             else:
-                return custom_response("ReCaptcha Failed!", status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+                return custom_response(_("ReCaptcha Failed!"), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
         except Exception as e:
             app.logger.info("Error occurred while retrieving basic status.")
             app.log_exception(e)
-            return custom_response("Failed to retrieve basic status.", RESPONSES.get('SERVICE_UNAVAILABLE'),
+            return custom_response(_("Failed to retrieve basic status."), RESPONSES.get('SERVICE_UNAVAILABLE'),
                                    MIME_TYPES.get('JSON'))
 
 
@@ -122,18 +124,20 @@ class BaseRoute(MethodResource):
                 version=app.config['dev_config']['dirbs_core']['Version']))  # dirbs core imei api call
             if resp.status_code == 200:
                 data = {
-                    "message": "CORE connected successfully."
+                    "message": _("CORE connected successfully.")
                 }
-                return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
             else:
                 data = {
-                    "message": "CORE connection failed."
+                    "message": _("CORE connection failed.")
                 }
-                return Response(json.dumps(data), status=RESPONSES.get('SERVICE_UNAVAILABLE'),
-                                mimetype=MIME_TYPES.get('JSON'))
         except requests.ConnectionError:
             data = {
-                "message": "CORE connection failed."
+                "message": _("CORE connection failed.")
             }
-            return Response(json.dumps(data), status=RESPONSES.get('INTERNAL_SERVER_ERROR'),
-                            mimetype=MIME_TYPES.get('JSON'))
+        try:
+            Request.query.all()
+            data['db_status'] = _("Database connected successfully")
+        except:
+            data['db_status'] = _("Database connection failed")
+
+        return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))

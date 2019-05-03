@@ -29,6 +29,7 @@ import tempfile
 from shutil import rmtree
 from flask_restful import request
 from flask_apispec import MethodResource, doc, use_kwargs
+from flask_babel import _
 
 from ..handlers.error_handling import *
 from ..handlers.codes import RESPONSES, MIME_TYPES
@@ -85,7 +86,7 @@ class AdminBulk(MethodResource):
                                     }
                                     Request.create(request_data)
                                     data = {
-                                        "message": "You can track your request using this id",
+                                        "message": _("You can track your request using this id"),
                                         "task_id": response.parent.id
                                     }
                                     return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
@@ -94,11 +95,11 @@ class AdminBulk(MethodResource):
                                                            status=RESPONSES.get('BAD_REQUEST'),
                                                            mimetype=MIME_TYPES.get('JSON'))
                             else:
-                                return custom_response("File must have minimum "+str(app.config['system_config']['global']['MinFileContent'])+" or maximum "+str(app.config['system_config']['global']['MaxFileContent'])+" IMEIs.", status=RESPONSES.get('bad_request'), mimetype=MIME_TYPES.get('json'))
+                                return custom_response(_("File must have minimum %(min)s or maximum %(max)s IMEIs.", min=str(app.config['system_config']['global']['MinFileContent']), max=str(app.config['system_config']['global']['MaxFileContent'])), status=RESPONSES.get('bad_request'), mimetype=MIME_TYPES.get('json'))
                         else:
-                            return custom_response("System only accepts tsv/txt files.", RESPONSES.get('BAD_REQUEST'), MIME_TYPES.get('JSON'))
+                            return custom_response(_("System only accepts tsv/txt files."), RESPONSES.get('BAD_REQUEST'), MIME_TYPES.get('JSON'))
                     else:
-                        return custom_response('No file selected.', RESPONSES.get('BAD_REQUEST'),
+                        return custom_response(_('No file selected.'), RESPONSES.get('BAD_REQUEST'),
                                                MIME_TYPES.get('JSON'))
                 finally:
                     rmtree(tempdir)
@@ -118,15 +119,14 @@ class AdminBulk(MethodResource):
                             Request.create(request_data)
                             if result['status']=="PENDING":
                                 data = {
-                                    "message": "You're request is already in process cannot process another request "
-                                               "with same data. Track using this id,",
+                                    "message": _("You're request is already in process cannot process another request with same data. Track using this id,"),
                                     "task_id": tracking_id
                                 }
                                 return Response(json.dumps(data), status=RESPONSES.get('OK'),
                                                 mimetype=MIME_TYPES.get('JSON'))
                             elif result['status']=="SUCCESS":
                                 data = {
-                                    "message": "You're request is completed. Track using this id,",
+                                    "message": _("You're request is completed. Track using this id,"),
                                     "task_id": tracking_id
                                 }
                                 return Response(json.dumps(data), status=RESPONSES.get('OK'),
@@ -145,7 +145,7 @@ class AdminBulk(MethodResource):
                                 Request.create(request_data)
                                 Summary.update_failed_task_to_pending(summary_data)
                                 data = {
-                                    "message": "You can track your request using this id",
+                                    "message": _("You can track your request using this id"),
                                     "task_id": tracking_id
                                 }
                                 return Response(json.dumps(data), status=RESPONSES.get('OK'),
@@ -169,17 +169,17 @@ class AdminBulk(MethodResource):
                             }
                             Request.create(request_data)
                             data = {
-                                "message": "You can track your request using this id",
+                                "message": _("You can track your request using this id"),
                                 "task_id": response.parent.id
                             }
                             return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
                     else:
-                        return custom_response("Invalid TAC, Enter 8 digit TAC.", RESPONSES.get('BAD_REQUEST'), MIME_TYPES.get('JSON'))
+                        return custom_response(_("Invalid TAC, Enter 8 digit TAC."), RESPONSES.get('BAD_REQUEST'), MIME_TYPES.get('JSON'))
                 else:
-                    return custom_response("Upload file or enter TAC.", status=RESPONSES.get('BAD_REQUEST'), mimetype=MIME_TYPES.get('JSON'))
+                    return custom_response(_("Upload file or enter TAC."), status=RESPONSES.get('BAD_REQUEST'), mimetype=MIME_TYPES.get('JSON'))
         except Exception as e:
             app.logger.info("Error occurred while retrieving summary.")
             app.logger.exception(e)
-            return custom_response("Failed to verify bulk imeis.", RESPONSES.get('SERVICE_UNAVAILABLE'), MIME_TYPES.get('JSON'))
+            return custom_response(_("Failed to verify bulk imeis."), RESPONSES.get('SERVICE_UNAVAILABLE'), MIME_TYPES.get('JSON'))
 
 

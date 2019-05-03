@@ -1,0 +1,124 @@
+# Indonesian translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-05-02 14:34+0500\n"
+"PO-Revision-Date: 2019-05-02 15:22+0500\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: id\n"
+"Language-Team: id <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: app/api/v1/resources/admin.py:66
+msgid "Failed to retrieve IMEI response from core system."
+msgstr ""
+
+#: app/api/v1/resources/admin.py:71
+msgid "Failed to retrieve full status."
+msgstr ""
+
+#: app/api/v1/resources/common.py:46
+msgid "Compliant report not found."
+msgstr ""
+
+#: app/api/v1/resources/common.py:58
+msgid "task not found."
+msgstr ""
+
+#: app/api/v1/resources/common.py:64
+msgid "PENDING"
+msgstr ""
+
+#: app/api/v1/resources/common.py:68
+msgid "status"
+msgstr ""
+
+#: app/api/v1/resources/common.py:74
+msgid "Processing Failed."
+msgstr ""
+
+#: app/api/v1/resources/common.py:84
+msgid "Welcome to DVS"
+msgstr ""
+
+#: app/api/v1/resources/dvs_bulk.py:89 app/api/v1/resources/dvs_bulk.py:148
+#: app/api/v1/resources/dvs_bulk.py:172
+msgid "You can track your request using this id"
+msgstr ""
+
+#: app/api/v1/resources/dvs_bulk.py:98
+#, python-format
+msgid "File must have minimum %(min)s or maximum %(max)s IMEIs."
+msgstr ""
+
+#: app/api/v1/resources/dvs_bulk.py:100
+msgid "System only accepts tsv/txt files."
+msgstr ""
+
+#: app/api/v1/resources/dvs_bulk.py:102
+msgid "No file selected."
+msgstr ""
+
+#: app/api/v1/resources/dvs_bulk.py:122
+msgid ""
+"You're request is already in process cannot process another request with "
+"same data. Track using this id,"
+msgstr ""
+
+#: app/api/v1/resources/dvs_bulk.py:129
+msgid "You're request is completed. Track using this id,"
+msgstr ""
+
+#: app/api/v1/resources/dvs_bulk.py:177
+msgid "Invalid TAC, Enter 8 digit TAC."
+msgstr ""
+
+#: app/api/v1/resources/dvs_bulk.py:179
+msgid "Upload file or enter TAC."
+msgstr ""
+
+#: app/api/v1/resources/dvs_bulk.py:183
+msgid "Failed to verify bulk imeis."
+msgstr ""
+
+#: app/api/v1/resources/public.py:77
+msgid "Failed to retrieve IMEI status from core system."
+msgstr ""
+
+#: app/api/v1/resources/public.py:80
+msgid "ReCaptcha Failed!"
+msgstr ""
+
+#: app/api/v1/resources/public.py:84
+msgid "Failed to retrieve basic status."
+msgstr ""
+
+#: app/api/v1/resources/public.py:127
+msgid "CORE connected successfully."
+msgstr ""
+
+#: app/api/v1/resources/public.py:131 app/api/v1/resources/public.py:135
+msgid "CORE connection failed."
+msgstr ""
+
+#: app/api/v1/resources/public.py:139
+msgid "Database connected successfully"
+msgstr ""
+
+#: app/api/v1/resources/public.py:141
+msgid "Database connection failed"
+msgstr ""
+
+#: app/api/v1/schema/validations.py:40
+msgid "IMEI is invalid. Enter 16 digit IMEI."
+msgstr ""
+

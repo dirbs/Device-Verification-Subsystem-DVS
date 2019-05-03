@@ -24,6 +24,7 @@
 
 import re
 from marshmallow import ValidationError
+from flask_babel import _
 
 
 class Validations:
@@ -36,4 +37,4 @@ class Validations:
         if len(val) == 0:
             raise ValidationError("Enter IMEI.")
         if match is None:
-            raise ValidationError("IMEI is invalid. Enter 16 digit IMEI.")
+            raise ValidationError(_("IMEI is invalid. Enter 16 digit IMEI."))
