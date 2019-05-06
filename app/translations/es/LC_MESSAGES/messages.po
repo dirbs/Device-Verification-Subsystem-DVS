@@ -20,105 +20,99 @@ msgstr ""
 
 #: app/api/v1/resources/admin.py:66
 msgid "Failed to retrieve IMEI response from core system."
-msgstr ""
+msgstr "No se pudo recuperar la respuesta de IMEI del sistema central."
 
 #: app/api/v1/resources/admin.py:71
 msgid "Failed to retrieve full status."
-msgstr ""
+msgstr "No se pudo recuperar el estado completo."
 
 #: app/api/v1/resources/common.py:46
 msgid "Compliant report not found."
-msgstr ""
+msgstr "Cumple informe no se encuentra."
 
 #: app/api/v1/resources/common.py:58
 msgid "task not found."
-msgstr ""
+msgstr "tarea que no se encuentra."
 
 #: app/api/v1/resources/common.py:64
 msgid "PENDING"
-msgstr ""
-
-#: app/api/v1/resources/common.py:68
-msgid "status"
-msgstr ""
+msgstr "PENDIENTE"
 
 #: app/api/v1/resources/common.py:74
 msgid "Processing Failed."
-msgstr ""
+msgstr "Error de procesamiento."
 
 #: app/api/v1/resources/common.py:84
 msgid "Welcome to DVS"
-msgstr ""
+msgstr "Bienvenido a DVS"
 
 #: app/api/v1/resources/dvs_bulk.py:89 app/api/v1/resources/dvs_bulk.py:148
 #: app/api/v1/resources/dvs_bulk.py:172
 msgid "You can track your request using this id"
-msgstr ""
+msgstr "Puede hacer un seguimiento de su solicitud a través de este id"
 
 #: app/api/v1/resources/dvs_bulk.py:98
 #, python-format
 msgid "File must have minimum %(min)s or maximum %(max)s IMEIs."
-msgstr ""
+msgstr "El archivo debe tener un mínimo% (min) s o máximo% (max) s IMEI."
 
 #: app/api/v1/resources/dvs_bulk.py:100
 msgid "System only accepts tsv/txt files."
-msgstr ""
+msgstr "Sistema sólo acepta archivos TSV / txt."
 
 #: app/api/v1/resources/dvs_bulk.py:102
 msgid "No file selected."
-msgstr ""
+msgstr "Ningún archivo seleccionado."
 
 #: app/api/v1/resources/dvs_bulk.py:122
-msgid ""
-"You're request is already in process cannot process another request with "
-"same data. Track using this id,"
-msgstr ""
+msgid "You're request is already in process cannot process another request with same data. Track using this id,"
+msgstr "Eres petición ya está en proceso no puede procesar una nueva solicitud con los mismos datos. Rastrear el uso de esta identificación,"
 
 #: app/api/v1/resources/dvs_bulk.py:129
 msgid "You're request is completed. Track using this id,"
-msgstr ""
+msgstr "Eres solicitud se ha completado. Rastrear el uso de esta identificación,"
 
 #: app/api/v1/resources/dvs_bulk.py:177
 msgid "Invalid TAC, Enter 8 digit TAC."
-msgstr ""
+msgstr "Inválida TAC, Enter 8 dígitos TAC."
 
 #: app/api/v1/resources/dvs_bulk.py:179
 msgid "Upload file or enter TAC."
-msgstr ""
+msgstr "Cargar el archivo o introduzca TAC."
 
 #: app/api/v1/resources/dvs_bulk.py:183
 msgid "Failed to verify bulk imeis."
-msgstr ""
+msgstr "No se pudo verificar imeis a granel."
 
 #: app/api/v1/resources/public.py:77
 msgid "Failed to retrieve IMEI status from core system."
-msgstr ""
+msgstr "No se pudo obtener el estado de IMEI del sistema central."
 
 #: app/api/v1/resources/public.py:80
 msgid "ReCaptcha Failed!"
-msgstr ""
+msgstr "ReCaptcha Error!"
 
 #: app/api/v1/resources/public.py:84
 msgid "Failed to retrieve basic status."
-msgstr ""
+msgstr "No se pudo recuperar el estado básico."
 
 #: app/api/v1/resources/public.py:127
 msgid "CORE connected successfully."
-msgstr ""
+msgstr "NÚCLEO conectado correctamente."
 
 #: app/api/v1/resources/public.py:131 app/api/v1/resources/public.py:135
 msgid "CORE connection failed."
-msgstr ""
+msgstr "NÚCLEO conexión falló."
 
 #: app/api/v1/resources/public.py:139
 msgid "Database connected successfully"
-msgstr ""
+msgstr "Base de datos conectado con éxito"
 
 #: app/api/v1/resources/public.py:141
 msgid "Database connection failed"
-msgstr ""
+msgstr "conexión de base no"
 
 #: app/api/v1/schema/validations.py:40
 msgid "IMEI is invalid. Enter 16 digit IMEI."
-msgstr ""
+msgstr "IMEI no es válido. Introducir 16 dígitos IMEI."
 

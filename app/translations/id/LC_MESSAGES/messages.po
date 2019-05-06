@@ -20,105 +20,99 @@ msgstr ""
 
 #: app/api/v1/resources/admin.py:66
 msgid "Failed to retrieve IMEI response from core system."
-msgstr ""
+msgstr "Gagal mengambil respon IMEI dari sistem inti."
 
 #: app/api/v1/resources/admin.py:71
 msgid "Failed to retrieve full status."
-msgstr ""
+msgstr "Gagal mengambil status penuh."
 
 #: app/api/v1/resources/common.py:46
 msgid "Compliant report not found."
-msgstr ""
+msgstr "Laporan Compliant tidak ditemukan."
 
 #: app/api/v1/resources/common.py:58
 msgid "task not found."
-msgstr ""
+msgstr "Tugas tidak ditemukan."
 
 #: app/api/v1/resources/common.py:64
 msgid "PENDING"
-msgstr ""
-
-#: app/api/v1/resources/common.py:68
-msgid "status"
-msgstr ""
+msgstr "TERTUNDA"
 
 #: app/api/v1/resources/common.py:74
 msgid "Processing Failed."
-msgstr ""
+msgstr "Pengolahan Gagal."
 
 #: app/api/v1/resources/common.py:84
 msgid "Welcome to DVS"
-msgstr ""
+msgstr "Selamat Datang di DVS"
 
 #: app/api/v1/resources/dvs_bulk.py:89 app/api/v1/resources/dvs_bulk.py:148
 #: app/api/v1/resources/dvs_bulk.py:172
 msgid "You can track your request using this id"
-msgstr ""
+msgstr "Anda dapat melacak permintaan Anda menggunakan id ini"
 
 #: app/api/v1/resources/dvs_bulk.py:98
 #, python-format
 msgid "File must have minimum %(min)s or maximum %(max)s IMEIs."
-msgstr ""
+msgstr "File harus memiliki minimal% (min) s atau maksimum% (max) s Imei."
 
 #: app/api/v1/resources/dvs_bulk.py:100
 msgid "System only accepts tsv/txt files."
-msgstr ""
+msgstr "Sistem hanya menerima file tsv / txt."
 
 #: app/api/v1/resources/dvs_bulk.py:102
 msgid "No file selected."
-msgstr ""
+msgstr "Tidak ada file yang dipilih."
 
 #: app/api/v1/resources/dvs_bulk.py:122
-msgid ""
-"You're request is already in process cannot process another request with "
-"same data. Track using this id,"
-msgstr ""
+msgid "You're request is already in process cannot process another request with same data. Track using this id,"
+msgstr "Anda permintaan sudah di proses tidak dapat memproses permintaan lain dengan data yang sama. Melacak menggunakan id ini,"
 
 #: app/api/v1/resources/dvs_bulk.py:129
 msgid "You're request is completed. Track using this id,"
-msgstr ""
+msgstr "Anda permintaan selesai. Melacak menggunakan id ini,"
 
 #: app/api/v1/resources/dvs_bulk.py:177
 msgid "Invalid TAC, Enter 8 digit TAC."
-msgstr ""
+msgstr "Valid TAC, Masukkan 8 digit TAC."
 
 #: app/api/v1/resources/dvs_bulk.py:179
 msgid "Upload file or enter TAC."
-msgstr ""
+msgstr "Upload file atau masukkan TAC."
 
 #: app/api/v1/resources/dvs_bulk.py:183
 msgid "Failed to verify bulk imeis."
-msgstr ""
+msgstr "Gagal memverifikasi Imei massal."
 
 #: app/api/v1/resources/public.py:77
 msgid "Failed to retrieve IMEI status from core system."
-msgstr ""
+msgstr "Gagal mengambil status IMEI dari sistem inti."
 
 #: app/api/v1/resources/public.py:80
 msgid "ReCaptcha Failed!"
-msgstr ""
+msgstr "ReCAPTCHA Gagal!"
 
 #: app/api/v1/resources/public.py:84
 msgid "Failed to retrieve basic status."
-msgstr ""
+msgstr "Gagal mengambil status dasar."
 
 #: app/api/v1/resources/public.py:127
 msgid "CORE connected successfully."
-msgstr ""
+msgstr "CORE terhubung berhasil."
 
 #: app/api/v1/resources/public.py:131 app/api/v1/resources/public.py:135
 msgid "CORE connection failed."
-msgstr ""
+msgstr "koneksi CORE gagal."
 
 #: app/api/v1/resources/public.py:139
 msgid "Database connected successfully"
-msgstr ""
+msgstr "Database yang terhubung berhasil"
 
 #: app/api/v1/resources/public.py:141
 msgid "Database connection failed"
-msgstr ""
+msgstr "koneksi database gagal"
 
 #: app/api/v1/schema/validations.py:40
 msgid "IMEI is invalid. Enter 16 digit IMEI."
-msgstr ""
+msgstr "IMEI tidak valid. Masukkan 16 digit IMEI."
 
