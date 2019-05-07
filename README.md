@@ -71,6 +71,11 @@ make install-db
 
 This will automatically create and migrate database schemas and requirements.
 
+* Compile multi language encoded files
+```bash
+pybabel compile -d app/translations
+```
+
 * Start DVS development server using:
 ```bash
 make start-dev

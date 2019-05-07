@@ -76,5 +76,5 @@ celery:
   CeleryTasks: ['app.api.v1.helpers.tasks']
 
 language_support:
-  languages: ['en', 'id', 'es']
+  languages: ['id', 'es']
   default: 'en'
