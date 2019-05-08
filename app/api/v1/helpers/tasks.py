@@ -23,6 +23,7 @@ class CeleryTasks:
 
             return {"response": response, "task_id": celery.current_task.request.id}
         except Exception as e:
+            app.logger.exception(e)
             raise e
 
     @staticmethod
@@ -46,14 +47,18 @@ class CeleryTasks:
     @celery.task
     def delete_files():
         """Deletes reports from system after a specific time."""
-        current_time = time()  # get current time
-        for f in os.listdir(app.config['dev_config']['UPLOADS']['report_dir']):  # list files in specific directory
-            creation_time = os.path.getctime(
-                os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], f))  # get creation time of each file
-            if current_time - creation_time >= app.config['system_config']['global'][
-                'Time'] * 3600:  # compare creation time is greater than 24 hrs
-                os.remove(os.path.join(app.config['dev_config']['UPLOADS']['report_dir'],
-                                       f))  # if yes, delete file from directory
+        try:
+            current_time = time()  # get current time
+            for f in os.listdir(app.config['dev_config']['UPLOADS']['report_dir']):  # list files in specific directory
+                creation_time = os.path.getctime(
+                    os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], f))  # get creation time of each file
+                if current_time - creation_time >= app.config['system_config']['global'][
+                    'Time'] * 3600:  # compare creation time is greater than 24 hrs
+                    os.remove(os.path.join(app.config['dev_config']['UPLOADS']['report_dir'],
+                                           f))  # if yes, delete file from directory
+        except Exception as e:
+            app.logger.exception(e)
+            raise e
 
     @task_postrun.connect
     def close_session(*args, **kwargs):

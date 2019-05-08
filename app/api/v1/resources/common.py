@@ -52,28 +52,34 @@ class AdminCheckBulkStatus(MethodResource):
     @doc(description="Check bulk request status", tags=['bulk'])
     def post(self, task_id):
         """Returns bulk processing status and summary if processing is completed."""
-        result = Summary.find_by_trackingid(task_id)
-        if result is None:
-            response = {
-                "state": _("task not found.")
-            }
-        else:
-            if result['status'] == 'PENDING':
-                # job is in progress yet
+        try:
+            result = Summary.find_by_trackingid(task_id)
+            if result is None:
                 response = {
-                    'state': _('PENDING')
-                }
-            elif result['status'] == 'SUCCESS':
-                response = {
-                    "state": result['status'],
-                    "result": result['response']
+                    "state": _("task not found.")
                 }
             else:
-                # something went wrong in the background job
-                response = {
-                    'state': _('Processing Failed.')
-                }
-        return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+                if result['status'] == 'PENDING':
+                    # job is in progress yet
+                    response = {
+                        'state': _('PENDING')
+                    }
+                elif result['status'] == 'SUCCESS':
+                    response = {
+                        "state": result['status'],
+                        "result": result['response']
+                    }
+                else:
+                    # something went wrong in the background job
+                    response = {
+                        'state': _('Processing Failed.')
+                    }
+            return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+        except Exception as e:
+            app.logger.info("Error occurred while retrieving status.")
+            app.logger.exception(e)
+            return Response(MESSAGES.get('INTERNAL_SERVER_ERROR'), RESPONSES.get('INTERNAL_SERVER_ERROR'),
+                            mimetype=MIME_TYPES.get('JSON'))
 
 
 @doc(description="Base Route", tags=['base'])

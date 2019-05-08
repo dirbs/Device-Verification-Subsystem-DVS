@@ -50,29 +50,36 @@ class BulkCommonResources:
                 return imeis_list
             return imeis_list
         except Exception as e:
+            app.logger.info("Error occurred while making chunks of data.")
+            app.logger.exception(e)
             raise e
 
     @staticmethod
     def start_threads(imeis_list, invalid_imeis):
         """Process IMEIs simultaneously by starting multiple threads at a time."""
-        thread_list = []
-        records = []
-        unprocessed_imeis = []
-        for imei in imeis_list:
-            thread_list.append(Thread(target=BulkCommonResources.get_records, args=(imei, records, unprocessed_imeis)))
+        try:
+            thread_list = []
+            records = []
+            unprocessed_imeis = []
+            for imei in imeis_list:
+                thread_list.append(Thread(target=BulkCommonResources.get_records, args=(imei, records, unprocessed_imeis)))
 
-        # start threads for all imei chunks
-        for x in thread_list:
-            x.start()
+            # start threads for all imei chunks
+            for x in thread_list:
+                x.start()
 
-        # stop all threads on completion
-        for t in thread_list:
-            t.join()
+            # stop all threads on completion
+            for t in thread_list:
+                t.join()
 
-        if len(unprocessed_imeis)>0:
-            records, unprocessed_imeis = BulkCommonResources.retry(records, unprocessed_imeis)
+            if len(unprocessed_imeis)>0:
+                records, unprocessed_imeis = BulkCommonResources.retry(records, unprocessed_imeis)
 
-        return records, invalid_imeis, unprocessed_imeis
+            return records, invalid_imeis, unprocessed_imeis
+        except Exception as e:
+            app.logger.info("Error occurred while multi threading.")
+            app.logger.exception(e)
+            raise e
 
     # get records from core system
     @staticmethod
@@ -107,25 +114,30 @@ class BulkCommonResources:
     @staticmethod
     def retry(records, unprocessed_imeis):
         """Retry failed IMEI batches."""
-        retry = app.config['system_config']['global'].get('retry')
+        try:
+            retry = app.config['system_config']['global'].get('retry')
 
-        while retry and len(unprocessed_imeis) > 0:
-            threads = []
-            retry = retry - 1
-            imeis_list = unprocessed_imeis
-            unprocessed_imeis = []
-            chunksize = int(ceil(len(imeis_list) / app.config['system_config']['global']['NoOfThreads']))
-            imeis_list = list(imeis_list[i:i + chunksize] for i in
-                              range(0, len(imeis_list), chunksize))  # make 100 chunks for 1 million imeis
-            for imeis in imeis_list:
-                threads.append(Thread(target=BulkCommonResources.get_records, args=(imeis, records, unprocessed_imeis)))
-            for x in threads:
-                x.start()
+            while retry and len(unprocessed_imeis) > 0:
+                threads = []
+                retry = retry - 1
+                imeis_list = unprocessed_imeis
+                unprocessed_imeis = []
+                chunksize = int(ceil(len(imeis_list) / app.config['system_config']['global']['NoOfThreads']))
+                imeis_list = list(imeis_list[i:i + chunksize] for i in
+                                  range(0, len(imeis_list), chunksize))  # make 100 chunks for 1 million imeis
+                for imeis in imeis_list:
+                    threads.append(Thread(target=BulkCommonResources.get_records, args=(imeis, records, unprocessed_imeis)))
+                for x in threads:
+                    x.start()
 
-            for t in threads:
-                t.join()
+                for t in threads:
+                    t.join()
 
-        return records, unprocessed_imeis
+            return records, unprocessed_imeis
+        except Exception as e:
+            app.logger.info("Error occurred while retrying.")
+            app.logger.exception(e)
+            raise e
 
     @staticmethod
     def build_summary(records, invalid_imeis, unprocessed_imeis):
@@ -191,43 +203,58 @@ class BulkCommonResources:
     @staticmethod
     def generate_compliant_report(records):
         """Return non compliant report for DVS bulk request."""
-        non_complaint = 0
-        complaint_report = []
-        for key in records:
-            status = CommonResources.compliance_status(resp=key, status_type="bulk", imei=key['imei_norm'])
-            if "Compliant" not in status['status']:
-                complaint_report.append(status)
-                non_complaint += 1
-        complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
-        report_name = "report not generated."
-        if non_complaint != 0:
-            report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
-            complaint_report.to_csv(os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], report_name),
-                                    sep='\t')  # writing non compliant statuses to .tsv file
-        return non_complaint, report_name, complaint_report
+        try:
+            non_complaint = 0
+            complaint_report = []
+            for key in records:
+                status = CommonResources.compliance_status(resp=key, status_type="bulk", imei=key['imei_norm'])
+                if "Compliant" not in status['status']:
+                    complaint_report.append(status)
+                    non_complaint += 1
+            complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
+            report_name = "report not generated."
+            if non_complaint != 0:
+                report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
+                complaint_report.to_csv(os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], report_name),
+                                        sep='\t')  # writing non compliant statuses to .tsv file
+            return non_complaint, report_name, complaint_report
+        except Exception as e:
+            app.logger.info("Error occurred while generating report.")
+            app.logger.exception(e)
+            raise e
 
     # count per condition classification state
     @staticmethod
     def count_condition(conditions, count):
         """Helper functions to generate summary, returns IMEI count per condition."""
-        condition = []
-        transponsed = conditions.transpose()
-        for c in transponsed:
-            cond = {}
-            for i in transponsed[c]:
-                cond[i["condition_name"]] = i["condition_met"]  # serialize conditions in list of dictionaries
-            condition.append(cond)
-        condition = pd.DataFrame(condition)
-        for key in condition:  # iterate over list
-            count[key] = len(condition[condition[key]])  # count meeting conditions
-        return count, condition
+        try:
+            condition = []
+            transponsed = conditions.transpose()
+            for c in transponsed:
+                cond = {}
+                for i in transponsed[c]:
+                    cond[i["condition_name"]] = i["condition_met"]  # serialize conditions in list of dictionaries
+                condition.append(cond)
+            condition = pd.DataFrame(condition)
+            for key in condition:  # iterate over list
+                count[key] = len(condition[condition[key]])  # count meeting conditions
+            return count, condition
+        except Exception as e:
+            app.logger.info("Error occurred while generating summary - method=count condition.")
+            app.logger.exception(e)
+            raise e
 
     # count IMEIs meeting no condition
     @staticmethod
     def no_condition_count(all_conditions):
         """Helper functions to generate summary, returns count of IMEI satisfying no conditions."""
-        no_conditions = 0
-        for key in all_conditions:
-            if (~all_conditions[key]).all():
-                no_conditions += 1
-        return no_conditions
+        try:
+            no_conditions = 0
+            for key in all_conditions:
+                if (~all_conditions[key]).all():
+                    no_conditions += 1
+            return no_conditions
+        except Exception as e:
+            app.logger.info("Error occurred while generating summary - method=no_condition_count.")
+            app.logger.exception(e)
+            raise e
