@@ -46,10 +46,13 @@ global:
   MaxFileContent: 1000000
 
   # delete older files time
-  Time: 24  # time set to 24 hours
+  Time: 360  # time set to 15 days * 24 hours
 
   # retry count for bulk process
   Retry: 10
+
+  #retention period for database records (days)
+  RetentionTime: 15
 
 # allowed file extensions
 allowed_file_types:
@@ -78,3 +81,5 @@ celery:
 language_support:
   languages: ['id', 'es']
   default: 'en'
+
+

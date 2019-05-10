@@ -116,3 +116,8 @@ msgstr "conexión de base no"
 msgid "IMEI is invalid. Enter 16 digit IMEI."
 msgstr "IMEI no es válido. Introducir 16 dígitos IMEI."
 
+msgid "SUCCESS"
+msgstr "ÉXITO"
+
+msgid "FAILURE"
+msgstr "FRACASO"

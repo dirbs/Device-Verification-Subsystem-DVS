@@ -66,7 +66,7 @@ class AdminCheckBulkStatus(MethodResource):
                     }
                 elif result['status'] == 'SUCCESS':
                     response = {
-                        "state": result['status'],
+                        "state": _(result['status']),
                         "result": result['response']
                     }
                 else:

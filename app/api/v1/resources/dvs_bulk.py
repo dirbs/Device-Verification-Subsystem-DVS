@@ -30,6 +30,7 @@ from shutil import rmtree
 from flask_restful import request
 from flask_apispec import MethodResource, doc, use_kwargs
 from flask_babel import _
+from datetime import date, datetime
 
 from ..handlers.error_handling import *
 from ..handlers.codes import RESPONSES, MIME_TYPES
@@ -110,6 +111,10 @@ class AdminBulk(MethodResource):
                     if tac.isdigit() and len(tac) == int(app.config['system_config']['global']['TacLength']):
                         result = Summary.find_by_input(tac)
                         if result is not None:
+                            d0 = datetime.today().date()
+                            d1 = result['start_time'].date()
+                            delta = d0 - d1
+                            retention_time = app.config['system_config']['global']['RetentionTime']
                             tracking_id = result['tracking_id']
                             request_data = {
                                 "username": request.form.get('username'),
@@ -117,14 +122,14 @@ class AdminBulk(MethodResource):
                                 "summary_id": result['id']
                             }
                             Request.create(request_data)
-                            if result['status']=="PENDING":
+                            if result['status']=="PENDING" and delta.days < retention_time:
                                 data = {
                                     "message": _("You're request is already in process cannot process another request with same data. Track using this id,"),
                                     "task_id": tracking_id
                                 }
                                 return Response(json.dumps(data), status=RESPONSES.get('OK'),
                                                 mimetype=MIME_TYPES.get('JSON'))
-                            elif result['status']=="SUCCESS":
+                            elif result['status']=="SUCCESS" and delta.days < retention_time:
                                 data = {
                                     "message": _("You're request is completed. Track using this id,"),
                                     "task_id": tracking_id

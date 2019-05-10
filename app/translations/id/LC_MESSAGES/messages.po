@@ -116,3 +116,8 @@ msgstr "koneksi database gagal"
 msgid "IMEI is invalid. Enter 16 digit IMEI."
 msgstr "IMEI tidak valid. Masukkan 16 digit IMEI."
 
+msgid "SUCCESS"
+msgstr "KEBERHASILAN"
+
+msgid "FAILURE"
+msgstr "KEGAGALAN"
