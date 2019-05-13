@@ -24,10 +24,7 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-from flask_restful import Resource, request
-from webargs.flaskparser import parser
 
-from app import GlobalConfig
 from app.api.v1.helpers.common import CommonResources
 from app.api.v1.handlers.error_handling import *
 from app.api.v1.handlers.codes import RESPONSES, MIME_TYPES
@@ -45,7 +42,7 @@ class FullStatus(MethodResource):
         try:
             response = dict()
             imei = args.get('imei')
-            tac = imei[:GlobalConfig['TacLength']]  # slice TAC from IMEI
+            tac = imei[:app.config['system_config']['global']['TacLength']]  # slice TAC from IMEI
             paginate_sub = args.get('subscribers')
             paginate_pairs = args.get('pairs')
             status = CommonResources.get_imei(imei=args.get('imei'))  # get imei response from core
@@ -53,8 +50,8 @@ class FullStatus(MethodResource):
                 gsma_data = CommonResources.get_tac(tac)  # get gsma data from tac
                 registration = CommonResources.get_reg(imei)
                 gsma = CommonResources.serialize_gsma_data(tac_resp=gsma_data, reg_resp=registration, status_type="full")
-                subscribers = CommonResources.subscribers(status.get('imei_norm'), paginate_sub.get('start', 1), paginate_sub.get('limit', 10))  # get subscribers data
-                pairings = CommonResources.pairings(status.get('imei_norm'), paginate_pairs.get('start', 1), paginate_pairs.get('limit', 10))  # get pairing data
+                subscribers = CommonResources.subscribers(imei, paginate_sub.get('start', 1), paginate_sub.get('limit', 10))  # get subscribers data
+                pairings = CommonResources.pairings(imei, paginate_pairs.get('start', 1), paginate_pairs.get('limit', 10))  # get pairing data
                 response['imei'] = status.get('imei_norm')
                 response['classification_state'] = status['classification_state']
                 response['registration_status'] = CommonResources.get_status(status['registration_status'], "registration")

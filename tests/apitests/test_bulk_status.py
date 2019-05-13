@@ -12,6 +12,7 @@
 #   following disclaimer in the documentation and/or other materials provided with the distribution.                  #
 # * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or       #
 #   promote products derived from this software without specific prior written permission.                            #
+#                                                                                                                     #
 # NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED  #
 # BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED #
 # TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT      #
@@ -22,3 +23,22 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
 #                                                                                                                     #
 #######################################################################################################################
+
+import json
+
+
+def test_bulk_status_task_id(flask_app):
+    """Test bulk status API success and mime type"""
+    tracking_id = 'sample-task-id'
+    response = flask_app.post('/api/v1/bulkstatus/' + tracking_id)
+    response_json = json.loads(response.get_data(as_text=True))
+    assert response.status_code == 200
+    assert response_json['state'] == 'task not found.'
+
+
+def test_bulk_status_mimetype(flask_app):
+    """Test bulk status API mime type"""
+    tracking_id = 'sample-task-id'
+    response = flask_app.post('/api/v1/bulkstatus/' + tracking_id)
+    assert response.status_code == 200
+    assert response.mimetype == 'application/json'

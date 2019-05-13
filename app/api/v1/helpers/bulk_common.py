@@ -25,7 +25,7 @@
 #######################################################################################################################
 
 import os
-from app import Root, version, session, GlobalConfig, celery, report_dir
+from app import session, celery
 from requests import ConnectionError
 from app.api.v1.handlers.error_handling import *
 from ..helpers.common import CommonResources
@@ -61,11 +61,16 @@ class BulkCommonResources:
     @staticmethod
     def chunked_data(imeis_list):
         """Divide IMEIs into batches of 1000 and chunks for multi threading."""
-        imeis_list = list(imeis_list[i:i + GlobalConfig['ImeiBatchSize']] for i in
-                          range(0, len(imeis_list), GlobalConfig['ImeiBatchSize']))
-        chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
-        imeis_list = list(imeis_list[i:i + chunksize] for i in range(0, len(imeis_list), chunksize))
-        return imeis_list
+        try:
+            if imeis_list:
+                imeis_list = list(imeis_list[i:i + app.config['system_config']['global']['ImeiBatchSize']] for i in
+                                  range(0, len(imeis_list), app.config['system_config']['global']['ImeiBatchSize']))
+                chunksize = int(ceil(len(imeis_list) / app.config['system_config']['global']['NoOfThreads']))
+                imeis_list = list(imeis_list[i:i + chunksize] for i in range(0, len(imeis_list), chunksize))
+                return imeis_list
+            return imeis_list
+        except Exception as e:
+            raise e
 
     @staticmethod
     def start_threads(imeis_list, invalid_imeis):
@@ -102,7 +107,7 @@ class BulkCommonResources:
                             "imeis": imei
                         }
                         headers = {'content-type': 'application/json', 'charset': 'utf-8', 'keep_alive': 'false'}
-                        imei_response = session.post('{}/{}/imei-batch'.format(Root, version),
+                        imei_response = session.post('{}/{}/imei-batch'.format(app.config['dev_config']['dirbs_core']['BaseUrl'], app.config['dev_config']['dirbs_core']['Version']),
                                                      data=json.dumps(batch_req),
                                                      headers=headers)  # dirbs core batch api call
                         if imei_response.status_code == 200:
@@ -122,14 +127,14 @@ class BulkCommonResources:
     @staticmethod
     def retry(records, unprocessed_imeis):
         """Retry failed IMEI batches."""
-        retry = GlobalConfig.get('retry')
+        retry = app.config['system_config']['global'].get('retry')
 
         while retry and len(unprocessed_imeis) > 0:
             threads = []
             retry = retry - 1
             imeis_list = unprocessed_imeis
             unprocessed_imeis = []
-            chunksize = int(ceil(len(imeis_list) / GlobalConfig['NoOfThreads']))
+            chunksize = int(ceil(len(imeis_list) / app.config['system_config']['global']['NoOfThreads']))
             imeis_list = list(imeis_list[i:i + chunksize] for i in
                               range(0, len(imeis_list), chunksize))  # make 100 chunks for 1 million imeis
             for imeis in imeis_list:
@@ -217,7 +222,7 @@ class BulkCommonResources:
         report_name = "report not generated."
         if non_complaint != 0:
             report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
-            complaint_report.to_csv(os.path.join(report_dir, report_name),
+            complaint_report.to_csv(os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], report_name),
                                     sep='\t')  # writing non compliant statuses to .tsv file
         return non_complaint, report_name, complaint_report
 
@@ -293,7 +298,7 @@ class BulkCommonResources:
 
         complaint_report = pd.DataFrame(complaint_report)  # dataframe of compliant report
         report_name = 'compliant_report' + str(uuid.uuid4()) + '.tsv'
-        complaint_report.to_csv(os.path.join(report_dir, report_name),
+        complaint_report.to_csv(os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], report_name),
                                 sep='\t')  # writing non compliant statuses to .tsv file
         data = {
             "non_compliant": non_compliant,

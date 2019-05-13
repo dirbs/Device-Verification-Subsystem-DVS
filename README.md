@@ -94,6 +94,10 @@ $ sudo apt-get install rabbitmq-server
 $ pip install -r requirements.txt
 ```
 
+* Replace sample configuration in config.ini to similar configuration in tests/unittest_data/config.ini
+
+* Replace sample conditions in etc/conditions.yml to classification conditions configured in DIRBS core system
+
 * Start DVS development server using:
 ```bash
 python run.py
@@ -106,5 +110,5 @@ $ celery -A app.celery worker --loglevel=info -B
 
 * To run unit tests, run
 ```bash
-$ python -m unittest tests/main.py
+$ pytest -v
 ```

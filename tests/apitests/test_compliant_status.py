@@ -24,70 +24,59 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-import os
-
-from ..handlers.error_handling import *
-from ..handlers.codes import RESPONSES, MIME_TYPES
-from ..helpers.bulk_common import BulkCommonResources
-
-from flask import send_from_directory
-from flask_apispec import MethodResource, doc
+from app.api.v1.helpers.common import CommonResources
 
 
-class AdminDownloadFile(MethodResource):
-    """Flask resource for downloading report."""
-
-    @doc(description="Download IMEIs report", tags=['bulk'])
-    def post(self, filename):
-        """Sends downloadable report."""
-        try:
-            return send_from_directory(directory=app.config['dev_config']['UPLOADS']['report_dir'], filename=filename)  # returns file when user wnats to download non compliance report
-        except Exception as e:
-            app.logger.info("Error occurred while downloading non compliant report.")
-            app.logger.exception(e)
-            return custom_response("Compliant report not found.", RESPONSES.get('OK'), MIME_TYPES.get('JSON'))
+# testing compliant IMEI
+def test_compliant_imei(mocked_imei_data):
+    """Tests compliant IMEI"""
+    compliant_imei_response = mocked_imei_data['compliant']
+    response = CommonResources.compliance_status(compliant_imei_response, 'basic')
+    assert "Compliant" in response['compliant']['status']
 
 
-class AdminCheckBulkStatus(MethodResource):
-    """Flask resource to check bulk processing status."""
-
-    @doc(description="Check bulk request status", tags=['bulk'])
-    def post(self, task_id):
-        """Returns bulk processing status and summary if processing is completed."""
-
-        with open(os.path.join(app.config['dev_config']['UPLOADS']['task_dir'], 'task_ids.txt'), 'r') as f:
-            if task_id in list(f.read().splitlines()):
-                task = BulkCommonResources.get_summary.AsyncResult(task_id)
-                if task.state == 'PENDING':
-                    # job is in progress yet
-                    response = {
-                        'state': 'PENDING'
-                    }
-                elif task.state == 'SUCCESS' and task.get():
-                    response = {
-                        "state": task.state,
-                        "result": task.get()
-                    }
-                else:
-                    # something went wrong in the background job
-                    response = {
-                        'state': 'Processing Failed.'
-                    }
-            else:
-                response = {
-                    "state": "task not found."
-                }
-
-        return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+# testing compliant IMEI
+def test_non_compliant_imei(mocked_imei_data):
+    """Tests non compliant IMEI"""
+    non_compliant_imei_response = mocked_imei_data['non_compliant_imei']
+    response = CommonResources.compliance_status(non_compliant_imei_response, 'basic')
+    assert "Non compliant" in response['compliant']['status']
 
 
-@doc(description="Base Route", tags=['base'])
-@app.route('/', methods=['GET'])
-def index():
-    """Flask base route."""
-    data = {
-        'message': 'Welcome to DVS'
-    }
+# testing compliant IMEI
+def test_p_compliant_imei(mocked_imei_data):
+    """Tests provisionally compliant IMEI"""
+    p_complaint_imei_response = mocked_imei_data['provisionally_compliant']
+    response = CommonResources.compliance_status(p_complaint_imei_response, 'basic')
+    assert "Provisionally Compliant" in response['compliant']['status']
 
-    response = Response(json.dumps(data), status=200, mimetype='application/json')
-    return response
+
+# testing compliant IMEI
+def test_p_non_compliant_imei(mocked_imei_data):
+    """Tests provisionally non compliant IMEI"""
+    p_non_complaint_imei_response = mocked_imei_data['provisionally_non_compliant']
+    response = CommonResources.compliance_status(p_non_complaint_imei_response, 'basic')
+    assert "Provisionally non compliant" in response['compliant']['status']
+
+
+def test_gsma_not_found_imei(mocked_imei_data):
+    """Tests IMEI meeting gsma not found condition"""
+    gsma_not_found_imei_response = mocked_imei_data['gsma_not_found_imei']
+    response = CommonResources.compliance_status(gsma_not_found_imei_response, 'basic')
+    assert 'GSMA not found' in response['compliant']['inactivity_reasons']
+
+
+def test_duplicate_imei(mocked_imei_data):
+    """Tests IMEI meeting duplicate condition"""
+    dupliacte_imei_response = mocked_imei_data['duplicate_imei']
+    response = CommonResources.compliance_status(dupliacte_imei_response, 'basic')
+    assert 'IMEI is duplicate' in response['compliant']['inactivity_reasons']
+
+
+def test_local_stolen_imei(mocked_imei_data):
+    """Tests IMEI meeting local stolen condition"""
+    local_stolen_imei_response = mocked_imei_data['local_stolen_imei']
+    response = CommonResources.compliance_status(local_stolen_imei_response, 'basic')
+    assert 'Device is stolen' in response['compliant']['inactivity_reasons']
+
+

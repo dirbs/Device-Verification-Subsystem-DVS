@@ -24,70 +24,63 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-import os
+import io
+import json
+import os.path
 
-from ..handlers.error_handling import *
-from ..handlers.codes import RESPONSES, MIME_TYPES
-from ..helpers.bulk_common import BulkCommonResources
-
-from flask import send_from_directory
-from flask_apispec import MethodResource, doc
+drs_api = '/api/v1/drs_bulk'
+test_dir = os.path.dirname(os.path.dirname(__file__))
 
 
-class AdminDownloadFile(MethodResource):
-    """Flask resource for downloading report."""
+def test_drs_bulk(flask_app):
+    """Tests DRS bulk IMEI verification."""
+    data = dict(file=(
+        io.BytesIO(b'01206400000001\n12344321000020\n35499405000401\n35236005000001\n01368900000001'),
+        'drs-bulk.tsv'))
 
-    @doc(description="Download IMEIs report", tags=['bulk'])
-    def post(self, filename):
-        """Sends downloadable report."""
-        try:
-            return send_from_directory(directory=app.config['dev_config']['UPLOADS']['report_dir'], filename=filename)  # returns file when user wnats to download non compliance report
-        except Exception as e:
-            app.logger.info("Error occurred while downloading non compliant report.")
-            app.logger.exception(e)
-            return custom_response("Compliant report not found.", RESPONSES.get('OK'), MIME_TYPES.get('JSON'))
-
-
-class AdminCheckBulkStatus(MethodResource):
-    """Flask resource to check bulk processing status."""
-
-    @doc(description="Check bulk request status", tags=['bulk'])
-    def post(self, task_id):
-        """Returns bulk processing status and summary if processing is completed."""
-
-        with open(os.path.join(app.config['dev_config']['UPLOADS']['task_dir'], 'task_ids.txt'), 'r') as f:
-            if task_id in list(f.read().splitlines()):
-                task = BulkCommonResources.get_summary.AsyncResult(task_id)
-                if task.state == 'PENDING':
-                    # job is in progress yet
-                    response = {
-                        'state': 'PENDING'
-                    }
-                elif task.state == 'SUCCESS' and task.get():
-                    response = {
-                        "state": task.state,
-                        "result": task.get()
-                    }
-                else:
-                    # something went wrong in the background job
-                    response = {
-                        'state': 'Processing Failed.'
-                    }
-            else:
-                response = {
-                    "state": "task not found."
-                }
-
-        return Response(json.dumps(response), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
+    response = flask_app.post(drs_api, data=data, content_type='multipart/form-data')
+    assert response.status_code == 200
+    assert response.mimetype == 'application/json'
+    assert json.loads(response.get_data(as_text=True))['task_id'] is not None
+    assert json.loads(response.get_data(as_text=True))['message'] == "You can track your request using this id"
 
 
-@doc(description="Base Route", tags=['base'])
-@app.route('/', methods=['GET'])
-def index():
-    """Flask base route."""
-    data = {
-        'message': 'Welcome to DVS'
-    }
+def test_drs_bulk_method_not_allowed(flask_app):
+    """Tests DRS bulk allowed methods."""
+    data = dict(file=(io.BytesIO(b'\n\n\n'), 'imeis.tsv'))
+    response = flask_app.get(drs_api, data=data, content_type='multipart/form-data')
+    assert response.status_code == 405
+    data = dict(file=(io.BytesIO(b'\n\n\n'), 'imeis.tsv'))
+    response = flask_app.put(drs_api, data=data, content_type='multipart/form-data')
+    assert response.status_code == 405
+    data = dict(file=(io.BytesIO(b'\n\n\n'), 'imeis.tsv'))
+    response = flask_app.patch(drs_api, data=data, content_type='multipart/form-data')
+    assert response.status_code == 405
+    data = dict(file=(io.BytesIO(b'\n\n\n'), 'imeis.tsv'))
+    response = flask_app.delete(drs_api, data=data, content_type='multipart/form-data')
+    assert response.status_code == 405
 
-    response = Response(json.dumps(data), status=200, mimetype='application/json')
-    return response
+
+def test_drs_bulk_input_format(flask_app):
+    """Tests DRS bulk input format validation"""
+    data = dict(file=(
+    io.BytesIO(b'01206400000001\n35332206000303\n12344321000020\n35499405000401\n35236005000001\n01368900000001'),
+    "imeis.csv"))
+
+    response = flask_app.post('/api/v1/bulk', data=data, content_type='multipart/form-data')
+    assert json.loads(response.get_data(as_text=True))['message'] == 'System only accepts tsv/txt files.'
+
+
+def test_drs_task_id_file(flask_app):
+    """Tests bulk process tracking ID is correctly written in task file"""
+    data = dict(file=(
+        io.BytesIO(b'01206400000001\n35332206000303\n12344321000020\n35499405000401\n35236005000001\n01368900000001'),
+        "imeis.tsv"))
+
+    response = flask_app.post('/api/v1/drs_bulk', data=data, content_type='multipart/form-data')
+    assert response.status_code == 200
+
+    task_dir = os.path.join(test_dir+'/tasks', 'task_ids.txt')
+    task_file = open(task_dir, 'r').read().split()
+    task_id = json.loads(response.get_data(as_text=True))['task_id']
+    assert task_id in task_file

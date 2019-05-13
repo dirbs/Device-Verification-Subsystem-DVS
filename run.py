@@ -24,7 +24,7 @@
 #                                                                                                                     #
 #######################################################################################################################
 
-from app import app, Host, Port
+from app import app
 
 if __name__ == "__main__":
-    app.run(host=Host, port=Port, threaded=True)
+    app.run(host=str(app.config['dev_config']['SERVER']['Host']), port=int(app.config['dev_config']['SERVER']['Port']), threaded=True)

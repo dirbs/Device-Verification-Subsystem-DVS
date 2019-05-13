@@ -12,6 +12,7 @@
 #   following disclaimer in the documentation and/or other materials provided with the distribution.                  #
 # * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or       #
 #   promote products derived from this software without specific prior written permission.                            #
+#                                                                                                                     #
 # NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED  #
 # BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED #
 # TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT      #
@@ -22,3 +23,57 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
 #                                                                                                                     #
 #######################################################################################################################
+
+# dvs global configurations
+global:
+
+  # tac length
+  TacLength: 8
+
+  # minimum and maximum global imei lengths
+  MinImeiLength: 14
+  MaxImeiLength: 16
+
+  # minimum and maximum imei range
+  MinImeiRange: '000000'
+  MaxImeiRange: 10000  # change it to 1000000 after testing
+
+  NoOfThreads: 10
+  ImeiBatchSize: 1000
+
+  # variables to be configured
+  HelpUrl: 'dirbs.net.pk/help'
+
+  # minimum and maximum file content length
+  MinFileContent: 1
+  MaxFileContent: 1000000
+
+  # delete older files time
+  Time: 24  # time set to 24 hours
+
+  # retry count for bulk process
+  Retry: 10
+
+# allowed file extensions
+allowed_file_types:
+  AllowedTypes: ['text/tab-separated-values', 'text/plain']
+  AllowedExt: ['tsv', 'txt']
+
+# application base url
+application_base:
+  BaseUrl: '/api/v1'
+  version: 'v1'
+
+# celery configurations
+celery:
+
+  RabbitmqUrl: 'pyamqp://'
+  RabbitmqBackend: 'amqp://'
+
+  RedisUrl: 'redis://'
+  RedisBackend: 'redis://'
+
+  RpcUrl: 'rpc://'
+  RpcBackend: 'rpc://'
+
+  CeleryTasks: ['app.api.v1.helpers.scheduled', 'app.api.v1.helpers.bulk_common']
