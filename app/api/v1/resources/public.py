@@ -103,11 +103,11 @@ class PublicSMS(MethodResource):
                     message = "STATUS: {status}".format(status=compliance['compliant']['status'])
                 return Response(message, status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('TEXT'))
             else:
-                return Response("Failed to retrieve IMEI response from core system.",
+                return Response(_("Failed to retrieve IMEI response from core system."),
                                 status=RESPONSES.get('SERVICE_UNAVAILABLE'), mimetype=MIME_TYPES.get('TEXT'))
         except Exception:
             app.logger.info("Error occurred while retrieving sms status.")
-            return Response("Failed to retrieve sms status.", status=RESPONSES.get('SERVICE_UNAVAILABLE'),
+            return Response(_("Failed to retrieve sms status."), status=RESPONSES.get('SERVICE_UNAVAILABLE'),
                             mimetype=MIME_TYPES.get('TEXT'))
 
 

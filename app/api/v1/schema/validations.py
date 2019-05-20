@@ -26,6 +26,8 @@ import re
 from marshmallow import ValidationError
 from flask_babel import _
 
+from app import app
+
 
 class Validations:
     """Class for input validations."""
@@ -33,8 +35,32 @@ class Validations:
     @staticmethod
     def validate_imei(val):
         """Validates IMEI input format."""
-        match = re.match(r'^[a-fA-F0-9]{14,16}$', val)
+        match = re.match('^[a-fA-F0-9]{14,16}$', val)
         if len(val) == 0:
-            raise ValidationError("Enter IMEI.")
+            raise ValidationError(_("Enter IMEI."))
         if match is None:
             raise ValidationError(_("IMEI is invalid. Enter 16 digit IMEI."))
+
+    @staticmethod
+    def validate_fields(val):
+        if val is None or val is "":
+            raise ValidationError(_("Invalid Value."))
+
+    @staticmethod
+    def validate_username(val):
+        if val is None or len(val) == 0 or val == "":
+            raise ValidationError(_("Enter username."))
+
+    @staticmethod
+    def validate_user_id(val):
+        if val is None or len(val)==0 or val=="":
+            raise ValidationError(_("Enter userid."))
+
+    @staticmethod
+    def validate_lang(args):
+        errors = {}
+        if args['Accept-Language'] == 'es' or args['Accept-Language'] == 'id':
+            match = re.match(app.config['system_config']['regex'][args['Accept-Language']], args['username'])
+            if match is None:
+                errors['username'] = ['Username is invalid. Does not match the selected language or invalid format.']
+                raise ValidationError(errors)

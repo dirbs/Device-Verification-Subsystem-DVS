@@ -52,8 +52,7 @@ class CeleryTasks:
             for f in os.listdir(app.config['dev_config']['UPLOADS']['report_dir']):  # list files in specific directory
                 creation_time = os.path.getctime(
                     os.path.join(app.config['dev_config']['UPLOADS']['report_dir'], f))  # get creation time of each file
-                if current_time - creation_time >= app.config['system_config']['global'][
-                    'Time'] * 3600:  # compare creation time is greater than 24 hrs
+                if current_time - creation_time >= app.config['system_config']['global']['CompliantReportDeletionTime']*3600:  # compare creation time is greater than 24 hrs
                     os.remove(os.path.join(app.config['dev_config']['UPLOADS']['report_dir'],
                                            f))  # if yes, delete file from directory
         except Exception as e:

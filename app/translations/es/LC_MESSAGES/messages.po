@@ -121,3 +121,18 @@ msgstr "ÉXITO"
 
 msgid "FAILURE"
 msgstr "FRACASO"
+
+msgid "Missing data for required field."
+msgstr "Los datos que faltan para el campo requerido."
+
+msgid "Enter IMEI."
+msgstr "Introducir el IMEI."
+
+msgid "Invalid Value."
+msgstr "Valor no válido."
+
+msgid "Please enter user credentials"
+msgstr "Por favor, introduzca las credenciales de usuario"
+
+msgid "Please select either file or tac you cannot select both."
+msgstr "Por favor, seleccione el archivo o tac no se pueden seleccionar ambos."

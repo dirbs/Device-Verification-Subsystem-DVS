@@ -29,8 +29,8 @@ from app.api.v1.schema.validations import Validations
 class BasicStatusSchema(Schema):
     """Marshmallow schema for basic status request."""
     imei = fields.Str(required=True, validate=Validations.validate_imei, description="14-16 digit IMEI")
-    token = fields.Str(required=True, validate=lambda p: p != '', description="token generated from reCaptcha validation")
-    source = fields.Str(required=True, validate=lambda p: p != '', description="source of request i.e. Android, Web, iOS")
+    token = fields.Str(required=True, validate=Validations.validate_fields, description="token generated from reCaptcha validation")
+    source = fields.Str(required=True, validate=Validations.validate_fields, description="source of request i.e. Android, Web, iOS")
 
     @property
     def fields_dict(self):
@@ -69,13 +69,24 @@ class FullStatusSchema(Schema):
 
 class BulkSchema(Schema):
     """Marshmallow schema for bulk request."""
-
     file = fields.Str(description="Submit tsv/txt file path containing bulk IMEIs")
     tac = fields.Int(description="Enter 8 digit TAC")
-    username = fields.Str(description="User name")
-    user_id = fields.Str(description="User id")
+    Accept_Language = fields.Str(description="Selected language", location='headers', attribute='Accept-Language')
+    username = fields.Str(description="User name", required=True, validate=Validations.validate_username)
+    user_id = fields.Str(description="User id", required=True, validate=Validations.validate_user_id)
 
     @property
     def fields_dict(self):
         """Convert declared fields to dictionary."""
         return self._declared_fields
+
+    # @validates_schema
+    # def validate_username(self, data, locations=['form', 'headers']):
+    #     print(data)
+    #     errors = {}
+    #     if data['Accept-Language']=='es' or data['Accept-Language']=='id':
+    #         match = re.match(app.config['system_config']['regex'][data['Accept-Language']], data['username'])
+    #         if match is None:
+    #             errors['username'] = ['Username is invalid. Does not match the selected language or invalid format.']
+    #             raise ValidationError(errors)
+

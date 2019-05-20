@@ -119,5 +119,17 @@ msgstr "IMEI tidak valid. Masukkan 16 digit IMEI."
 msgid "SUCCESS"
 msgstr "KEBERHASILAN"
 
-msgid "FAILURE"
-msgstr "KEGAGALAN"
+msgid "Missing data for required field."
+msgstr "Data yang hilang untuk bidang yang dibutuhkan."
+
+msgid "Enter IMEI."
+msgstr "Masukkan IMEI."
+
+msgid "Invalid Value."
+msgstr "Nilai tidak valid."
+
+msgid "Please enter user credentials"
+msgstr "Masukkan kredensial pengguna"
+
+msgid "Please select either file or tac you cannot select both."
+msgstr "Silakan pilih file baik atau TAC Anda tidak dapat memilih keduanya."
