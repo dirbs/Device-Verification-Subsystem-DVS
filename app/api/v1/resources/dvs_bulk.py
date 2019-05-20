@@ -54,7 +54,7 @@ class AdminBulk(MethodResource):
             try:
                 Validations.validate_lang(args)
             except ValidationError as err:
-                return custom_response(err.messages, status=RESPONSES.get('BAD_REQUEST'), mimetype=MIME_TYPES.get('JSON'))
+                return Response(json.dumps(err.messages), status=422, mimetype=MIME_TYPES.get('JSON'))
 
             if args.get('file') is not None and args.get('tac') is not None:
                 return custom_response(_("Please select either file or tac you cannot select both."), status=RESPONSES.get('BAD_REQUEST'), mimetype=MIME_TYPES.get('JSON'))

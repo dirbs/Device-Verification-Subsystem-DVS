@@ -133,3 +133,6 @@ msgstr "Masukkan kredensial pengguna"
 
 msgid "Please select either file or tac you cannot select both."
 msgstr "Silakan pilih file baik atau TAC Anda tidak dapat memilih keduanya."
+
+msgid "Username is invalid. Does not match the selected language or invalid format."
+msgstr "Nama pengguna tidak sah. Tidak sesuai dengan bahasa yang dipilih atau format tidak valid."

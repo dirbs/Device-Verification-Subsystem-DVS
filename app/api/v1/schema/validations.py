@@ -58,9 +58,9 @@ class Validations:
 
     @staticmethod
     def validate_lang(args):
-        errors = {}
+        errors = {"messages": {}}
         if args['Accept-Language'] == 'es' or args['Accept-Language'] == 'id':
             match = re.match(app.config['system_config']['regex'][args['Accept-Language']], args['username'])
             if match is None:
-                errors['username'] = ['Username is invalid. Does not match the selected language or invalid format.']
+                errors['messages']['username'] = [_('Username is invalid. Does not match the selected language or invalid format.')]
                 raise ValidationError(errors)

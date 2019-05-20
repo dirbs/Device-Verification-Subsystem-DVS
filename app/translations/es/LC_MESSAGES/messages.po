@@ -136,3 +136,6 @@ msgstr "Por favor, introduzca las credenciales de usuario"
 
 msgid "Please select either file or tac you cannot select both."
 msgstr "Por favor, seleccione el archivo o tac no se pueden seleccionar ambos."
+
+msgid "Username is invalid. Does not match the selected language or invalid format."
+msgstr "Nombre de usuario invalido. No coincide con el idioma seleccionado o formato no válido."
