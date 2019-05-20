@@ -79,14 +79,3 @@ class BulkSchema(Schema):
     def fields_dict(self):
         """Convert declared fields to dictionary."""
         return self._declared_fields
-
-    # @validates_schema
-    # def validate_username(self, data, locations=['form', 'headers']):
-    #     print(data)
-    #     errors = {}
-    #     if data['Accept-Language']=='es' or data['Accept-Language']=='id':
-    #         match = re.match(app.config['system_config']['regex'][data['Accept-Language']], data['username'])
-    #         if match is None:
-    #             errors['username'] = ['Username is invalid. Does not match the selected language or invalid format.']
-    #             raise ValidationError(errors)
-
