@@ -139,3 +139,7 @@ msgstr "Por favor, seleccione el archivo o tac no se pueden seleccionar ambos."
 
 msgid "Username is invalid. Does not match the selected language or invalid format."
 msgstr "Nombre de usuario invalido. No coincide con el idioma seleccionado o formato no válido."
+
+msgid "File contains malformed content."
+msgstr "El archivo contiene contenido mal formado."
+

@@ -74,7 +74,7 @@ msgstr "Anda permintaan selesai. Melacak menggunakan id ini,"
 
 #: app/api/v1/resources/dvs_bulk.py:177
 msgid "Invalid TAC, Enter 8 digit TAC."
-msgstr "Valid TAC, Masukkan 8 digit TAC."
+msgstr "TAC tidak valid, Masukkan 8 digit TAC."
 
 #: app/api/v1/resources/dvs_bulk.py:179
 msgid "Upload file or enter TAC."
@@ -136,3 +136,6 @@ msgstr "Silakan pilih file baik atau TAC Anda tidak dapat memilih keduanya."
 
 msgid "Username is invalid. Does not match the selected language or invalid format."
 msgstr "Nama pengguna tidak sah. Tidak sesuai dengan bahasa yang dipilih atau format tidak valid."
+
+msgid "File contains malformed content."
+msgstr "File berisi konten yang cacat."
