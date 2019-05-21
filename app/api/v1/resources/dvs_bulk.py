@@ -102,7 +102,7 @@ class AdminBulk(MethodResource):
                                         }
                                         return Response(json.dumps(data), status=RESPONSES.get('OK'), mimetype=MIME_TYPES.get('JSON'))
                                     else:
-                                        return custom_response(_("File contains malformed content"),
+                                        return custom_response(_("File contains malformed content."),
                                                                status=RESPONSES.get('BAD_REQUEST'),
                                                                mimetype=MIME_TYPES.get('JSON'))
                                 else:
