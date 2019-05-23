@@ -76,11 +76,11 @@ def test_bulk_tac_input_format(flask_app):
 
     # TAC is empty
     response = flask_app.post('/api/v1/bulk', data=dict(tac='', file='', indicator='False', username="username", user_id="678126378126378"))
-    assert json.loads(response.get_data(as_text=True))['message'] == 'Upload file or enter TAC.'
+    assert json.loads(response.get_data(as_text=True))['messages'] is not None
 
     # TAC containing invalid characters
     response = flask_app.post('/api/v1/bulk', data=dict(tac='8645asdas', indicator='False', username="username", user_id="678126378126378"))
-    assert json.loads(response.get_data(as_text=True))['message'] == 'Invalid TAC, Enter 8 digit TAC.'
+    assert json.loads(response.get_data(as_text=True))['messages'] is not None
 
     # TAC length greater than 8 digits
     response = flask_app.post('/api/v1/bulk', data=dict(tac='86456786878', indicator='False', username="username", user_id="678126378126378"))
@@ -103,11 +103,11 @@ def test_bulk_file_input_format(flask_app):
 
     # File with invalid content
     response = flask_app.post('/api/v1/bulk', data=dict(file=(io.BytesIO(b'hello\nworld\n'),'imeis.tsv'), content_type='multipart/form-data', username="username", user_id="678126378126378"))
-    assert json.loads(response.get_data(as_text=True))['message'] == 'File contains malformed content'
+    assert json.loads(response.get_data(as_text=True))['message'] == 'File contains malformed content.'
 
     # File not selected
     response = flask_app.post('/api/v1/bulk', data=dict(), content_type='multipart/form-data')
-    assert json.loads(response.get_data(as_text=True))['message'] == 'Upload file or enter TAC.'
+    assert json.loads(response.get_data(as_text=True))['messages'] is not None
 
 
 def test_bulk_via_tac_pending(flask_app):

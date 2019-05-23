@@ -54,7 +54,7 @@ def test_basic_input_format(flask_app):
 
     # test with invalid source input
     response = flask_app.get(basic_status_api + 'imei=123456789012345&token=237822372&source=')
-    assert json.loads(response.get_data(as_text=True))['messages']['source'][0] == "Invalid value."
+    assert json.loads(response.get_data(as_text=True))['messages']['source'][0] == "Invalid Value."
 
     # test with invalid imei input
     response = flask_app.get(basic_status_api + 'imei=12345ds8901234&token=237822372&source=web')

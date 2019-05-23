@@ -20,7 +20,6 @@
 # DATA, OR PROFITS OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,      #
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,   #
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
-#                                                                                                                     #
 
 # dvs global configurations
 global:
@@ -34,7 +33,7 @@ global:
 
   # minimum and maximum imei range
   MinImeiRange: '000000'
-  MaxImeiRange: 1000  # change it to 1000000 after testing
+  MaxImeiRange: 1000  # TODO: change after testing
 
   NoOfThreads: 10
   ImeiBatchSize: 1000
@@ -47,10 +46,13 @@ global:
   MaxFileContent: 1000000
 
   # delete older files time
-  Time: 24  # time set to 24 hours
+  CompliantReportDeletionTime: 360  # time set to 15 days * 24 hours
 
   # retry count for bulk process
   Retry: 10
+
+  #retention period for database records (days)
+  RetentionTime: 15
 
 # allowed file extensions
 allowed_file_types:
@@ -74,4 +76,13 @@ celery:
   RpcUrl: 'rpc://'
   RpcBackend: 'rpc://'
 
-  CeleryTasks: ['app.api.v1.helpers.scheduled', 'app.api.v1.helpers.bulk_common']
+  CeleryTasks: ['app.api.v1.helpers.tasks']
+
+language_support:
+  languages: ['id', 'es']
+  default: 'en'
+
+regex:
+  id: '^[A-Za-z\xAA\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02B8\u02E0-\u02E4\u1D00-\u1D25\u1D2C-\u1D5C\u1D62-\u1D65\u1D6B-\u1D77\u1D79-\u1DBE\u1E00-\u1EFF\u2071\u207F\u2090-\u209C\u212A\u212B\u2132\u214E\u2160-\u2188\u2C60-\u2C7F\uA722-\uA787\uA78B-\uA78E\uA790-\uA7AD\uA7B0\uA7B1\uA7F7-\uA7FF\uAB30-\uAB5A\uAB5C-\uAB5F\uAB64\uFB00-\uFB06\uFF21-\uFF3A\uFF41-\uFF5A\s]{1,1000}$'
+  es: '^[A-Za-z\xAA\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02B8\u02E0-\u02E4\u1D00-\u1D25\u1D2C-\u1D5C\u1D62-\u1D65\u1D6B-\u1D77\u1D79-\u1DBE\u1E00-\u1EFF\u2071\u207F\u2090-\u209C\u212A\u212B\u2132\u214E\u2160-\u2188\u2C60-\u2C7F\uA722-\uA787\uA78B-\uA78E\uA790-\uA7AD\uA7B0\uA7B1\uA7F7-\uA7FF\uAB30-\uAB5A\uAB5C-\uAB5F\uAB64\uFB00-\uFB06\uFF21-\uFF3A\uFF41-\uFF5A\s]{1,1000}$'
+  en: '^[A-Za-z\s]{1,1000}$'
