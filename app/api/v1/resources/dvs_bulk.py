@@ -31,13 +31,11 @@ from flask_restful import request
 from flask_apispec import MethodResource, doc, use_kwargs
 from flask_babel import _
 from datetime import datetime
-from marshmallow import ValidationError
 
 from ..handlers.error_handling import *
 from ..handlers.codes import RESPONSES, MIME_TYPES
 from ..helpers.tasks import CeleryTasks
 from ..schema.system_schemas import BulkSchema
-from ..schema.validations import Validations
 from ..models.request import *
 from ..models.summary import *
 
@@ -51,11 +49,6 @@ class AdminBulk(MethodResource):
         """Start processing DVS bulk request in background (calls celery task)."""
         try:
             args['file'] = request.files.get('file')
-            try:
-                Validations.validate_lang(args)
-            except ValidationError as err:
-                return Response(json.dumps(err.messages), status=422, mimetype=MIME_TYPES.get('JSON'))
-
             if args.get('file') is not None and args.get('tac') is not None:
                 return custom_response(_("Please select either file or tac you cannot select both."), status=RESPONSES.get('BAD_REQUEST'), mimetype=MIME_TYPES.get('JSON'))
             else:

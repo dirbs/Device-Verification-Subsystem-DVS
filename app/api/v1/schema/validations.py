@@ -50,16 +50,11 @@ class Validations:
     def validate_username(val):
         if val is None or len(val) == 0 or val == "":
             raise ValidationError(_("Enter username."))
+        match = re.match(app.config['system_config']['regex'][app.config['system_config']['language_support']['default']], val)
+        if match is None:
+            raise ValidationError(_('Username is invalid. Does not match the selected language or invalid format.'))
 
     @staticmethod
     def validate_user_id(val):
         if val is None or len(val)==0 or val=="":
             raise ValidationError(_("Enter userid."))
-
-    @staticmethod
-    def validate_lang(args):
-        errors = {"messages": {}}
-        match = re.match(app.config['system_config']['regex'][args.get('Accept-Language', 'en')], args['username'])
-        if match is None:
-            errors['messages']['username'] = [_('Username is invalid. Does not match the selected language or invalid format.')]
-            raise ValidationError(errors)
