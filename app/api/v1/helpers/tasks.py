@@ -24,7 +24,7 @@ class CeleryTasks:
             return {"response": response, "task_id": celery.current_task.request.id}
         except Exception as e:
             app.logger.exception(e)
-            raise e
+            return {"response": {}, "task_id": celery.current_task.request.id}
 
     @staticmethod
     @celery.task()
