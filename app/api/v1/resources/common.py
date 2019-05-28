@@ -99,7 +99,7 @@ class GetRequests(MethodResource):
     """Flask resource for downloading report."""
 
     @doc(description="Get all bulk processes requested by user.", tags=['bulk'])
-    def post(self, user_id):
+    def get(self, user_id):
         """Sends downloadable report."""
         try:
             resp = Request.find_requests(user_id)
