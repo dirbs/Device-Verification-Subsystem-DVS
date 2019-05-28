@@ -107,7 +107,7 @@ class GetRequests(MethodResource):
                 return Response(json.dumps(resp), status=RESPONSES.get("OK"), mimetype='application/json')
             else:
                 data = {
-                    "message": "No requests recorded for this user.",
+                    "message": _("No requests recorded for this user."),
                     "user_id": user_id
                 }
                 return Response(json.dumps(data), status=RESPONSES.get("NOT_FOUND"), mimetype=MIME_TYPES.get("JSON"))

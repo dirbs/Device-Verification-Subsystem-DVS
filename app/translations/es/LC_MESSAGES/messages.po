@@ -143,3 +143,5 @@ msgstr "Nombre de usuario invalido. No coincide con el idioma seleccionado o for
 msgid "File contains malformed content."
 msgstr "El archivo contiene contenido mal formado."
 
+msgid "No requests recorded for this user."
+msgstr "No hay solicitudes registradas para este usuario."

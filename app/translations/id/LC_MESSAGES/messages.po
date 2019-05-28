@@ -139,3 +139,6 @@ msgstr "Nama pengguna tidak sah. Tidak sesuai dengan bahasa yang dipilih atau fo
 
 msgid "File contains malformed content."
 msgstr "File berisi konten yang cacat."
+
+msgid "No requests recorded for this user."
+msgstr "Tidak ada permintaan yang direkam untuk pengguna ini."
