@@ -1,4 +1,5 @@
 from app import db
+from ..models.summary import Summary
 
 
 class Request(db.Model):
@@ -44,3 +45,22 @@ class Request(db.Model):
                 return None
         except Exception:
             raise Exception
+
+
+    @classmethod
+    def find_requests(cls, user_id):
+        try:
+            records = []
+            request_data = cls.query.filter_by(user_id=user_id)
+            if request_data:
+                for record in request_data:
+                    data = record.serialize
+                    summary = Summary.find_by_id(data['summary_id'])
+                    resp = {**data, **summary}
+                    records.append(resp)
+                return records
+            else:
+                return None
+        except Exception:
+            raise Exception
+

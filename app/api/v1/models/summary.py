@@ -28,10 +28,19 @@ class Summary(db.Model):
         if self.summary_response:
             return {"response": ast.literal_eval(self.summary_response),
                     "input": self.input, "status": self.status, "tracking_id": self.tracking_id,
-                    "start_time": self.start_time, "end_time": self.end_time, "id": self.id}
+                    "start_time": self.start_time.strftime("%Y-%m-%d %H:%M:%S") if self.start_time else 'N/A',
+                    "end_time": self.end_time.strftime("%Y-%m-%d %H:%M:%S") if self.end_time else 'N/A',
+                    "id": self.id}
         else:
             return {"response": self.summary_response, "input": self.input, "status": self.status,
-                    "tracking_id": self.tracking_id, "start_time": self.start_time, "end_time": self.end_time, "id": self.id}
+                    "tracking_id": self.tracking_id,
+                    "start_time": self.start_time.strftime("%Y-%m-%d %H:%M:%S") if self.start_time else 'N/A',
+                    "end_time": self.end_time.strftime("%Y-%m-%d %H:%M:%S") if self.end_time else 'N/A', "id": self.id}
+
+    @property
+    def serialize_summary(self):
+        """Serialize."""
+        return {"input": self.input, "status": self.status, "tracking_id": self.tracking_id}
 
     @classmethod
     def create(cls, args):
@@ -93,3 +102,15 @@ class Summary(db.Model):
                 return None
         except Exception:
             raise Exception
+
+    @classmethod
+    def find_by_id(cls, summary_id):
+        try:
+            data = cls.query.filter_by(id=summary_id).first()
+            if data:
+                return data.serialize_summary
+            else:
+                return None
+        except Exception:
+            raise Exception
+

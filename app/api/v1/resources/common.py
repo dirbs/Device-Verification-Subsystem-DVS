@@ -24,7 +24,8 @@
 
 from ..handlers.error_handling import *
 from ..handlers.codes import RESPONSES, MIME_TYPES
-from ..models.summary import *
+from ..models.summary import Summary
+from ..models.request import Request
 
 from flask import send_from_directory
 from flask_apispec import MethodResource, doc
@@ -92,3 +93,27 @@ def index():
 
     response = Response(json.dumps(data), status=200, mimetype='application/json')
     return response
+
+
+class GetRequests(MethodResource):
+    """Flask resource for downloading report."""
+
+    @doc(description="Get all bulk processes requested by user.", tags=['bulk'])
+    def post(self, user_id):
+        """Sends downloadable report."""
+        try:
+            resp = Request.find_requests(user_id)
+            if resp:
+                return Response(json.dumps(resp), status=RESPONSES.get("OK"), mimetype='application/json')
+            else:
+                data = {
+                    "message": "No requests recorded for this user.",
+                    "user_id": user_id
+                }
+                return Response(json.dumps(data), status=RESPONSES.get("NOT_FOUND"), mimetype=MIME_TYPES.get("JSON"))
+        except Exception as e:
+            app.logger.info("Error occurred while retrieving user requests.")
+            app.logger.exception(e)
+            return Response(MESSAGES.get('INTERNAL_SERVER_ERROR'), RESPONSES.get('INTERNAL_SERVER_ERROR'),
+                            mimetype=MIME_TYPES.get('JSON'))
+
