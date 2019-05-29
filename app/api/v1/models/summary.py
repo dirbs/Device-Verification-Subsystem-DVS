@@ -40,7 +40,8 @@ class Summary(db.Model):
     @property
     def serialize_summary(self):
         """Serialize."""
-        return {"input": self.input, "status": self.status, "tracking_id": self.tracking_id}
+        return {"input": self.input, "status": self.status, "tracking_id": self.tracking_id,
+                "start_time": self.start_time.strftime("%Y-%m-%d %H:%M:%S")}
 
     @classmethod
     def create(cls, args):
