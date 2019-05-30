@@ -64,7 +64,7 @@ class AdminBulk(MethodResource):
                         mimetype = magic.from_file(filepath, mime=True)
                         if filename != '':
                             if mimetype in app.config['system_config']['allowed_file_types']['AllowedTypes'] and '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['system_config']['allowed_file_types']['AllowedExt']:  # validate file type
-                                file = open(filepath, 'r')
+                                file = open(filepath, encoding="utf8", errors='ignore')
                                 imeis = list(set(line.strip() for line in file.read().split('\n') if line))
                                 if imeis and int(app.config['system_config']['global']['MinFileContent']) <= len(imeis) <= int(app.config['system_config']['global']['MaxFileContent']):  # validate file content length
                                     for imei in imeis:

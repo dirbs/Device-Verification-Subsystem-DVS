@@ -142,3 +142,45 @@ msgstr "File berisi konten yang cacat."
 
 msgid "No requests recorded for this user."
 msgstr "Tidak ada permintaan yang direkam untuk pengguna ini."
+
+msgid "Your device is stolen."
+msgstr "Perangkat Anda dicuri."
+
+msgid "Your device is not registered."
+msgstr "Perangkat Anda tidak terdaftar."
+
+msgid "Your device stolen report is pending."
+msgstr "Laporan curian perangkat Anda sedang menunggu keputusan."
+
+msgid "Provisionally non compliant"
+msgstr "Secara sementara tidak sesuai"
+
+msgid "Non compliant"
+msgstr "Tidak patuh"
+
+msgid "Provisionally Compliant"
+msgstr "Sesuai dengan ketentuan"
+
+msgid "Compliant (Active)"
+msgstr "Sesuai (Aktif)"
+
+msgid "Compliant (Inactive)"
+msgstr "Sesuai (Tidak Aktif)"
+
+msgid "Pending report verification"
+msgstr "Verifikasi laporan yang tertunda"
+
+msgid "No report"
+msgstr "Tidak ada laporan"
+
+msgid "Verified lost"
+msgstr "Diverifikasi hilang"
+
+msgid "Pending Registration."
+msgstr "Registrasi Tertunda"
+
+msgid "Not registered"
+msgstr "Tidak terdaftar"
+
+msgid "Registered"
+msgstr "Terdaftar"

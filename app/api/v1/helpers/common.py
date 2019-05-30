@@ -24,7 +24,7 @@
 
 from app import app
 import requests
-
+from flask_babel import _
 
 class CommonResources:
     """Common resources used by APIs in DVS."""
@@ -49,16 +49,16 @@ class CommonResources:
         try:
             if status == 'Compliant' or status == 'Provisionally Compliant':
                 if seen_with:
-                    resp['status'] = status + ' (Active)'
+                    resp['status'] = _(status + ' (Active)')
                 else:
-                    resp['status'] = status + ' (Inactive)'
+                    resp['status'] = _(status + ' (Inactive)')
 
                 if status_type == "bulk":
                     return resp
                 else:
                     return {"compliant": resp}
             else:
-                resp['status'] = status
+                resp['status'] = _(status)
                 resp['block_date'] = block_date
                 if status_type == "basic":
                     resp['inactivity_reasons'] = CommonResources.populate_reasons(blocking_condition, reason_list)
@@ -85,20 +85,20 @@ class CommonResources:
 
             if reg_status:  # device's registration request is pending
                 if stolen_status:  # device's stolen request pending
-                    status = CommonResources.populate_status(status, 'Provisionally non compliant', status_type, blocking_conditions, ['Your device is stolen report is pending'], imei=imei, block_date=block_date)
+                    status = CommonResources.populate_status(status, 'Provisionally non compliant', status_type, blocking_conditions, [_('Your device stolen report is pending')], imei=imei, block_date=block_date)
                 elif stolen_status is False:  # device is stolen
-                    status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, ['Your device is stolen'], imei=imei, block_date=block_date)
+                    status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, [_('Your device is stolen')], imei=imei, block_date=block_date)
                 else:  # device is not stolen
                     status = CommonResources.populate_status(status, 'Provisionally Compliant', status_type)
             elif reg_status is None:  # device is not registered
-                status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, ['Your device is not registered'], imei=imei, block_date=block_date)
+                status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, [_('Your device is not registered')], imei=imei, block_date=block_date)
             else:  # device is registered
                 if stolen_status:  # stolen request is pending
-                    status = CommonResources.populate_status(status, 'Provisionally non compliant', status_type, blocking_conditions, ['Your device stolen report is pending'], imei=imei, block_date=block_date)
+                    status = CommonResources.populate_status(status, 'Provisionally non compliant', status_type, blocking_conditions, [_('Your device stolen report is pending')], imei=imei, block_date=block_date)
                 elif stolen_status is None:  # device is not stolen
                     status = CommonResources.populate_status(status, 'Compliant', status_type, seen_with=seen_with)
                 else:  # stolen device
-                    status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, ['Your device is stolen'], imei=imei, block_date=block_date)
+                    status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, [_('Your device is stolen')], imei=imei, block_date=block_date)
             return status
         except Exception as error:
             raise error
@@ -166,18 +166,18 @@ class CommonResources:
 
         if status_type == "stolen":
             if status['provisional_only']:
-                return "Pending report verification"
+                return _("Pending report verification")
             elif status['provisional_only'] is None:
-                return "No report"
+                return _("No report")
             else:
-                return "Verified lost"
+                return _("Verified lost")
         else:
             if status['provisional_only']:
-                return "Pending Registration."
+                return _("Pending Registration")
             elif status['provisional_only'] is None:
-                return "Not registered"
+                return _("Not registered")
             else:
-                return "Registered"
+                return _("Registered")
 
     @staticmethod
     def subscribers(imei, start, limit):
