@@ -26,6 +26,7 @@ from app import app
 import requests
 from flask_babel import _
 
+
 class CommonResources:
     """Common resources used by APIs in DVS."""
 

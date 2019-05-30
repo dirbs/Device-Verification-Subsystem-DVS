@@ -146,14 +146,14 @@ msgstr "El archivo contiene contenido mal formado."
 msgid "No requests recorded for this user."
 msgstr "No hay solicitudes registradas para este usuario."
 
-msgid "Your device is stolen."
-msgstr "Tu dispositivo es robado."
+msgid "Your device is stolen"
+msgstr "Tu dispositivo es robado"
 
-msgid "Your device is not registered."
-msgstr "Su dispositivo no está registrado."
+msgid "Your device is not registered"
+msgstr "Su dispositivo no está registrado"
 
-msgid "Your device stolen report is pending."
-msgstr "El informe de su dispositivo robado está pendiente."
+msgid "Your device stolen report is pending"
+msgstr "El informe de su dispositivo robado está pendiente"
 
 msgid "Provisionally non compliant"
 msgstr "Provisionalmente no conforme"

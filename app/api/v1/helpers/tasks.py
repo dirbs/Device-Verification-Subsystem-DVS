@@ -19,7 +19,8 @@ class CeleryTasks:
             records, invalid_imeis, unprocessed_imeis = BulkCommonResources.start_threads(imeis_list=imeis_chunks,
                                                                                           invalid_imeis=invalid_imeis)
             # send records for summary generation
-            response = BulkCommonResources.build_summary(records, invalid_imeis, unprocessed_imeis)
+            with app.request_context({'wsgi.url_scheme': "", 'SERVER_PORT': "", 'SERVER_NAME': "", 'REQUEST_METHOD': ""}):
+                response = BulkCommonResources.build_summary(records, invalid_imeis, unprocessed_imeis)
 
             return {"response": response, "task_id": celery.current_task.request.id}
         except Exception as e:
