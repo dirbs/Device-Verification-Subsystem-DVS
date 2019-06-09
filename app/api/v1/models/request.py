@@ -51,13 +51,16 @@ class Request(db.Model):
     def find_requests(cls, user_id):
         try:
             records = []
+            done = []
             request_data = cls.query.filter_by(user_id=user_id)
             if request_data:
                 for record in request_data:
                     data = record.serialize
-                    summary = Summary.find_by_id(data['summary_id'])
-                    resp = {**data, **summary}
-                    records.append(resp)
+                    if data['summary_id'] not in done:
+                        done.append(data['summary_id'])
+                        summary = Summary.find_by_id(data['summary_id'])
+                        resp = {**data, **summary}
+                        records.append(resp)
                 return records
             else:
                 return None
