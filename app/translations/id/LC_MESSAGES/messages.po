@@ -188,3 +188,6 @@ msgstr "Terdaftar"
 msgid "Not a valid integer."
 msgstr "Tidak bilangan bulat yang valid."
 
+msgid "FAILURE"
+msgstr "KEGAGALAN"
+

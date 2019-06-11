@@ -190,3 +190,7 @@ msgstr "Registrado"
 
 msgid "Not a valid integer."
 msgstr "No es un número entero válido."
+
+msgid "FAILURE"
+msgstr "FRACASO"
+
