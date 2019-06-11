@@ -143,14 +143,14 @@ msgstr "File berisi konten yang cacat."
 msgid "No requests recorded for this user."
 msgstr "Tidak ada permintaan yang direkam untuk pengguna ini."
 
-msgid "Your device is stolen."
-msgstr "Perangkat Anda dicuri."
+msgid "Your device is stolen"
+msgstr "Perangkat Anda dicuri"
 
-msgid "Your device is not registered."
-msgstr "Perangkat Anda tidak terdaftar."
+msgid "Your device is not registered"
+msgstr "Perangkat Anda tidak terdaftar"
 
-msgid "Your device stolen report is pending."
-msgstr "Laporan curian perangkat Anda sedang menunggu keputusan."
+msgid "Your device stolen report is pending"
+msgstr "Laporan curian perangkat Anda sedang menunggu keputusan"
 
 msgid "Provisionally non compliant"
 msgstr "Secara sementara tidak sesuai"
