@@ -184,3 +184,7 @@ msgstr "Tidak terdaftar"
 
 msgid "Registered"
 msgstr "Terdaftar"
+
+msgid "Not a valid integer."
+msgstr "Tidak bilangan bulat yang valid."
+

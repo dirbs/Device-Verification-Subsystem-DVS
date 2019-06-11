@@ -70,8 +70,7 @@ class FullStatusSchema(Schema):
 class BulkSchema(Schema):
     """Marshmallow schema for bulk request."""
     file = fields.Str(description="Submit tsv/txt file path containing bulk IMEIs")
-    tac = fields.Int(description="Enter 8 digit TAC")
-    Accept_Language = fields.Str(description="Selected language", location='headers', attribute='Accept-Language')
+    tac = fields.Str(description="Enter 8 digit TAC", validate=Validations.validate_tac)
     username = fields.Str(description="User name", required=True, validate=Validations.validate_username)
     user_id = fields.Str(description="User id", required=True, validate=Validations.validate_user_id)
 

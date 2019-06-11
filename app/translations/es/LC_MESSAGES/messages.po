@@ -187,3 +187,6 @@ msgstr "No registrado"
 
 msgid "Registered"
 msgstr "Registrado"
+
+msgid "Not a valid integer."
+msgstr "No es un número entero válido."

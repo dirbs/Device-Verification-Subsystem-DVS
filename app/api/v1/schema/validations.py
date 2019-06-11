@@ -47,6 +47,11 @@ class Validations:
             raise ValidationError(_("Invalid Value."))
 
     @staticmethod
+    def validate_tac(val):
+        if val.isdigit() is False:
+            raise ValidationError(_("Not a valid integer."))
+
+    @staticmethod
     def validate_username(val):
         if val is None or len(val) == 0 or val == "":
             raise ValidationError(_("Enter username."))
