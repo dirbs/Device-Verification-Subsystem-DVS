@@ -1,4 +1,5 @@
 from app import db
+from sqlalchemy import desc
 from ..models.summary import Summary
 
 
@@ -61,6 +62,7 @@ class Request(db.Model):
                         summary = Summary.find_by_id(data['summary_id'])
                         resp = {**data, **summary}
                         records.append(resp)
+                records = sorted(records, key=lambda k: k['start_time'], reverse=True)
                 return records
             else:
                 return None
