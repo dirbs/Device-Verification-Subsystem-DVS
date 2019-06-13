@@ -61,7 +61,7 @@ global:
   ImeiBatchSize: 1000
 
   # variables to be configured
-  HelpUrl: 'dirbs.net.pk/help'
+  HelpUrl: 'example.com/help'
 
   # minimum and maximum file content length
   MinFileContent: 1
