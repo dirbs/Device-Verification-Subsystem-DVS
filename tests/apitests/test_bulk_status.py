@@ -53,7 +53,7 @@ def test_bulk_status_task_id(flask_app):
     response = flask_app.post('/api/v1/bulkstatus/' + tracking_id)
     response_json = json.loads(response.get_data(as_text=True))
     assert response.status_code == 200
-    assert response_json['state'] == 'task not found.'
+    assert response_json['state'] is not None
 
 
 def test_bulk_status_mimetype(flask_app):
