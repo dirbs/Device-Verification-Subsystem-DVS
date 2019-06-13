@@ -194,3 +194,9 @@ msgstr "No es un número entero válido."
 msgid "FAILURE"
 msgstr "FRACASO"
 
+msgid "Enter username."
+msgstr "Introduzca su nombre de usuario."
+
+msgid "Enter userid."
+msgstr "Introduzca ID de usuario."
+

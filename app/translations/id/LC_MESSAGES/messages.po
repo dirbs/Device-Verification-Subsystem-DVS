@@ -191,3 +191,9 @@ msgstr "Tidak bilangan bulat yang valid."
 msgid "FAILURE"
 msgstr "KEGAGALAN"
 
+msgid "Enter username."
+msgstr "Masukkan nama pengguna."
+
+msgid "Enter userid."
+msgstr "Masukkan userid."
+

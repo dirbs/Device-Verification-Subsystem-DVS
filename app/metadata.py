@@ -1,7 +1,7 @@
 """
  SPDX-License-Identifier: BSD-4-Clause-Clear
 
- Copyright (c) 2018 Qualcomm Technologies, Inc.
+ Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
 
  All rights reserved.
 
@@ -20,7 +20,7 @@
 
  SPDX-License-Identifier: ZLIB-ACKNOWLEDGEMENT
 
- Copyright (c) 2018 Qualcomm Technologies, Inc.
+ Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
 
  This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable
  for any damages arising from the use of this software.
@@ -44,4 +44,4 @@
  POSSIBILITY OF SUCH DAMAGE.                                                               #
 """
 
-__version__ = '1.1.0'  # app version, need to change with the version release
+__version__ = '2.0.0'  # app version, need to change with the version release

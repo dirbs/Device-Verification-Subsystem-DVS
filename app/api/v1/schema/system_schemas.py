@@ -1,7 +1,7 @@
 """
  SPDX-License-Identifier: BSD-4-Clause-Clear
 
- Copyright (c) 2018 Qualcomm Technologies, Inc.
+ Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
 
  All rights reserved.
 
@@ -20,7 +20,7 @@
 
  SPDX-License-Identifier: ZLIB-ACKNOWLEDGEMENT
 
- Copyright (c) 2018 Qualcomm Technologies, Inc.
+ Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
 
  This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable
  for any damages arising from the use of this software.
@@ -93,8 +93,8 @@ class BulkSchema(Schema):
     """Marshmallow schema for bulk request."""
     file = fields.Str(description="Submit tsv/txt file path containing bulk IMEIs")
     tac = fields.Str(description="Enter 8 digit TAC", validate=Validations.validate_tac)
-    username = fields.Str(description="User name", required=True, validate=Validations.validate_username)
-    user_id = fields.Str(description="User id", required=True, validate=Validations.validate_user_id)
+    username = fields.Str(description="User name", validate=Validations.validate_username)
+    user_id = fields.Str(description="User id", validate=Validations.validate_user_id)
 
     @property
     def fields_dict(self):
