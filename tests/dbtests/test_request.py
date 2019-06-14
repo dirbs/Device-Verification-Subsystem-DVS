@@ -44,4 +44,28 @@
  POSSIBILITY OF SUCH DAMAGE.                                                               #
 """
 
-from app.api.v1.routes import *
+from app.api.v1.models.request import Request
+from app.api.v1.models.summary import Summary
+
+
+def test_request_insert():
+    """Test comments insertion"""
+    summary_data = {
+        "tracking_id": '1234567-asdfgh-890123',
+        "input": '67890123',
+        "input_type": "tac",
+        "status": 'PENDING'
+    }
+    summary_record = Summary.create(summary_data)
+    assert summary_record is not None
+
+    request_data = {
+        "username": 'username',
+        "user_id": 'user_id',
+        "summary_id": summary_record
+    }
+    resp = Request.create(request_data)
+    assert resp is None
+
+    result = Request.find(request_data['summary_id'], request_data['user_id'])
+    assert result is not None

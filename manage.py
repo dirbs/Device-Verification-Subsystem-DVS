@@ -44,4 +44,18 @@
  POSSIBILITY OF SUCH DAMAGE.                                                               #
 """
 
-from app.api.v1.routes import *
+"""This modules manages database migration commands."""
+
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
+
+# noinspection PyUnresolvedReferences
+from app.api.v1.models import *
+from app import app, db
+
+migrate = Migrate(app, db)
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
+if __name__ == '__main__':
+    manager.run()

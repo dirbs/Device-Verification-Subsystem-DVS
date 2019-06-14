@@ -1,0 +1,202 @@
+# Spanish translations for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-05-02 14:34+0500\n"
+"PO-Revision-Date: 2019-05-02 15:22+0500\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: es\n"
+"Language-Team: es <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: app/api/v1/resources/admin.py:66
+msgid "Failed to retrieve IMEI response from core system."
+msgstr "No se pudo recuperar la respuesta de IMEI del sistema central."
+
+#: app/api/v1/resources/admin.py:71
+msgid "Failed to retrieve full status."
+msgstr "No se pudo recuperar el estado completo."
+
+#: app/api/v1/resources/common.py:46
+msgid "Compliant report not found."
+msgstr "Cumple informe no se encuentra."
+
+#: app/api/v1/resources/common.py:58
+msgid "task not found."
+msgstr "tarea que no se encuentra."
+
+#: app/api/v1/resources/common.py:64
+msgid "PENDING"
+msgstr "PENDIENTE"
+
+#: app/api/v1/resources/common.py:74
+msgid "Processing Failed."
+msgstr "Error de procesamiento."
+
+#: app/api/v1/resources/common.py:84
+msgid "Welcome to DVS"
+msgstr "Bienvenido a DVS"
+
+#: app/api/v1/resources/dvs_bulk.py:89 app/api/v1/resources/dvs_bulk.py:148
+#: app/api/v1/resources/dvs_bulk.py:172
+msgid "You can track your request using this id"
+msgstr "Puede hacer un seguimiento de su solicitud a través de este id"
+
+#: app/api/v1/resources/dvs_bulk.py:98
+#, python-format
+msgid "File must have minimum %(min)s or maximum %(max)s IMEIs."
+msgstr "El archivo debe tener un mínimo% (min) s o máximo% (max) s IMEI."
+
+#: app/api/v1/resources/dvs_bulk.py:100
+msgid "System only accepts tsv/txt files."
+msgstr "Sistema sólo acepta archivos TSV / txt."
+
+#: app/api/v1/resources/dvs_bulk.py:102
+msgid "No file selected."
+msgstr "Ningún archivo seleccionado."
+
+#: app/api/v1/resources/dvs_bulk.py:122
+msgid "You're request is already in process cannot process another request with same data. Track using this id,"
+msgstr "Eres petición ya está en proceso no puede procesar una nueva solicitud con los mismos datos. Rastrear el uso de esta identificación,"
+
+#: app/api/v1/resources/dvs_bulk.py:129
+msgid "You're request is completed. Track using this id,"
+msgstr "Eres solicitud se ha completado. Rastrear el uso de esta identificación,"
+
+#: app/api/v1/resources/dvs_bulk.py:177
+msgid "Invalid TAC, Enter 8 digit TAC."
+msgstr "Inválida TAC, Enter 8 dígitos TAC."
+
+#: app/api/v1/resources/dvs_bulk.py:179
+msgid "Upload file or enter TAC."
+msgstr "Cargar el archivo o introduzca TAC."
+
+#: app/api/v1/resources/dvs_bulk.py:183
+msgid "Failed to verify bulk imeis."
+msgstr "No se pudo verificar imeis a granel."
+
+#: app/api/v1/resources/public.py:77
+msgid "Failed to retrieve IMEI status from core system."
+msgstr "No se pudo obtener el estado de IMEI del sistema central."
+
+#: app/api/v1/resources/public.py:80
+msgid "ReCaptcha Failed!"
+msgstr "ReCaptcha Error!"
+
+#: app/api/v1/resources/public.py:84
+msgid "Failed to retrieve basic status."
+msgstr "No se pudo recuperar el estado básico."
+
+#: app/api/v1/resources/public.py:127
+msgid "CORE connected successfully."
+msgstr "NÚCLEO conectado correctamente."
+
+#: app/api/v1/resources/public.py:131 app/api/v1/resources/public.py:135
+msgid "CORE connection failed."
+msgstr "NÚCLEO conexión falló."
+
+#: app/api/v1/resources/public.py:139
+msgid "Database connected successfully"
+msgstr "Base de datos conectado con éxito"
+
+#: app/api/v1/resources/public.py:141
+msgid "Database connection failed"
+msgstr "conexión de base no"
+
+#: app/api/v1/schema/validations.py:40
+msgid "IMEI is invalid. Enter 16 digit IMEI."
+msgstr "IMEI no es válido. Introducir 16 dígitos IMEI."
+
+msgid "SUCCESS"
+msgstr "ÉXITO"
+
+msgid "FAILURE"
+msgstr "FRACASO"
+
+msgid "Missing data for required field."
+msgstr "Los datos que faltan para el campo requerido."
+
+msgid "Enter IMEI."
+msgstr "Introducir el IMEI."
+
+msgid "Invalid Value."
+msgstr "Valor no válido."
+
+msgid "Please enter user credentials"
+msgstr "Por favor, introduzca las credenciales de usuario"
+
+msgid "Please select either file or tac you cannot select both."
+msgstr "Por favor, seleccione el archivo o tac no se pueden seleccionar ambos."
+
+msgid "Username is invalid. Does not match the selected language or invalid format."
+msgstr "Nombre de usuario invalido. No coincide con el idioma seleccionado o formato no válido."
+
+msgid "File contains malformed content."
+msgstr "El archivo contiene contenido mal formado."
+
+msgid "No requests recorded for this user."
+msgstr "No hay solicitudes registradas para este usuario."
+
+msgid "Your device is stolen"
+msgstr "Tu dispositivo es robado"
+
+msgid "Your device is not registered"
+msgstr "Su dispositivo no está registrado"
+
+msgid "Your device stolen report is pending"
+msgstr "El informe de su dispositivo robado está pendiente"
+
+msgid "Provisionally non compliant"
+msgstr "Provisionalmente no conforme"
+
+msgid "Non compliant"
+msgstr "No conforme"
+
+msgid "Provisionally Compliant"
+msgstr "Provisionalmente Cumple"
+
+msgid "Compliant (Active)"
+msgstr "Cumple (Activo)"
+
+msgid "Compliant (Inactive)"
+msgstr "Cumple (Inactivo)"
+
+msgid "Pending report verification"
+msgstr "Verificación de informe pendiente"
+
+msgid "No report"
+msgstr "No informe"
+
+msgid "Verified lost"
+msgstr "Verificado perdido"
+
+msgid "Pending Registration"
+msgstr "Inscripción pendiente"
+
+msgid "Not registered"
+msgstr "No registrado"
+
+msgid "Registered"
+msgstr "Registrado"
+
+msgid "Not a valid integer."
+msgstr "No es un número entero válido."
+
+msgid "FAILURE"
+msgstr "FRACASO"
+
+msgid "Enter username."
+msgstr "Introduzca su nombre de usuario."
+
+msgid "Enter userid."
+msgstr "Introduzca ID de usuario."
+

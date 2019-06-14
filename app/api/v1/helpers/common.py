@@ -1,31 +1,52 @@
-#######################################################################################################################
-#                                                                                                                     #
-# Copyright (c) 2018 Qualcomm Technologies, Inc.                                                                      #
-#                                                                                                                     #
-# All rights reserved.                                                                                                #
-#                                                                                                                     #
-# Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the      #
-# limitations in the disclaimer below) provided that the following conditions are met:                                #
-# * Redistributions of source code must retain the above copyright notice, this list of conditions and the following  #
-#   disclaimer.                                                                                                       #
-# * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the         #
-#   following disclaimer in the documentation and/or other materials provided with the distribution.                  #
-# * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or       #
-#   promote products derived from this software without specific prior written permission.                            #
-#                                                                                                                     #
-# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED  #
-# BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED #
-# TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT      #
-# SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR   #
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES LOSS OF USE,      #
-# DATA, OR PROFITS OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,      #
-# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,   #
-# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
-#                                                                                                                     #
-#######################################################################################################################
+"""
+ SPDX-License-Identifier: BSD-4-Clause-Clear
+
+ Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
+
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
+ limitations in the disclaimer below) provided that the following conditions are met:
+
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+   disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+   disclaimer in the documentation and/or other materials provided with the distribution.
+ * All advertising materials mentioning features or use of this software, or any deployment of this software, or
+   documentation accompanying any distribution of this software, must display the trademark/logo as per the details
+   provided here: https://www.qualcomm.com/documents/dirbs-logo-and-brand-guidelines
+ * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or promote
+   products derived from this software without specific prior written permission.
+
+ SPDX-License-Identifier: ZLIB-ACKNOWLEDGEMENT
+
+ Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
+
+ This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable
+ for any damages arising from the use of this software.
+
+ Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter
+ it and redistribute it freely, subject to the following restrictions:
+
+ * The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If
+   you use this software in a product, an acknowledgment is required by displaying the trademark/logo as per the details
+   provided here: https://www.qualcomm.com/documents/dirbs-logo-and-brand-guidelines
+ * Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+ * This notice may not be removed or altered from any source distribution.
+
+ NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY
+ THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.                                                               #
+"""
 
 from app import app
 import requests
+from flask_babel import _
 
 
 class CommonResources:
@@ -51,16 +72,16 @@ class CommonResources:
         try:
             if status == 'Compliant' or status == 'Provisionally Compliant':
                 if seen_with:
-                    resp['status'] = status + ' (Active)'
+                    resp['status'] = _(status + ' (Active)')
                 else:
-                    resp['status'] = status + ' (Inactive)'
+                    resp['status'] = _(status + ' (Inactive)')
 
                 if status_type == "bulk":
                     return resp
                 else:
                     return {"compliant": resp}
             else:
-                resp['status'] = status
+                resp['status'] = _(status)
                 resp['block_date'] = block_date
                 if status_type == "basic":
                     resp['inactivity_reasons'] = CommonResources.populate_reasons(blocking_condition, reason_list)
@@ -87,20 +108,20 @@ class CommonResources:
 
             if reg_status:  # device's registration request is pending
                 if stolen_status:  # device's stolen request pending
-                    status = CommonResources.populate_status(status, 'Provisionally non compliant', status_type, blocking_conditions, ['Your device is stolen report is pending'], imei=imei, block_date=block_date)
+                    status = CommonResources.populate_status(status, 'Provisionally non compliant', status_type, blocking_conditions, [_('Your device stolen report is pending')], imei=imei, block_date=block_date)
                 elif stolen_status is False:  # device is stolen
-                    status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, ['Your device is stolen'], imei=imei, block_date=block_date)
+                    status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, [_('Your device is stolen')], imei=imei, block_date=block_date)
                 else:  # device is not stolen
                     status = CommonResources.populate_status(status, 'Provisionally Compliant', status_type)
             elif reg_status is None:  # device is not registered
-                status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, ['Your device is not registered'], imei=imei, block_date=block_date)
+                status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, [_('Your device is not registered')], imei=imei, block_date=block_date)
             else:  # device is registered
                 if stolen_status:  # stolen request is pending
-                    status = CommonResources.populate_status(status, 'Provisionally non compliant', status_type, blocking_conditions, ['Your device stolen report is pending'], imei=imei, block_date=block_date)
+                    status = CommonResources.populate_status(status, 'Provisionally non compliant', status_type, blocking_conditions, [_('Your device stolen report is pending')], imei=imei, block_date=block_date)
                 elif stolen_status is None:  # device is not stolen
                     status = CommonResources.populate_status(status, 'Compliant', status_type, seen_with=seen_with)
                 else:  # stolen device
-                    status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, ['Your device is stolen'], imei=imei, block_date=block_date)
+                    status = CommonResources.populate_status(status, 'Non compliant', status_type, blocking_conditions, [_('Your device is stolen')], imei=imei, block_date=block_date)
             return status
         except Exception as error:
             raise error
@@ -168,18 +189,18 @@ class CommonResources:
 
         if status_type == "stolen":
             if status['provisional_only']:
-                return "Pending report verification"
+                return _("Pending report verification")
             elif status['provisional_only'] is None:
-                return "No report"
+                return _("No report")
             else:
-                return "Verified lost"
+                return _("Verified lost")
         else:
             if status['provisional_only']:
-                return "Pending Registration."
+                return _("Pending Registration")
             elif status['provisional_only'] is None:
-                return "Not registered"
+                return _("Not registered")
             else:
-                return "Registered"
+                return _("Registered")
 
     @staticmethod
     def subscribers(imei, start, limit):

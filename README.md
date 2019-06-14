@@ -1,50 +1,52 @@
-SPDX-License-Identifier: BSD-3-Clause-Clear
+### SPDX-License-Identifier: BSD-4-Clause-Clear
 
-Copyright (c) 2018 Qualcomm Technologies, Inc.
+### Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
 
-All rights reserved.
+ All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the limitations in the disclaimer below) provided that the following conditions are met:
+ Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
+ limitations in the disclaimer below) provided that the following conditions are met:
 
-Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+   disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+   disclaimer in the documentation and/or other materials provided with the distribution.
+ * All advertising materials mentioning features or use of this software, or any deployment of this software, or
+   documentation accompanying any distribution of this software, must display the trademark/logo as per the details
+   provided here: https://www.qualcomm.com/documents/dirbs-logo-and-brand-guidelines
+ * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or promote
+   products derived from this software without specific prior written permission.
 
-Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+### SPDX-License-Identifier: ZLIB-ACKNOWLEDGEMENT
 
-Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+### Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
 
-NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable
+ for any damages arising from the use of this software.
 
-## Device Verification System (DVS)
+ Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter
+ it and redistribute it freely, subject to the following restrictions:
+
+ * The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If
+   you use this software in a product, an acknowledgment is required by displaying the trademark/logo as per the details
+   provided here: https://www.qualcomm.com/documents/dirbs-logo-and-brand-guidelines
+ * Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+ * This notice may not be removed or altered from any source distribution.
+
+ NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY
+ THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.   
+
+### Device Verification System (DVS)
 Device Verification System (DVS) that is part of the Device Identification,
 Registration and Blocking (DIRBS) system.
 
-### Documentation
-
-[DVS-API-Installation-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS-API-Installation-Guide-1.0.0.pdf)<br />
-[DVS-SPA-Installation-Guide-Authority-App-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS-SPA-Installation-Guide-Authority-App-1.0.0.pdf)<br />
-[DVS-SPA-Installation-Guide-Public-App-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS-SPA-Installation-Guide-Public-App-1.0.0.pdf)<br />
-[DVS-Authority-Web-App-UserGuide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS-Authority-Web-App-UserGuide-1.0.0.pdf)<br />
-[DVS-Public-Web-App- User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS-Public-Web-App-%20User-Guide-1.0.0.pdf)<br />
-[DVS-Developer-Guide-iOS-App-Authority-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS-Developer-Guide-iOS-App-Authority-1.0.0.pdf)<br />
-[DVS-Developer-Guide-iOS-App-Public-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS-Developer-Guide-iOS-App-Public-1.0.0.pdf)<br />
-[DVS-Developer-Guide-Android-App-Authority-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS-Developer-Guide-Android-App-Authority-1.0.0.pdf)<br />
-[DVS-Developer-Guide-Android-App-Public-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS-Developer-Guide-Android-App-Public-1.0.0.pdf)<br />
-[DVS-Authority-Mobile-App-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS-Authority-Mobile-App-User-Guide-1.0.0.pdf)<br />
-[DVS -Public-Mobile- App-User-Guide-1.0.0.pdf](https://github.com/dirbs/Documentation/blob/master/Device-Verification-Subsystem/DVS%20-Public-Mobile-%20App-User-Guide-1.0.0.pdf)<br />
-
-### Frontend Application Repos
-
-[Device-Verification-Subsystem-Authority-Frontend](https://github.com/dirbs/Device-Verification-Subsystem-Authority-Frontend)<br />
-[Device-Verification-Subsystem-Public-Frontend](https://github.com/dirbs/Device-Verification-Subsystem-Public-Frontend)<br />
-
-### Mobile Application Repos
-
-[Device-Verification-Subsystem-Authority-Android](https://github.com/dirbs/Device-Verification-Subsystem-Authority-Android)<br />
-[Device-Verification-Subsystem-Public-Android](https://github.com/dirbs/Device-Verification-Subsystem-Public-Android)<br />
-[Device-Verification-Subsystem-Authority-iOS](https://github.com/dirbs/Device-Verification-Subsystem-Authority-iOS)<br />
-[Device-Verification-Subsystem-Public-iOS](https://github.com/dirbs/Device-Verification-Subsystem-Public-iOS)<br />
-
-### Directory structure
+##### Directory structure
 
 This repository contains code for **DVS** part of the **DIRBS**. It contains
 
@@ -53,9 +55,9 @@ This repository contains code for **DVS** part of the **DIRBS**. It contains
 * ``mock/`` -- Sample data files etc which are used in app to be reside here
 * ``tests/`` -- Unit test scripts and Data
 
-### Prerequisites
-In order to run a development environment, [Python 3.0+](https://www.python.org/download/releases/3.0/) 
-we assume is installed.
+##### Prerequisites
+In order to run a development environment, [Python 3.0+](https://www.python.org/download/releases/3.0/) and 
+[Postgresql10](https://www.postgresql.org/about/news/1786/) we assume that these are installed.
 
 We also assume that this repo is cloned from Github onto the local computer, it is assumed that 
 all commands mentioned in this guide are run from root directory of the project and inside
@@ -63,52 +65,70 @@ all commands mentioned in this guide are run from root directory of the project 
 
 On Windows, we assume that a Bash like shell is available (i.e Bash under Cygwin), with GNU make installed.
 
-### Starting a dev environment
+##### Starting a dev environment
 The easiest and quickest way to get started is to use local-only environment (i.e everything runs locally). To setup the local environment, follow the section below:
 
-### Setting up local dev environment
+##### Setting up local dev environment
 For setting up a local dev environment we assume that the ```prerequisites``` are met already. To setup a local 
 environment:
+* Create database using Postgresql (Name and credentials should be same as in [config](tests/unittest_data/config.ini))
 * Create virtual environment using **virtualenv** and activate it:
 ```bash
-$ pip install virtualenv
+pip3 install virtualenv 
+virtualenv venv
+source venv/bin/activate
 ```
-
-* Create a new virtual environment for the project
-```bash
-$ virtualenv venv
-```
-
-* Activate the virtual environment
-```bash
-$ source venv/bin/activate
-```
-
-* Install rabbitmq-server
-```bash
-$ sudo apt-get install rabbitmq-server
-```
-
-* Install the project requirements
-```bash
-$ pip install -r requirements.txt
-```
+Make sure the virtual environment is made using python3
 
 * Replace sample configuration in config.ini to similar configuration in tests/unittest_data/config.ini
 
 * Replace sample conditions in etc/conditions.yml to classification conditions configured in DIRBS core system
 
+* Create /reports folder in root directory
+
+* Run Database migrations using:
+
+```bash
+make install-db
+```
+
+This will automatically create and migrate database schemas and requirements.
+
+* Compile multi language encoded files
+```bash
+pybabel compile -d app/translations
+```
+
 * Start DVS development server using:
 ```bash
-python run.py
+make start-dev
 ```
 
 * Start celery worker
 ```bash
-$ celery -A app.celery worker --loglevel=info -B
+make start-celery
 ```
 
 * To run unit tests, run
 ```bash
-$ pytest -v
+$ make test
+```
+
+* To lint the code using pylint, simply run:
+
+```bash
+make lint
+```
+###Other useful commands
+
+* To install a fresh database:
+
+```bash
+make install-db
+```
+
+* To Upgrade already installed database:
+
+```bash
+make upgrade-db
 ```

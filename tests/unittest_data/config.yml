@@ -1,28 +1,47 @@
-#######################################################################################################################
-#                                                                                                                     #
-# Copyright (c) 2018 Qualcomm Technologies, Inc.                                                                      #
-#                                                                                                                     #
-# All rights reserved.                                                                                                #
-#                                                                                                                     #
-# Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the      #
-# limitations in the disclaimer below) provided that the following conditions are met:                                #
-# * Redistributions of source code must retain the above copyright notice, this list of conditions and the following  #
-#   disclaimer.                                                                                                       #
-# * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the         #
-#   following disclaimer in the documentation and/or other materials provided with the distribution.                  #
-# * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or       #
-#   promote products derived from this software without specific prior written permission.                            #
-#                                                                                                                     #
-# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED  #
-# BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED #
-# TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT      #
-# SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR   #
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES LOSS OF USE,      #
-# DATA, OR PROFITS OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,      #
-# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,   #
-# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                                  #
-#                                                                                                                     #
-#######################################################################################################################
+# SPDX-License-Identifier: BSD-4-Clause-Clear
+
+# Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
+
+# All rights reserved.
+
+# Redistribution and use in source and binary forms, with or without modification, are permitted (subject to the
+# limitations in the disclaimer below) provided that the following conditions are met:
+
+# * Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+#   disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+#   disclaimer in the documentation and/or other materials provided with the distribution.
+# * All advertising materials mentioning features or use of this software, or any deployment of this software, or
+#   documentation accompanying any distribution of this software, must display the trademark/logo as per the details
+#   provided here: https://www.qualcomm.com/documents/dirbs-logo-and-brand-guidelines
+# * Neither the name of Qualcomm Technologies, Inc. nor the names of its contributors may be used to endorse or promote
+#   products derived from this software without specific prior written permission.
+
+# SPDX-License-Identifier: ZLIB-ACKNOWLEDGEMENT
+
+# Copyright (c) 2018-2019 Qualcomm Technologies, Inc.
+
+# This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable
+# for any damages arising from the use of this software.
+
+# Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter
+# it and redistribute it freely, subject to the following restrictions:
+
+# * The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If
+#   you use this software in a product, an acknowledgment is required by displaying the trademark/logo as per the details
+#   provided here: https://www.qualcomm.com/documents/dirbs-logo-and-brand-guidelines
+# * Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+# * This notice may not be removed or altered from any source distribution.
+
+# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY
+# THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+# BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+                                                      #
 
 # dvs global configurations
 global:
@@ -36,7 +55,7 @@ global:
 
   # minimum and maximum imei range
   MinImeiRange: '000000'
-  MaxImeiRange: 10000  # change it to 1000000 after testing
+  MaxImeiRange: 1000  # TODO: change after testing
 
   NoOfThreads: 10
   ImeiBatchSize: 1000
@@ -49,10 +68,13 @@ global:
   MaxFileContent: 1000000
 
   # delete older files time
-  Time: 24  # time set to 24 hours
+  CompliantReportDeletionTime: 360  # time set to 15 days * 24 hours
 
   # retry count for bulk process
   Retry: 10
+
+  #retention period for database records (days)
+  RetentionTime: 15
 
 # allowed file extensions
 allowed_file_types:
@@ -76,4 +98,13 @@ celery:
   RpcUrl: 'rpc://'
   RpcBackend: 'rpc://'
 
-  CeleryTasks: ['app.api.v1.helpers.scheduled', 'app.api.v1.helpers.bulk_common']
+  CeleryTasks: ['app.api.v1.helpers.tasks']
+
+language_support:
+  languages: ['id', 'es']
+  default: 'en'
+
+regex:
+  id: '^[A-Za-z\xAA\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02B8\u02E0-\u02E4\u1D00-\u1D25\u1D2C-\u1D5C\u1D62-\u1D65\u1D6B-\u1D77\u1D79-\u1DBE\u1E00-\u1EFF\u2071\u207F\u2090-\u209C\u212A\u212B\u2132\u214E\u2160-\u2188\u2C60-\u2C7F\uA722-\uA787\uA78B-\uA78E\uA790-\uA7AD\uA7B0\uA7B1\uA7F7-\uA7FF\uAB30-\uAB5A\uAB5C-\uAB5F\uAB64\uFB00-\uFB06\uFF21-\uFF3A\uFF41-\uFF5A\s]{1,1000}$'
+  es: '^[A-Za-z\xAA\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02B8\u02E0-\u02E4\u1D00-\u1D25\u1D2C-\u1D5C\u1D62-\u1D65\u1D6B-\u1D77\u1D79-\u1DBE\u1E00-\u1EFF\u2071\u207F\u2090-\u209C\u212A\u212B\u2132\u214E\u2160-\u2188\u2C60-\u2C7F\uA722-\uA787\uA78B-\uA78E\uA790-\uA7AD\uA7B0\uA7B1\uA7F7-\uA7FF\uAB30-\uAB5A\uAB5C-\uAB5F\uAB64\uFB00-\uFB06\uFF21-\uFF3A\uFF41-\uFF5A\s]{1,1000}$'
+  en: '^[A-Za-z\s]{1,1000}$'

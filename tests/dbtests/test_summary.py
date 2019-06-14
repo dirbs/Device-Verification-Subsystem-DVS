@@ -44,4 +44,49 @@
  POSSIBILITY OF SUCH DAMAGE.                                                               #
 """
 
-from app.api.v1.routes import *
+from app.api.v1.models.summary import Summary
+
+
+def test_summary_insert():
+    """Test summary insertion"""
+    summary_data = {
+        "tracking_id": '1234567-asdfgh-890123',
+        "input": '67890123',
+        "input_type": "tac",
+        "status": 'PENDING'
+    }
+    summary_record = Summary.create(summary_data)
+    assert summary_record is not None
+
+    result = Summary.find_by_input("67890123")
+    assert result is not None
+
+    result = Summary.find_by_trackingid("1234567-asdfgh-890123")
+    assert result is not None
+
+
+def test_summary_update():
+    response = {
+        "state": "SUCCESS",
+        "result": {"count_per_condition":
+                       {"gsma_not_found": 0,
+                        "local_stolen": 0,
+                        "duplicate_daily_avg": 0,
+                        "duplicate_mk1": 0,
+                        "malformed_imei": 0,
+                        "not_on_registration_list": 0},
+                   "verified_imei": 8,
+                   "non_complaint": 8,
+                   "no_condition": 7,
+                   "unprocessed_imeis": 0,
+                   "pending_registration": 0,
+                   "compliant_report_name": "compliant_report707a6838-0ea8-4a12-a8ff-bd6f36d5af5e.tsv",
+                   "invalid_imei": 3,
+                   "pending_stolen_verification": 0}
+    }
+    data = {"response": response, "task_id": "1234567-asdfgh-890123"}
+    resp = Summary.update("67890123", response['state'], data)
+    assert resp is None
+
+    resp = Summary.find_by_input("67890123")
+    assert resp['status'] == 'SUCCESS'
