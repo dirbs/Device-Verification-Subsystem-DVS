@@ -82,7 +82,7 @@ class CommonResources:
                     return {"compliant": resp}
             else:
                 resp['status'] = _(status)
-                resp['block_date'] = block_date
+                resp['block_date'] = _(block_date)
                 if status_type == "basic":
                     resp['inactivity_reasons'] = CommonResources.populate_reasons(blocking_condition, reason_list)
                     resp['link_to_help'] = app.config['system_config']['global']['HelpUrl']

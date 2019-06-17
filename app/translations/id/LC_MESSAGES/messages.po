@@ -197,3 +197,5 @@ msgstr "Masukkan nama pengguna."
 msgid "Enter userid."
 msgstr "Masukkan userid."
 
+msgid "N/A"
+msgstr "T/A"
