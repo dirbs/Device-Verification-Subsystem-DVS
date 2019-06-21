@@ -66,7 +66,7 @@ class AdminBulk(MethodResource):
     """Flask resource for DVS bulk request."""
 
     @doc(description="Verify Bulk IMEIs via file/tac request", tags=['bulk'])
-    @use_kwargs(BulkSchema().fields_dict, locations=['form', 'headers'])
+    @use_kwargs(BulkSchema().fields_dict, locations=['form'])
     def post(self, **args):
         """Start processing DVS bulk request in background (calls celery task)."""
         try:

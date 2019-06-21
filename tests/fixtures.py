@@ -128,6 +128,7 @@ def db(app):
     yield db
 
     # teardown database
+    db.session.remove()
     db.drop_all()
 
 
