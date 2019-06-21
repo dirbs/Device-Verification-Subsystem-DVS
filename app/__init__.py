@@ -150,7 +150,7 @@ try:
 
     @babel.localeselector
     def get_locale():
-        return request.accept_languages.best_match(app.config['LANGUAGES'])
+        return app.config['BABEL_DEFAULT_LOCALE']
 
     # application blueprints registration
     from app.api.v1 import *
